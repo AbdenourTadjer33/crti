@@ -33,7 +33,5 @@ class LoginController extends Controller
             'token' => $user->createToken($request->input('device_name', $request->ip())),
             'user' => $user,
         ]);
-        $user->createToken($request->device_name)->plainTextToken;
-
     }
 }
