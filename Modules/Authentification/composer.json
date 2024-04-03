@@ -1,10 +1,10 @@
 {
-    "name": "nwidart/authentification",
+    "name": "mazzex/authentification",
     "description": "",
     "authors": [
         {
-            "name": "Nicolas Widart",
-            "email": "n.widart@gmail.com"
+            "name": "Abdenour Tadjer",
+            "email": "a.tadjer@gmail.com"
         }
     ],
     "extra": {
