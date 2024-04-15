@@ -2,14 +2,13 @@
 
 namespace Modules\Permission\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Modules\Permission\Models\Permission;
-use Modules\Permission\Http\Requests\StoreRequest;
-use Modules\Permission\Http\Requests\UpdateRequest;
+use Modules\Permission\Http\Requests\Permission\StoreRequest;
+use Modules\Permission\Http\Requests\Permission\UpdateRequest;
+
 
 class PermissionController extends Controller
 {
@@ -17,11 +16,10 @@ class PermissionController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): JsonResponse
     {
-        $permissions = Permission::all();
         return $this->success([
-            'permissions' => $permissions
+            'permissions' => Permission::getPermissions(),
         ]);
     }
 
@@ -33,8 +31,6 @@ class PermissionController extends Controller
         $permission = DB::transaction(
             fn () =>
             Permission::create([
-                'name' => $request->input('name'),
-                'description' => $request->input('description'),
                 'model' => $request->input('model'),
                 'action' => $request->input('action'),
             ])
@@ -48,60 +44,38 @@ class PermissionController extends Controller
     /**
      * Show the specified resource.
      */
-    public function show($permission)
+    public function show(Permission $permission)
     {
-        $permission = Permission::where('id', $permission)->first();
-        if ($permission) {
-            return $this->success([
-                'permission' => $permission
-            ]);
-        } else {
-            return $this->error('Permission not found', 404);
-        }
+        return $this->success([
+            'permission' => $permission
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateRequest $request, $permission):JsonResponse
+    public function update(UpdateRequest $request, Permission $permission): JsonResponse
     {
-        $permissionToUpdate = Permission::where('id', $permission)->first();
+        $permission = DB::transaction(
+            fn () =>
+            $permission->update([
+                'model' => $request->input('model') ?: $permission->model,
+                'action' => $request->input('action') ?: $permission->action,
+            ])
+        );
 
-        if (!$permissionToUpdate) {
-            return $this->error('Permission not found', 404);
-        }
-
-        DB::transaction(function () use ($request, $permissionToUpdate) {
-            $permissionToUpdate->update([
-                'name' => $request->input('name'),
-                'description' => $request->input('description'),
-                'model' => $request->input('model'),
-                'action' => $request->input('action')
-            ]);
-        });
-
-        return $this->success([
-            'permission' => $permissionToUpdate
-        ]);
-
+        return $this->success(message: 'permission updated successfully');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($permission)
+    public function destroy(Permission $permission)
     {
-        $permissionToDelete = Permission::where('id', $permission)->first();
-        if (!$permissionToDelete) {
-            return $this->error('permission not found', 404);
+        if (!DB::transaction(fn () => $permission->delete())) {
+            return $this->error(code: 500, message: "something went wrong");
         }
-
-        DB::transaction(function () use ($permissionToDelete){
-            $permissionToDelete->delete();
-        });
-
-        return $this->success([
-            'message' => 'permission deleted succesfully'
-        ]);
+        
+        return $this->success(message: 'permission deleted successfully');
     }
 }

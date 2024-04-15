@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (config('cache.default') !== "database") {
+            return;
+        }
+
         Schema::create('cache', function (Blueprint $table) {
             $table->string('key')->primary();
             $table->mediumText('value');
