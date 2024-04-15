@@ -9,14 +9,21 @@
 
 This trait provides methods for handling permissions associated with a model.
 
-- loadPermissions 
-- attachPermissions
-- givePermissionsTo
-- assignPermission
-- hasPermissions
-- hasAnyPermission
-- hasPermissionTo
-- revokePermissions
+- permissions: Defines a many-to-many relationship for permissions.
+- loadPermissions: Loads permissions associated with the model and sets them to the permissions relationship.
+- directPermissions: Retrieves direct permissions of the model.
+- getAllPermissions: Retrieves all permissions associated with the model, including direct permissions and permissions inherited from roles.
+- attachPermissions: Attaches specified permissions to the model.
+- givePermissionsTo: Assigns specified permissions to the model.
+- assignPermission: Assigns a single permission to the model.
+- hasPermissions: Checks if the model has all of the provided permissions.
+- hasDirectPermissions: Checks if the model has all of the provided direct permissions.
+- hasAnyPermission: Checks if the model has any of the provided permissions.
+- hasAnyDirectPermission: Checks if the model has any of the provided direct permissions.
+- hasPermissionTo: Checks if the model has permission to a specific permission ID.
+- hasDirectPermissionTo: Checks if the model has direct permission to a specific permission ID.
+- revokePermissions: Revokes specified permissions from the model.
+- revokePermission: Revokes a single permission from the model.
 
 ## Controller
 

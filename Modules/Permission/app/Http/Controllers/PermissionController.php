@@ -9,6 +9,7 @@ use Modules\Permission\Models\Permission;
 use Modules\Permission\Http\Requests\Permission\StoreRequest;
 use Modules\Permission\Http\Requests\Permission\UpdateRequest;
 
+
 class PermissionController extends Controller
 {
 
