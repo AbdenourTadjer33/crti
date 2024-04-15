@@ -11,6 +11,5 @@ class AuthentificationDatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // $this->call([]);
     }
 }
