@@ -2,13 +2,12 @@
 
 namespace Modules\Permission\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Modules\Permission\Models\Permission;
-use Modules\Permission\Http\Requests\StoreRequest;
+use Modules\Permission\Http\Requests\Permission\StoreRequest;
+use Modules\Permission\Http\Requests\Permission\UpdateRequest;
 
 class PermissionController extends Controller
 {
@@ -16,11 +15,11 @@ class PermissionController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): JsonResponse
     {
-        //
-
-        return response()->json([]);
+        return $this->success([
+            'permissions' => Permission::getPermissions(),
+        ]);
     }
 
     /**
@@ -31,14 +30,12 @@ class PermissionController extends Controller
         $permission = DB::transaction(
             fn () =>
             Permission::create([
-                'name' => $request->input('name'),
-                'description' => $request->input('description'),
                 'model' => $request->input('model'),
                 'action' => $request->input('action'),
             ])
         );
 
-        return response()->json([
+        return $this->success([
             'permission' => $permission,
         ]);
     }
@@ -46,28 +43,38 @@ class PermissionController extends Controller
     /**
      * Show the specified resource.
      */
-    public function show($id)
+    public function show(Permission $permission)
     {
-        //
-
-        return response()->json([]);
+        return $this->success([
+            'permission' => $permission
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
+    public function update(UpdateRequest $request, Permission $permission): JsonResponse
     {
-        //
+        $permission = DB::transaction(
+            fn () =>
+            $permission->update([
+                'model' => $request->input('model') ?: $permission->model,
+                'action' => $request->input('action') ?: $permission->action,
+            ])
+        );
 
-        return response()->json([]);
+        return $this->success(message: 'permission updated successfully');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy(Permission $permission)
     {
-        return response()->json([]);
+        if (!DB::transaction(fn () => $permission->delete())) {
+            return $this->error(code: 500, message: "something went wrong");
+        }
+        
+        return $this->success(message: 'permission deleted successfully');
     }
 }
