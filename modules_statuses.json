@@ -1,5 +1,3 @@
 {
-    "Permission": true,
-    "Authentification": true,
-    "Test": true
+    "Unit": true
 }
