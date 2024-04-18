@@ -1,0 +1,30 @@
+{
+    "name": "mazzex/authentification",
+    "description": "",
+    "authors": [
+        {
+            "name": "Abdenour Tadjer",
+            "email": "a.tadjer@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Authentification\\": "app/",
+            "Modules\\Authentification\\Database\\Factories\\": "database/factories/",
+            "Modules\\Authentification\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\Authentification\\Tests\\": "tests/"
+        }
+    }
+}

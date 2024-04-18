@@ -1,3 +1,8 @@
 {
+<<<<<<< HEAD
     "Unit": true
+=======
+    "Permission": true,
+    "Authentification": true
+>>>>>>> f297048a9946a2b32fa76c522aa47e9f42c186be
 }

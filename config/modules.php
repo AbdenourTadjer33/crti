@@ -132,7 +132,7 @@ return [
 
             // app/Http/
             'controller' => ['path' => 'app/Http/Controllers', 'generate' => true],
-            'filter' => ['path' => 'app/Http/Middleware', 'generate' => false],
+            'filter' => ['path' => 'app/Http/Middleware', 'generate' => true],
             'request' => ['path' => 'app/Http/Requests', 'generate' => false],
 
             // config/
@@ -144,7 +144,7 @@ return [
             'factory' => ['path' => 'database/factories', 'generate' => true],
 
             // lang/
-            'lang' => ['path' => 'lang', 'generate' => false],
+            'lang' => ['path' => 'lang', 'generate' => true],
 
             // resource/
             'assets' => ['path' => 'resources/assets', 'generate' => true],
