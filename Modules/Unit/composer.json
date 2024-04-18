@@ -1,26 +1,38 @@
 {
+<<<<<<<< HEAD:Modules/Unit/composer.json
     "name": "nwidart/unit",
+========
+    "name": "foty/permission",
+>>>>>>>> f297048a9946a2b32fa76c522aa47e9f42c186be:Modules/Permission/composer.json
     "description": "",
     "authors": [
         {
-            "name": "Nicolas Widart",
-            "email": "n.widart@gmail.com"
+            "name": "Tadjer Abdenour",
+            "email": "a.tadjer@gmail.com"
         }
     ],
     "extra": {
         "laravel": {
             "providers": [],
-            "aliases": {
-
-            }
+            "aliases": {}
         }
     },
     "autoload": {
         "psr-4": {
+<<<<<<<< HEAD:Modules/Unit/composer.json
             "Modules\\Unit\\": "app/",
             "Modules\\Unit\\Database\\Factories\\": "database/factories/",
             "Modules\\Unit\\Database\\Seeders\\": "database/seeders/"
         }
+========
+            "Modules\\Permission\\": "app/",
+            "Modules\\Permission\\Database\\Factories\\": "database/factories/",
+            "Modules\\Permission\\Database\\Seeders\\": "database/seeders/"
+        },
+        "files": [
+            "app/helpers.php"
+        ]
+>>>>>>>> f297048a9946a2b32fa76c522aa47e9f42c186be:Modules/Permission/composer.json
     },
     "autoload-dev": {
         "psr-4": {

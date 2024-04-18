@@ -3,6 +3,7 @@
 namespace Modules\Unit\database\seeders;
 
 use Illuminate\Database\Seeder;
+use Modules\Permission\Models\Permission;
 
 class UnitDatabaseSeeder extends Seeder
 {
@@ -11,6 +12,6 @@ class UnitDatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // $this->call([]);
+        Permission::factory(10)->create();
     }
 }
