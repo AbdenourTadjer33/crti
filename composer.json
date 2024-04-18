@@ -16,7 +16,11 @@
         "predis/predis": "^2.0"
     },
     "require-dev": {
+<<<<<<< HEAD
+        "barryvdh/laravel-debugbar": "^3.13",
+=======
         "barryvdh/laravel-debugbar": "^3.12",
+>>>>>>> f297048a9946a2b32fa76c522aa47e9f42c186be
         "fakerphp/faker": "^1.23",
         "laravel/pint": "^1.13",
         "laravel/sail": "^1.26",
