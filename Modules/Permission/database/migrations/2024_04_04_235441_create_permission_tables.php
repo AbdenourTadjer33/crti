@@ -11,13 +11,27 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (!config('permission')) return;
+
         Schema::create(config('permission.table_names.permissions'), function (Blueprint $table) {
             $table->id();
             $table->string('model');
             $table->string('action');
+            $table->tinyInteger('type')->default(0);
             $table->timestamps();
 
             $table->unique(['model', 'action']);
+        });
+
+        Schema::create(config('permission.table_names.contexts'), function (Blueprint $table) {
+            $table->id();
+            $table->tinyInteger('type');
+            $table->foreignId(config('permission.columns.fk_permission'))
+                ->constrained(config('permission.table_names.permissions'))
+                ->cascadeOnDelete();
+
+            $table->nullableMorphs('context');
+            $table->timestamps();
         });
 
         Schema::create(config('permission.table_names.roles'), function (Blueprint $table) {
@@ -75,6 +89,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists(config('permission.table_names.role_permission'));
+        Schema::dropIfExists(config('permission.table_names.contexts'));
         Schema::dropIfExists(config('permission.table_names.model_has_permissions'));
         Schema::dropIfExists(config('permission.table_names.model_has_roles'));
         Schema::dropIfExists(config('permission.table_names.permissions'));

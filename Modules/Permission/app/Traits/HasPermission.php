@@ -3,12 +3,10 @@
 namespace Modules\Permission\Traits;
 
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use Modules\Permission\Models\Role;
 use Illuminate\Support\Facades\Cache;
 use Modules\Permission\Models\Permission;
 use Modules\Permission\PermissionRegistrar;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 /**
@@ -18,7 +16,8 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  */
 trait HasPermission
 {
-
+    use Relationships;
+    
     public static function bootHasPermission()
     {
         static::deleting(function ($model) {

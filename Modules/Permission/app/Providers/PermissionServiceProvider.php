@@ -6,8 +6,6 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
 use Modules\Permission\PermissionRegistrar;
-use Modules\Permission\Services\Service;
-use Modules\Permission\Services\PermissionService;
 
 class PermissionServiceProvider extends ServiceProvider
 {
@@ -37,6 +35,7 @@ class PermissionServiceProvider extends ServiceProvider
         $this->app->singleton(PermissionRegistrar::class, fn (Application $app) => new PermissionRegistrar);
     }
 
+    
     /**
      * Register commands in the format of Command::class
      */

@@ -13,22 +13,20 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Modules\Permission\Exceptions\PermissionAlreadyExists;
 use Modules\Permission\Database\Factories\PermissionFactory;
+use Modules\Permission\Enums\PermissionType;
 
 class Permission extends Model
 {
     use HasFactory, HasRole, RefreshPermissionCache;
 
+    protected $guarded = [];
+
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
         $this->table = config('permission.table_names.permissions') ?: parent::getTable();
-        $this->fillable([
-            'model',
-            'action',
-        ]);
         $this->casts = [
-            'created_at' => 'datetime', 
-            'updated_at' => 'datetime'
+            'type' => PermissionType::class
         ];
     }
 
@@ -66,20 +64,17 @@ class Permission extends Model
         );
     }
 
+    public function contexts(): HasMany
+    {
+        return $this->hasMany(Context::class, config('permission.columns.fk_permission'));
+    }
+
     public function users(): MorphToMany
     {
         return $this->morphedByMany(
             \App\Models\User::class,
             'modelable',
             config('permission.table_names.model_has_permissions'),
-            config('permission.columns.fk_permission'),
-        );
-    }
-
-    public function modelHasPermissions(): HasMany
-    {
-        return $this->hasMany(
-            config('permission.models.hasPermission'),
             config('permission.columns.fk_permission'),
         );
     }

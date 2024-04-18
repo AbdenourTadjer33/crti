@@ -5,6 +5,7 @@ namespace Modules\Permission\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Modules\Permission\Enums\PermissionType;
 use Modules\Permission\Models\Permission;
 use Modules\Permission\Http\Requests\Permission\StoreRequest;
 use Modules\Permission\Http\Requests\Permission\UpdateRequest;
@@ -28,13 +29,19 @@ class PermissionController extends Controller
      */
     public function store(StoreRequest $request): JsonResponse
     {
-        $permission = DB::transaction(
-            fn () =>
-            Permission::create([
+        $permission = DB::transaction(function () use ($request) {
+            $permission = Permission::create([
                 'model' => $request->input('model'),
                 'action' => $request->input('action'),
-            ])
-        );
+                'type' => $request->input('type'),
+            ]);
+
+            if ($permission->type != PermissionType::Context->value) {
+                return $permission;
+            }
+
+            return $permission->contexts()->createMany($request->input('contexts'));
+        });
 
         return $this->success([
             'permission' => $permission,
@@ -75,7 +82,7 @@ class PermissionController extends Controller
         if (!DB::transaction(fn () => $permission->delete())) {
             return $this->error(code: 500, message: "something went wrong");
         }
-        
+
         return $this->success(message: 'permission deleted successfully');
     }
 }

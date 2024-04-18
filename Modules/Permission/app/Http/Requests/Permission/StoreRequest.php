@@ -4,6 +4,7 @@ namespace Modules\Permission\Http\Requests\Permission;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Modules\Permission\Enums\PermissionType;
 
 class StoreRequest extends FormRequest
 {
@@ -22,7 +23,12 @@ class StoreRequest extends FormRequest
     {
         return [
             'model' => ['required', 'string'], 
-            'action' => ['required', Rule::in(['create', 'edit', 'read', 'delete'])]
+            'action' => ['required', Rule::in(['create', 'edit', 'read', 'delete'])],
+            'type' => ['required', Rule::enum(PermissionType::class)],
+            'contexts' => [Rule::excludeIf(fn () => $this->input('type') != 1), 'array'],
+            'contexts.*' => [Rule::excludeIf(fn () => $this->input('type') != 1), 'array'],
+            'contexts.*.type' => [Rule::excludeIf(fn () => $this->input('type') != 1)],
+            'contexts.*.'
         ];
     }
 }

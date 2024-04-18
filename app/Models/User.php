@@ -3,16 +3,19 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
+
+use Illuminate\Database\Eloquent\Collection;
 use Laravel\Sanctum\HasApiTokens;
-use Modules\Permission\Models\Permission;
-use Modules\Permission\Traits\HasPermission;
 use Modules\Permission\Traits\HasRole;
+use Illuminate\Notifications\Notifiable;
+use Modules\Permission\Traits\HasPermission;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Collection as SupportCollection;
+use ReflectionClass;
 
 class User extends Authenticatable
 {
@@ -52,5 +55,22 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function getRelationships(): SupportCollection
+    {
+        return collect(get_class_methods($this))->filter(function ($method) {
+            $reflection = new ReflectionClass($this);
+            $method = $reflection->getMethod($method);
+            $returnType = $method->getReturnType();
+
+
+
+            $pattern = "Illuminate\Database\Eloquent\Relations\{*}";
+            if ($returnType) {
+                dump($returnType, $returnType->getName());
+            }
+            // return $returnType && $returnType->getName() === 'Illuminate\Database\Eloquent\Relations\Relation';
+        });
     }
 }

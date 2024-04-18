@@ -5,13 +5,14 @@ return [
 
     'models' => [
         'permission' => \Modules\Permission\Models\Permission::class,
-        'hasPermission' => \Modules\Permission\Models\ModelHasPermission::class,
         'role' => \Modules\Permission\Models\Role::class,
         'rolePermission' => \Modules\Permission\Models\RolePermission::class,
+        'context' => \Modules\Permission\Models\Context::class,
     ],
 
     'table_names' => [
         'permissions' => 'permissions',
+        'contexts' => 'contexts', 
         'roles' => 'roles',
         'model_has_permissions' => 'model_has_permissions',
         'model_has_roles' => 'model_has_roles',
