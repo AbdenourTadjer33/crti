@@ -13,7 +13,7 @@ class TokenController extends Controller
     public function __construct(Request $request)
     {
         /**
-         * @var \Modules\Authentification\Models\User
+         * @var \App\Models\User
          */
         $this->user = $request->user();
     }

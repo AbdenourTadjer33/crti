@@ -5,7 +5,7 @@ namespace Modules\Authentification\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Config;
-use Modules\Authentification\Models\User;
+use App\Models\User;
 use Illuminate\Validation\ValidationException;
 use Modules\Authentification\Services\Service;
 use Modules\Authentification\Http\Requests\LoginRequest;
@@ -25,7 +25,7 @@ class LoginController extends Controller
             ]);
         }
 
-        if (Config::get('authentification.staus', true) && !$user->isActive()) {
+        if (Config::get('authentification.staus', true) && !$user->status) {
             return $this->error(null, 402, trans('auth.inactive'));
         }
 

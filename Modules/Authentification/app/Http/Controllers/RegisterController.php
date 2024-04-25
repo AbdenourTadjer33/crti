@@ -4,8 +4,7 @@ namespace Modules\Authentification\Http\Controllers;
 
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Modules\Authentification\Models\User;
+use App\Models\User;
 use Modules\Authentification\Services\Service;
 use Modules\Authentification\Http\Requests\RegisterRequest;
 
@@ -13,9 +12,7 @@ class RegisterController extends Controller
 {
     public function __invoke(RegisterRequest $request, Service $service)
     {
-        /**
-         * @var User
-        */
+        /** @var User */
         $user = DB::transaction(
             fn () =>
             User::create([
