@@ -16,11 +16,9 @@ class PermissionFactory extends Factory
      */
     public function definition(): array
     {
-        $actions = ['view', 'create', 'edit', 'destroy', 'force-destroy'];
-        
         return [
             'model' => fake()->word(),
-            'action' => $actions[rand(0, 4)],
+            'action' => fake()->word(),
         ];
     }
 }

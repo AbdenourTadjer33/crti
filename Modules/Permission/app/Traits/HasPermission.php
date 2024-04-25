@@ -5,6 +5,8 @@ namespace Modules\Permission\Traits;
 use Illuminate\Support\Collection;
 use Modules\Permission\Models\Role;
 use Illuminate\Support\Facades\Cache;
+use Modules\Permission\Traits\ModelInfo;
+use Modules\Permission\Enums\ContextType;
 use Modules\Permission\Models\Permission;
 use Modules\Permission\PermissionRegistrar;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
@@ -16,8 +18,6 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  */
 trait HasPermission
 {
-    use Relationships;
-    
     public static function bootHasPermission()
     {
         static::deleting(function ($model) {
@@ -69,7 +69,6 @@ trait HasPermission
         if (is_a($this, Role::class)) {
             return Role::getRole($this->id);
         }
-
         $cachedPermissionIds = Cache::remember(
             $this->getPermissionCacheKey(),
             now()->addMinutes(5),
@@ -91,7 +90,7 @@ trait HasPermission
      *
      * @return Collection The collection of direct permissions.
      */
-    public function directPermissions(): Collection
+    public function getDirectPermissions(): Collection
     {
         return $this->loadPermissions()->permissions;
     }
@@ -103,12 +102,11 @@ trait HasPermission
      */
     public function getAllPermissions(): Collection
     {
-        $directPermissions = $this->directPermissions();
+        $directPermissions = $this->getDirectPermissions();
         if (method_exists($this, 'getPermissionsFromRoles')) {
             return $directPermissions->merge($this->getPermissionsFromRoles())->unique();
         }
         return $directPermissions;
-
     }
 
     /**
@@ -143,11 +141,20 @@ trait HasPermission
      * @param array $args The arguments containing permission names or IDs.
      * @return \Illuminate\Support\Collection A collection of Permission instances.
      */
-    private function collectPermissions(array $args): Collection
+    public function collectPermissions(array $args): Collection
     {
         return collect($args)->flatten()->map(function ($arg) {
-            return Permission::getPermission($arg, true);
+            if ($arg instanceof Permission) {
+                return $arg;
+            }
+            return Permission::getPermission($arg);
         })->whereNotNull()->unique(); // Filter out any null values.
+    }
+
+    public function attachAllPermissions(): bool
+    {
+        $permissions = Permission::getPermissions();
+        return $this->attachPermissions($permissions->pluck('id')->toArray());
     }
 
     /**
@@ -161,32 +168,18 @@ trait HasPermission
     public function attachPermissions(...$args): bool
     {
         $permissions = $this->collectPermissions($args);
-        return $this->givePermissionsTo($permissions->pluck('id')->toArray());
-    }
 
-    /**
-     * Give permissions to the model.
-     *
-     * This method assigns the specified permissions to the model.
-     * If a permission ID is already assigned to the model, it will not be duplicated.
-     *
-     * @param array $ids The IDs of the permissions to give.
-     * @return bool True if permissions were successfully given, false otherwise.
-     */
-    public function givePermissionsTo(array $ids): bool
-    {
-        $this->loadPermissions();
-
-        $idsToAttach = array_values(array_diff(
-            $ids,
-            $this->permissions->pluck('id')->toArray()
-        ));
-
-        if (!$idsToAttach) {
+        if (!$permissions->count()) {
             return false;
         }
 
-        $this->permissions()->attach($idsToAttach);
+        $permissionToAttach = $permissions->pluck('id')->diff($this->getAllPermissions()->pluck('id'))->values();
+
+        if (!$permissionToAttach->count()) {
+            return false;
+        }
+
+        $this->permissions()->attach($permissionToAttach);
 
         if (is_a($this, Role::class)) {
             app(PermissionRegistrar::class)
@@ -196,6 +189,7 @@ trait HasPermission
         }
 
         $this->unsetRelation('permissions');
+        $this->unsetRelation('roles');
 
         return true;
     }
@@ -208,15 +202,17 @@ trait HasPermission
      * @param int $id The ID of the permission to assign.
      * @return bool True if the permission was successfully assigned, false otherwise.
      */
-    public function assignPermission($id): bool
+    public function assignPermission($permission): bool
     {
-        $this->loadPermissions();
-
-        if (!Permission::getPermission($id, true) || $this->hasPermissionTo($id)) {
-            return false; // Permission does not exist or model already has the permission.
+        if (!$permission = $this->collectPermissions($permission)->first()) {
+            return false; // Permission does not exist
         }
 
-        $this->permissions()->attach($id);
+        if (!$this->hasPermissionTo($permission)) {
+            return false; // Permission does not exist model already has the permission.
+        }
+
+        $this->permissions()->attach($permission->id);
 
         if (is_a($this, Role::class)) {
             app(PermissionRegistrar::class)
@@ -225,6 +221,7 @@ trait HasPermission
             $this->forgetPermissionIds();
         }
         $this->unsetRelation('permissions');
+        $this->unsetRelation('roles');
 
         return true;
     }
@@ -261,7 +258,7 @@ trait HasPermission
     public function hasDirectPermissions(...$args): bool
     {
         $permissions = $this->collectPermissions($args);
-        $directPermissions = $this->directPermissions();
+        $directPermissions = $this->getDirectPermissions();
 
         foreach ($permissions as $permission) {
             if (!in_array($permission->id, $directPermissions->pluck('id')->toArray())) {
@@ -316,21 +313,41 @@ trait HasPermission
     }
 
     /**
-     * Check if the user has permission to a specific permission ID.
+     * Check if the user has permission to a specific permission.
      *
-     * @param int $id The ID of the permission to check.
-     * @return bool True if the user has permission, false otherwise.
+     * @param string $permission The permission pattern to check.
+     * @return bool True if the user has the permission, false otherwise.
      */
-    public function hasPermissionTo($id): bool
+    public function hasPermissionTo(string $pattern): bool|array
     {
-        return (bool) $this->getAllPermissions()->first(
-            fn ($permission) => $permission->id == $id
-        );
+        $resolved = resolvePermission($pattern);
+        $context = $resolved['context'] ?? null;
+
+        $permissions = $this->getAllPermissions()->filter(function (Permission $permission) use ($resolved) {
+            return $permission->model === $resolved['model'] && $permission->action === $resolved['action'];
+        })->sortBy('type')->values();
+
+        if ($permissions->isEmpty()) return false;
+
+        /** @var Permission */
+        foreach ($permissions as $permission) {
+            if ($permission->isGeneric()) return true; // model has generic permission, allow access to all resources
+
+            if ($context === "*") {
+                return $permission->contexts;
+            }
+
+            if (in_array((int) $context, $permission->contexts)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function hasDirectPermissionTo($id): bool
     {
-        return (bool) $this->directPermissions()->first(
+        return (bool) $this->getDirectPermissions()->first(
             fn ($permission) => $permission->id == $id
         );
     }

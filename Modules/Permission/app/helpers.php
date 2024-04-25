@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 
 if (!function_exists('keys_exists')) {
     /**
@@ -18,14 +19,6 @@ if (!function_exists('keys_exists')) {
     }
 }
 
-// if (!function_exists('permissionService')) {
-// function permissionService(): \Modules\Permission\Services\PermissionService
-// {
-// /** @var \Modules\Permission\Services\PermissionService */
-// return app(\Modules\Permission\Services\PermissionService::class);
-// }
-// }
-
 if (!function_exists('resolvePermissionName')) {
     function resolvePermissionName($permission): array|false
     {
@@ -37,8 +30,15 @@ if (!function_exists('resolvePermissionName')) {
 if (!function_exists('isValidPermission')) {
     function isValidPermission(array|string $permission): bool
     {
-        /** @var  \Modules\Permission\PermissionRegistrar::class */
         $permissionRegistrar = app(\Modules\Permission\PermissionRegistrar::class);
-        return $permissionRegistrar->isValidPermission($permission) || ( is_array($permission) && $permissionRegistrar->isValidArrayPermission($permission));
+        return $permissionRegistrar->isValidPermission($permission) || (is_array($permission) && $permissionRegistrar->isValidArrayPermission($permission));
+    }
+}
+
+if (!function_exists('resolvePermission')) {
+    function resolvePermission($permission): Collection|False
+    {
+        return app(\Modules\Permission\PermissionRegistrar::class)
+            ->resolvePermission($permission);
     }
 }

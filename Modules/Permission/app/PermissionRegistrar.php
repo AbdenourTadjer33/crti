@@ -4,11 +4,11 @@ namespace Modules\Permission;
 
 use Illuminate\Support\Arr;
 use Modules\Permission\Models\Role;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Database\Eloquent\Collection;
 use Modules\Permission\Models\Permission;
-
-use function PHPUnit\Framework\isNull;
+use Illuminate\Database\Eloquent\Collection;
+use ReflectionClass;
 
 class PermissionRegistrar
 {
@@ -36,12 +36,6 @@ class PermissionRegistrar
         $this->cacheKey = config('permission.cache.key');
         $this->cacheExpirationTime = config('permission.cache.expiration_time') ?: \DateInterval::createFromDateString('24 hours');
         $this->cache = Cache::store();
-        // $this->loadPermissions();
-    }
-
-    public function getPermissionClass()
-    {
-        return $this->permissionClass;
     }
 
     private function setPermissions()
@@ -73,7 +67,7 @@ class PermissionRegistrar
 
     private function getSerializedPermissionForCache(): array
     {
-        return $this->permissionClass::get()->toArray();
+        return Permission::get()->toArray();
     }
 
     private function getSerializedRoleForCache(): array
@@ -87,76 +81,62 @@ class PermissionRegistrar
 
     private function hydratePermissionCollection(array $permissions): Collection
     {
-        $permissionInstance = new ($this->permissionClass)();
+        $permissionInstance = new Permission;
 
-        return Collection::make(array_map(
-            fn ($item) => $permissionInstance->newInstance([], true)
-                ->setRawAttributes($item, true),
-            $permissions
-        ));
+        return Collection::make(array_map(function ($item) use ($permissionInstance) {
+            $permissionAttributes = $item;
+            if ($permissionAttributes['type']) {
+                $permissionAttributes['contexts'] = json_encode($item['contexts']);
+            }
+            $permission = $permissionInstance->newInstance([], true)
+                ->setRawAttributes($permissionAttributes, true);
+            return $permission;
+        }, $permissions));
     }
 
     private function hydrateRoleCollection(array $roles): Collection
     {
-        // $roleInstance = new ($this->roleClass)();
         $roleInstance = new Role;
 
-        return Collection::make(array_map(
-            function ($item) use ($roleInstance) {
-                $roleAttribute = Arr::except($item, ['permission_ids']);
-                $role = $roleInstance->newInstance([], true)
-                    ->setRawAttributes($roleAttribute, true)
-                    ->setRelation('permissions', $this->getPermissions($item['permission_ids']));
-
-                return $role;
-            },
-            $roles
-        ));
+        return Collection::make(array_map(function ($item) use ($roleInstance) {
+            $roleAttributes = Arr::except($item, ['permission_ids']);
+            return $roleInstance->newInstance([], true)
+                ->setRawAttributes($roleAttributes, true)
+                ->setRelation('permissions', $this->getPermissions($item['permission_ids']));
+        }, $roles));
     }
 
-    public function getPermissions(?array $arg = null, bool $must_have_arg = false): Collection
+    public function getPermissions()
     {
+        if (!$this->permissions) $this->setPermissions();
 
-        if (!$this->permissions) {
-            $this->setPermissions();
-        }
+        if (count(func_get_args()) === 0) return $this->permissions;
 
-        if (!$must_have_arg && !$arg && !is_array($arg)) {
-            return $this->permissions;
-        }
-
-        return $this->permissions->whereIn('id', $arg)->values();
+        return $this->permissions->whereIn('id', func_get_args()[0])->values();
     }
 
-    public function getPermission(null|int|string|array $arg = null, bool $must_have_arg = false): ?Permission
+    public function getPermission()
     {
         $permissions = $this->getPermissions();
 
-        if (!$must_have_arg && is_null($arg)) {
+        if (count(func_get_args()) === 0) {
             return $permissions->first();
         }
 
+        $arg = func_get_args()[0];
+
         if (is_int($arg) || (is_string($arg) && ctype_digit($arg))) {
             return $permissions->first(
-                fn ($permission) => $permission->id == $arg
+                fn ($permission) => $permission->id == $arg,
             );
         }
 
-        if (is_string($arg) && $attributes = $this->resolvePermissionName($arg)) {
+        if ((is_array($arg) && keys_exists($arg, 'model', 'action')) || (is_string($arg) && $arg = $this->resolvePermission($arg))) {
             return $permissions->first(
-                fn ($permission) =>
-                $permission->model === $attributes['model'] && $permission->action === $attributes['action']
+                fn (Permission $permission) =>
+                $permission->model === $arg['model'] && $permission->action === $arg['action'] && $permission->isGeneric()
             );
         }
-
-        if (is_array($arg) && keys_exists($arg, 'model', 'action')) {
-            return $permissions->first(
-                fn ($permission) =>
-                $permission->model === $arg['model'] && $permission->action === $arg['action']
-            );
-        }
-
-        return null;
     }
 
     public function getRoles(?array $arg = null): Collection
@@ -193,26 +173,73 @@ class PermissionRegistrar
         }
     }
 
-    public function resolvePermissionName(string $permission): array|false
+    public function resolvePermission($permission)
     {
-        $pattern = '/^(?<model>[^\@]+)@(?<action>[^\@]+)$/';
+        $pattern = '/^(?<model>[^@]+)@(?<action>[^:]+)(?::(?<context>.*))?$/';
 
         if (preg_match($pattern, $permission, $matches)) {
-            return [
-                'model' => $matches['model'],
-                'action' => $matches['action'],
-            ];
+            explode(',', "1,2,3,4");
+            $matches = collect($matches);
+            return collect($matches)->only(['model', 'action', 'context']);
         }
         return false;
     }
 
-    public function isValidPermission(string $permission): bool
+    /**
+     * 
+     * @return array 
+     */
+    public static function getAllModels(): array
     {
-        return preg_match('/^[^\@]+@[^\@]+$/', $permission);
+        $models = [];
+        // loop on each directory that may have Models inside
+        foreach (config('permission.use_permission.models_directories') as $directory) {
+            $phpFiles = File::glob($directory['path'] . DIRECTORY_SEPARATOR . '*.php');
+            foreach ($phpFiles as $file) {
+                // get the namespace of the file
+                $className = $directory['namespace'] . '\\' . pathinfo($file, PATHINFO_FILENAME);
+
+                // check if a file is an valid Model
+                if (!is_subclass_of($className, 'Illuminate\Database\Eloquent\Model')) {
+                    continue;
+                }
+
+                // check if this file should be ignored
+                if (in_array($className, config('permission.use_permission.except_models', []))) {
+                    continue;
+                }
+
+                $models[] = $className;
+            }
+        }
+        return $models;
     }
 
-    public function isValidArrayPermission(array $permission): bool
+    public static function usePermissionModels()
     {
-        return keys_exists($permission, 'model', 'action');
+        return collect(static::getAllModels())->map(function ($model) {
+            $reflectionClass = new ReflectionClass($model);
+
+            if ($reflectionClass->hasProperty('usePermission') && !$usePermission = $reflectionClass->getProperty('usePermission')->getValue()) {
+                return null;
+            }
+
+            return [
+                'label' => isset($usePermission) && isset($usePermission['label']) ? $usePermission['label'] : strtolower($reflectionClass->getShortName()),
+                'actions' => isset($usePermission) && isset($usePermission['actions']) ? $usePermission['actions'] : collect(config('permission.use_permission.actions'))->except(config('permission.use_permission.except_actions'))->flatten()->toArray(),
+                'class' => $reflectionClass->getName()
+            ];
+        })->whereNotNull()->toArray();
+    }
+
+    public static function getUsePermissionModels(): array
+    {
+        $filename = config('permission.use_permission.file_path') . DIRECTORY_SEPARATOR . config('permission.use_permission.file_name');
+
+        if (file_exists($filename)) {
+            return json_decode(file_get_contents($filename), true);
+        }
+
+        return static::usePermissionModels();
     }
 }

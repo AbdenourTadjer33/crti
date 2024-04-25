@@ -26,9 +26,7 @@ class StoreRequest extends FormRequest
             'action' => ['required', Rule::in(['create', 'edit', 'read', 'delete'])],
             'type' => ['required', Rule::enum(PermissionType::class)],
             'contexts' => [Rule::excludeIf(fn () => $this->input('type') != 1), 'array'],
-            'contexts.*' => [Rule::excludeIf(fn () => $this->input('type') != 1), 'array'],
-            'contexts.*.type' => [Rule::excludeIf(fn () => $this->input('type') != 1)],
-            'contexts.*.'
+            'contexts.*' => [Rule::excludeIf(fn () => $this->input('type') != 1), 'numeric'],
         ];
     }
 }

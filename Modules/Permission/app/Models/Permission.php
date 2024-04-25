@@ -2,6 +2,7 @@
 
 namespace Modules\Permission\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Modules\Permission\Traits\HasRole;
 use Illuminate\Database\Eloquent\Model;
 use Modules\Permission\PermissionRegistrar;
@@ -26,7 +27,8 @@ class Permission extends Model
         parent::__construct($attributes);
         $this->table = config('permission.table_names.permissions') ?: parent::getTable();
         $this->casts = [
-            'type' => PermissionType::class
+            'type' => PermissionType::class,
+            'contexts' => 'array',
         ];
     }
 
@@ -64,11 +66,6 @@ class Permission extends Model
         );
     }
 
-    public function contexts(): HasMany
-    {
-        return $this->hasMany(Context::class, config('permission.columns.fk_permission'));
-    }
-
     public function users(): MorphToMany
     {
         return $this->morphedByMany(
@@ -79,6 +76,26 @@ class Permission extends Model
         );
     }
 
+    public function isGeneric()
+    {
+        return $this->type == PermissionType::Generic;
+    }
+
+    public function isContext()
+    {
+        return $this->type == PermissionType::Context;
+    }
+
+    public function scopeGeneric(Builder $query)
+    {
+        $query->where('type', PermissionType::Generic->value);
+    }
+
+    public function scopeContext(Builder $query)
+    {
+        $query->where('type', PermissionType::Context->value);
+    }
+
     /**
      * @return Permission
      * 
@@ -86,60 +103,48 @@ class Permission extends Model
      */
     public static function create(array $attributes)
     {
-        if (static::getPermission($attributes)) {
+        if (!(isset($attributes['type']) && $attributes['type'] === PermissionType::Context->value) && static::getPermission($attributes)) {
             throw new PermissionAlreadyExists();
         }
 
         return static::query()->create($attributes);
     }
 
-    public static function findById($id)
+    public static function findById($id): ?Permission
     {
-        $permission = static::getPermission($id);
-
-        if (!$permission) {
-            // throw error
-        }
-
-        return $permission;
+        return static::getPermission($id);
     }
 
-    public static function findByName(string $name)
-    {
-        $permission = static::getPermission($name);
-
-        if (!$permission) {
-            // throw error
-        }
-
-        return $permission;
-    }
-
-    public static function findOrCreate(string|array $attributes)
+    public static function findOrCreate(array $attributes): Permission
     {
         $permission = static::getPermission($attributes);
 
-        if (!$permission) {
-            if (
-                (is_array($attributes) && keys_exists($attributes, 'action', 'model')) ||
-                (is_string($attributes) && $attributes = resolvePermissionName($attributes))
-            ) {
-                return static::create($attributes);
-            }
+        if ($permission) {
+            return $permission;
         }
 
-        return $permission;
+        return static::query()->create($attributes);
     }
 
-    public static function getPermissions(?array $arg = null, $must_have_arg = false): ?Collection
+    public static function getPermissions(): ?Collection
     {
+        if (count(func_get_args()) === 0) {
+            return app(PermissionRegistrar::class)
+                ->getPermissions();
+        }
+
         return app(PermissionRegistrar::class)
-            ->getPermissions($arg, $must_have_arg);
+            ->getPermissions(func_get_args()[0]);
     }
 
-    public static function getPermission(null|int|string|array $arg = null, $must_have_arg = false): ?Permission
+    public static function getPermission(): ?Permission
     {
+        if (count(func_get_args()) === 0) {
+            return app(PermissionRegistrar::class)
+                ->getPermission();
+        }
+
         return app(PermissionRegistrar::class)
-            ->getPermission($arg, $must_have_arg);
+            ->getPermission(func_get_args()[0]);
     }
 }

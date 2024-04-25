@@ -18,19 +18,7 @@ return new class extends Migration
             $table->string('model');
             $table->string('action');
             $table->tinyInteger('type')->default(0);
-            $table->timestamps();
-
-            $table->unique(['model', 'action']);
-        });
-
-        Schema::create(config('permission.table_names.contexts'), function (Blueprint $table) {
-            $table->id();
-            $table->tinyInteger('type');
-            $table->foreignId(config('permission.columns.fk_permission'))
-                ->constrained(config('permission.table_names.permissions'))
-                ->cascadeOnDelete();
-
-            $table->nullableMorphs('context');
+            $table->json('contexts')->nullable();
             $table->timestamps();
         });
 

@@ -2,17 +2,29 @@
 
 namespace Modules\Permission\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Modules\Permission\Models\Role;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Request;
 use Modules\Permission\Http\Requests\Role\StoreRequest;
 use Modules\Permission\Http\Requests\Role\UpdateRequest;
 
 class RoleController extends Controller
 {
+    /** @var User */
+    protected $user;
+    
+    public function __construct()
+    {
+        $this->user = Request::user();
+    }
+
     public function index(): JsonResponse
     {
+        Gate::authorize('role@read:*');
         return $this->success([
             'roles' => Role::getRoles(),
         ]);
@@ -20,6 +32,7 @@ class RoleController extends Controller
 
     public function store(StoreRequest $request): JsonResponse
     {        
+        Gate::authorize('role@create');
         $role = DB::transaction(function () use ($request) {
             $role = Role::create([
                 'name' => $request->input('name'),
@@ -37,6 +50,7 @@ class RoleController extends Controller
 
     public function show(Role $role): JsonResponse
     {
+        Gate::authorize("role@read:{$role->id}");
         return $this->success([
             'role' => $role
         ]);
@@ -47,6 +61,7 @@ class RoleController extends Controller
      */
     public function update(UpdateRequest $request, Role $role)
     {
+        Gate::authorize("role@edit:{$role->id}");
         $role = DB::transaction(function () use ($request, $role) {
             $role->update([
                 'name' => $request->input('name'),
@@ -60,6 +75,7 @@ class RoleController extends Controller
 
     public function destroy(Role $role)
     {
+        Gate::authorize("role@delete:{$role->id}");
         if (!DB::transaction(fn () => $role->delete())) {
             return $this->error(code: 500, message: 'something went wrong');
         }

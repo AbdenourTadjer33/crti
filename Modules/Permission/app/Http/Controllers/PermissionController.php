@@ -2,23 +2,34 @@
 
 namespace Modules\Permission\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
-use Modules\Permission\Enums\PermissionType;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Request;
 use Modules\Permission\Models\Permission;
+use Modules\Permission\Enums\PermissionType;
 use Modules\Permission\Http\Requests\Permission\StoreRequest;
 use Modules\Permission\Http\Requests\Permission\UpdateRequest;
 
 
 class PermissionController extends Controller
 {
+    /** @var User */
+    protected $user;
+
+    public function __construct()
+    {
+        $this->user = Request::user();
+    }
 
     /**
      * Display a listing of the resource.
      */
     public function index(): JsonResponse
     {
+        Gate::authorize('permission@read:*');
         return $this->success([
             'permissions' => Permission::getPermissions(),
         ]);
@@ -29,18 +40,16 @@ class PermissionController extends Controller
      */
     public function store(StoreRequest $request): JsonResponse
     {
+        Gate::authorize('permission@create');
         $permission = DB::transaction(function () use ($request) {
             $permission = Permission::create([
                 'model' => $request->input('model'),
                 'action' => $request->input('action'),
-                'type' => $request->input('type'),
+                'type' => (int) $request->input('type'),
+                'contexts' => (int) $request->input('type') === PermissionType::Context->value ? $request->input('contexts') : null
             ]);
 
-            if ($permission->type != PermissionType::Context->value) {
-                return $permission;
-            }
-
-            return $permission->contexts()->createMany($request->input('contexts'));
+            return $permission;
         });
 
         return $this->success([
@@ -53,6 +62,7 @@ class PermissionController extends Controller
      */
     public function show(Permission $permission)
     {
+        Gate::authorize("permission@read:{$permission->id}");
         return $this->success([
             'permission' => $permission
         ]);
@@ -63,6 +73,7 @@ class PermissionController extends Controller
      */
     public function update(UpdateRequest $request, Permission $permission): JsonResponse
     {
+        Gate::authorize("permission@edit:{$permission->id}");
         $permission = DB::transaction(
             fn () =>
             $permission->update([
@@ -79,6 +90,7 @@ class PermissionController extends Controller
      */
     public function destroy(Permission $permission)
     {
+        Gate::authorize("permission@delete:{$permission->id}");
         if (!DB::transaction(fn () => $permission->delete())) {
             return $this->error(code: 500, message: "something went wrong");
         }

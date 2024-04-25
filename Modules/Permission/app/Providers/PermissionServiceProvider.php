@@ -2,6 +2,8 @@
 
 namespace Modules\Permission\Providers;
 
+use App\Models\User;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
@@ -24,6 +26,10 @@ class PermissionServiceProvider extends ServiceProvider
         $this->registerConfig();
         $this->registerViews();
         $this->loadMigrationsFrom(module_path($this->moduleName, 'database/migrations'));
+
+        Gate::before(function (User $user, $ability) {
+            return $user->hasPermissionTo($ability);
+        });
     }
 
     /**
@@ -32,7 +38,7 @@ class PermissionServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->register(RouteServiceProvider::class);
-        $this->app->singleton(PermissionRegistrar::class, fn (Application $app) => new PermissionRegistrar);
+        $this->app->singleton(PermissionRegistrar::class);
     }
 
     
@@ -41,7 +47,9 @@ class PermissionServiceProvider extends ServiceProvider
      */
     protected function registerCommands(): void
     {
-        // $this->commands([]);
+        $this->commands([
+            \Modules\Permission\Console\GenerateUsePermissionFile::class,
+        ]);
     }
 
     /**
