@@ -4,22 +4,19 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Laravel\Sanctum\HasApiTokens;
 use Modules\Permission\Traits\HasRole;
 use Illuminate\Notifications\Notifiable;
 use Modules\Permission\Traits\HasPermission;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Support\Collection as SupportCollection;
-use ReflectionClass;
+use Ramsey\Uuid\Uuid;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasApiTokens, HasPermission, HasRole, SoftDeletes;
+    use HasFactory, HasUuids, Notifiable, HasApiTokens, HasPermission, HasRole, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -57,20 +54,21 @@ class User extends Authenticatable
         ];
     }
 
-    public function getRelationships(): SupportCollection
+    /**
+     * Generate a new UUID for the model.
+     */
+    public function newUniqueId(): string
     {
-        return collect(get_class_methods($this))->filter(function ($method) {
-            $reflection = new ReflectionClass($this);
-            $method = $reflection->getMethod($method);
-            $returnType = $method->getReturnType();
+        return (string) Uuid::uuid4();
+    }
 
-
-
-            $pattern = "Illuminate\Database\Eloquent\Relations\{*}";
-            if ($returnType) {
-                dump($returnType, $returnType->getName());
-            }
-            // return $returnType && $returnType->getName() === 'Illuminate\Database\Eloquent\Relations\Relation';
-        });
+    /**
+     * Get the columns that should receive a unique identifier.
+     *
+     * @return array<int, string>
+     */
+    public function uniqueIds(): array
+    {
+        return ['uuid'];
     }
 }
