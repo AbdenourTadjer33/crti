@@ -16,7 +16,7 @@ use Modules\Authentification\Http\Controllers\RegisterController;
  * is assigned the "api" middleware group. Enjoy building your API!
 */
 
-Route::prefix('auth')->as('auth.')->group(function () {
+Route::prefix('v1/auth')->as('auth.')->group(function () {
     Route::middleware('guest')->group(function () {
         Route::post('/register', RegisterController::class)->name('register');
         Route::post('/login', LoginController::class)->name('login');
