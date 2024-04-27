@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Authentification\Http\Controllers;
+namespace Modules\Authentification\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
@@ -26,7 +26,7 @@ class LoginController extends Controller
         }
 
         if (Config::get('authentification.staus', true) && !$user->status) {
-            return $this->error(null, 402, trans('auth.inactive'));
+            return $this->error(null, 401, trans('auth.inactive'));
         }
 
         return $this->success([

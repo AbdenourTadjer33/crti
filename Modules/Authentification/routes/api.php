@@ -1,10 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Authentification\Http\Controllers\TokenController;
-use Modules\Authentification\Http\Controllers\LoginController;
-use Modules\Authentification\Http\Controllers\LogoutController;
-use Modules\Authentification\Http\Controllers\RegisterController;
+use Modules\Authentification\Http\Controllers\Api\TokenController;
+use Modules\Authentification\Http\Controllers\Api\LoginController;
+use Modules\Authentification\Http\Controllers\Api\LogoutController;
+use Modules\Authentification\Http\Controllers\Api\RegisterController;
 
 /*
  *--------------------------------------------------------------------------
