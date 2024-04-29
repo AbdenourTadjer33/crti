@@ -11,7 +11,6 @@ return [
 
     'table_names' => [
         'permissions' => 'permissions',
-        'contexts' => 'contexts',
         'roles' => 'roles',
         'model_has_permissions' => 'model_has_permissions',
         'model_has_roles' => 'model_has_roles',

@@ -3,7 +3,7 @@
 return [
     'name' => 'Unit',
     'table_names' => [
-        'unit' => 'units'
+        'unit' => 'company'
     ],
     'columns' => [
         'fk_unit' => 'unit_id',
@@ -13,9 +13,9 @@ return [
             'table_name' => 'users',
             'primary' => 'id',
         ],
-        [
-            'table_name' => 'divisions',
-            'primary' => 'id'
-        ]
+        // [
+        //     'table_name' => 'divisions',
+        //     'primary' => 'id'
+        // ]
     ]
 ];
