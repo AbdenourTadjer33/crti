@@ -6,8 +6,19 @@
         "build": "vite build"
     },
     "devDependencies": {
+        "@headlessui/react": "^1.7.19",
+        "@inertiajs/react": "^1.0.16",
+        "@types/react-dom": "^18.3.0",
+        "@vitejs/plugin-react": "^4.2.1",
+        "autoprefixer": "^10.4.19",
         "axios": "^1.6.4",
         "laravel-vite-plugin": "^1.0",
+        "postcss": "^8.4.38",
+        "react": "^18.3.1",
+        "react-dom": "^18.3.1",
+        "react-icons": "^5.1.0",
+        "tailwindcss": "^3.4.3",
+        "typescript": "^5.4.5",
         "vite": "^5.0"
     }
 }
