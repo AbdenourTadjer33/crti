@@ -1,4 +1,7 @@
 {
     "Permission": true,
-    "Authentification": true
+    "Authentification": true,
+    "Client": true,
+    "Project": false,
+    "Unit": false
 }
