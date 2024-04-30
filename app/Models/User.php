@@ -4,15 +4,18 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Ramsey\Uuid\Uuid;
+use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 use Modules\Permission\Traits\HasRole;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Builder;
 use Modules\Permission\Traits\HasPermission;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Ramsey\Uuid\Uuid;
 
 class User extends Authenticatable
 {
@@ -24,7 +27,10 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        'first_name',
+        'last_name',
+        'dob',
+        'sex',
         'email',
         'password',
         'status',
@@ -55,6 +61,42 @@ class User extends Authenticatable
     }
 
     /**
+     * Interact with the user's first name.
+     */
+    protected function firstName(): Attribute
+    {
+        return Attribute::make(
+            get: fn (string $value) => ucfirst($value),
+            set: fn (string $value) => strtolower($value),
+        );
+    }
+
+    /**
+     * Interact with the user's last name.
+     */
+    protected function lastName(): Attribute
+    {
+        return Attribute::make(
+            get: fn (string $value) => strtoupper($value),
+            set: fn (string $value) => strtolower($value)
+        );
+    }
+
+    public function getAttribute($key)
+    {
+        if (array_key_exists($key, $this->relations)) {
+            return parent::getAttribute($key);
+        } else {
+            return parent::getAttribute(Str::snake($key));
+        }
+    }
+
+    public function setAttribute($key, $value)
+    {
+        return parent::setAttribute(Str::snake($key), $value);
+    }
+
+    /**
      * Generate a new UUID for the model.
      */
     public function newUniqueId(): string
@@ -70,5 +112,10 @@ class User extends Authenticatable
     public function uniqueIds(): array
     {
         return ['uuid'];
+    }
+
+    public function scopeActive(Builder $query)
+    {
+        $query->where('status', true);
     }
 }
