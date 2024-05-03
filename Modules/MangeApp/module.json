@@ -1,0 +1,11 @@
+{
+    "name": "MangeApp",
+    "alias": "mangeapp",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\MangeApp\\Providers\\MangeAppServiceProvider"
+    ],
+    "files": []
+}
