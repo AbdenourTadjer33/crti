@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useForm } from "@inertiajs/react";
 import { route } from "@/Utils/helper";
 import { Calendar } from "@/Components/ui/calendar";
@@ -14,7 +14,7 @@ import {
 import { CalendarIcon } from "lucide-react";
 
 const RegisterForm = () => {
-    const { data, setData, errors, post, processing, transform } = useForm<{
+    const { data, setData, errors, post, processing } = useForm<{
         fname: string;
         lname: string;
         dob?: string;
