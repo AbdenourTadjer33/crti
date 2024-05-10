@@ -7,6 +7,8 @@ export const UserContext = createContext<User | null>(null);
 export const UserContextProvider: React.FC<{ children: ReactNode }> = ({
     children,
 }) => {
-    const user = usePage().props.user as unknown as User;
+    const pageProps: any = usePage().props;
+    const user = pageProps.auth.user as User;
+
     return <UserContext.Provider value={user}>{children}</UserContext.Provider>;
 };
