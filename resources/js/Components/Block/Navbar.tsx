@@ -1,48 +1,78 @@
-import { MdSearch } from "react-icons/md";
+import React from "react";
+import { Link } from "@inertiajs/react";
+import Avatar from "../Avatar";
+import { useUser } from "@/Hooks/useUser";
+import { route } from "@/Utils/helper";
+import { PiMoonFill, PiSunFill } from "react-icons/pi";
+import { MdMenu, MdSearch } from "react-icons/md";
 import { FaBell } from "react-icons/fa";
 import { FaEye } from "react-icons/fa";
-import AppLogo from "../AppLogo";
-import { Input } from "../Forms/Input";
-import Dropdown from "../Dropdown";
-import { useUser } from "@/Hooks/useUser";
-import { route } from "ziggy-js";
+import useStorage from "@/Hooks/useStorage";
+import { Label } from "../ui/label";
+import { Input } from "../ui/input";
+import {
+    DropdownMenu,
+    DropdownMenuTrigger,
+    DropdownMenuContent,
+    DropdownMenuItem,
+} from "../ui/dropdown-menu";
 
 export default function Navbar() {
-    return (
-        <nav className="bg-white border-b border-gray-200 px-4 py-2.5 dark:bg-gray-800 dark:border-gray-700 fixed left-0 right-0 top-0 z-50">
-            <div className="flex flex-wrap justify-between items-center">
-                {/* logo & search bar */}
-                <div className="flex justify-start items-center">
-                    <a
-                        href="/"
-                        className="flex items-center justify-between mr-4"
-                    >
-                        <AppLogo className="h-8 w-auto" />
-                    </a>
-                    <form
-                        onSubmit={(e) => e.preventDefault()}
-                        className="hidden md:block md:pl-2"
-                    >
-                        <label htmlFor="topbar-search" className="sr-only">
-                            Search
-                        </label>
-                        <div className="relative md:w-96">
-                            <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
-                                <MdSearch className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-                            </div>
-                            <Input
-                                id="topbar-search"
-                                placeholder="Search"
-                                className="pl-10"
-                            />
-                        </div>
-                    </form>
-                </div>
+    const [isDark, setIsDark] = useStorage(
+        "color-theme",
+        window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light"
+    );
 
+    function toggleDarkMode(e: React.MouseEvent) {
+        setIsDark(
+            !document.documentElement.classList.contains("dark")
+                ? "dark"
+                : "light"
+        );
+        document.documentElement.classList.toggle("dark");
+    }
+
+    return (
+        <nav className="px-4 py-2.5 z-50">
+            <div className="flex justify-between items-center">
+                <button type="button">
+                    <MdMenu className="w-8 h-8 text-primary-600" />
+                </button>
+
+                <form
+                    onSubmit={(e) => e.preventDefault()}
+                    className="hidden md:block md:pl-2"
+                >
+                    <Label htmlFor="topbar-search" className="sr-only">
+                        Search
+                    </Label>
+                    <div className="relative md:w-96">
+                        <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
+                            <MdSearch className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                        </div>
+                        <Input
+                            id="topbar-search"
+                            placeholder="Search"
+                            className="pl-10"
+                            autoComplete="off"
+                        />
+                    </div>
+                </form>
                 <div className="flex items-center lg:order-2">
                     <NavBtn className="md:hidden">
                         <span className="sr-only">Toggle search</span>
                         <MdSearch className="w-6 h-6" />
+                    </NavBtn>
+
+                    <NavBtn onClick={toggleDarkMode}>
+                        <span className="sr-only">Toggle DarkMode</span>
+                        {isDark === "dark" ? (
+                            <PiSunFill className="w-6 h-6" />
+                        ) : (
+                            <PiMoonFill className="w-6 h-6" />
+                        )}
                     </NavBtn>
 
                     <NotificationManu />
@@ -55,64 +85,57 @@ export default function Navbar() {
 }
 
 const UserMenu = () => {
-    const { first_name: firstName, last_name: lastName, email } = useUser();
-
+    const { name, email } = useUser();
     return (
-        <Dropdown dismissOnClick={false}>
-            <Dropdown.Trigger>
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
                 <button
                     type="button"
-                    className="flex mx-3 rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
+                    className="flex mx-3 rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600 bg-gray-100 dark:bg-gray-500"
                 >
-                    <img
-                        className="w-10 h-auto rounded-full"
-                        src={`https://ui-avatars.com/api/?name=${firstName}+${lastName}`}
-                        alt="user photo"
-                    />
+                    <Avatar name={name} />
                 </button>
-            </Dropdown.Trigger>
-            <Dropdown.Content width="">
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
                 <div className="py-3 px-4">
                     <span className="block text-sm font-semibold text-gray-900 dark:text-white">
-                        {firstName + " " + lastName}
+                        {name}
                     </span>
                     <span className="block text-sm text-gray-900 truncate dark:text-white">
                         {email}
                     </span>
                 </div>
-                <hr />
-                <ul className="py-1 text-gray-700 dark:text-gray-300">
-                    <li>
-                        <Dropdown.Link href="#">Profile</Dropdown.Link>
-                    </li>
-                    <li>
-                        <Dropdown.Link href="#">Account settings</Dropdown.Link>
-                    </li>
-                    <li>
-                        <Dropdown.Link
-                            href={route("logout.destroy")}
-                            method="delete"
-                            as="button"
-                        >
-                            Sign out
-                        </Dropdown.Link>
-                    </li>
-                </ul>
-            </Dropdown.Content>
-        </Dropdown>
+                <div className="h-px bg-gray-300 dark:bg-gray-500" />
+                <DropdownMenuItem asChild>
+                    <Link href="#">Profile</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                    <Link href="#">Account Settings</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                    <Link
+                        as="button"
+                        href={route("logout.destroy")}
+                        method="delete"
+                    >
+                        Sign out
+                    </Link>
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
     );
 };
 
 const NotificationManu = () => {
     return (
-        <Dropdown>
-            <Dropdown.Trigger>
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
                 <NavBtn>
                     <span className="sr-only">View notifications</span>
                     <FaBell className="w-6 h-6" />
                 </NavBtn>
-            </Dropdown.Trigger>
-            <Dropdown.Content width="sm:w-96 w-60">
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
                 <div className="block py-2 px-4 text-base font-medium text-center text-gray-700 bg-gray-50 dark:bg-gray-600 dark:text-gray-300">
                     Notifications
                 </div>
@@ -122,11 +145,12 @@ const NotificationManu = () => {
                         className="flex py-3 px-4 border-b hover:bg-gray-100 dark:hover:bg-gray-600 dark:border-gray-600"
                     >
                         <div className="flex-shrink-0">
-                            <img
+                            <span className="w-11 h-11 rounded-full" />
+                            {/* <img
                                 className="w-11 h-11 rounded-full"
                                 src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/bonnie-green.png"
                                 alt="Bonnie Green avatar"
-                            />
+                            /> */}
                             <div className="flex absolute justify-center items-center ml-6 -mt-5 w-5 h-5 rounded-full border border-white bg-primary-700 dark:border-gray-700">
                                 <svg
                                     aria-hidden="true"
@@ -164,19 +188,21 @@ const NotificationManu = () => {
                         View all
                     </div>
                 </a>
-            </Dropdown.Content>
-        </Dropdown>
+            </DropdownMenuContent>
+        </DropdownMenu>
     );
 };
 
-const NavBtn = ({
-    className = "",
-    children,
-}: React.PropsWithChildren<{ className?: string }>) => (
+const NavBtn = React.forwardRef<
+    HTMLButtonElement,
+    React.HTMLAttributes<HTMLButtonElement>
+>(({ className = "", children, ...props }, ref) => (
     <button
         type="button"
+        ref={ref}
         className={`p-2 mr-1 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600 ${className}`}
+        {...props}
     >
         {children}
     </button>
-);
+));
