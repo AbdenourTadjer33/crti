@@ -1,18 +1,19 @@
 import React from "react";
 import { Link, useForm } from "@inertiajs/react";
-import { Checkbox, Input, InputLabel } from "@/Components/Forms/Input";
-import { PrimaryButton } from "@/Components/Buttons/Button";
-import { route } from "ziggy-js";
-import { InputError } from "@/Components/Forms/InputError";
+import { route } from "@/Utils/helper";
+import { Input, InputError } from "@/Components/ui/input";
+import { Checkbox } from "@/Components/ui/checkbox";
+import { Label } from "@/Components/ui/label";
+import { Button } from "@/Components/ui/button";
 
-const LoginForm = ({ username }: { username: string }) => {
-    const { data, setData, post, errors } = useForm({
-        username: username || "",
+const LoginForm = () => {
+    const { data, setData, post, errors, processing } = useForm({
+        username: new URLSearchParams(location.search).get("username") || "",
         password: "",
         remember: false,
     });
 
-    const loginHandler = (e: React.FormEvent) => {
+    const loginHandler = async (e: React.FormEvent) => {
         e.preventDefault();
 
         post(route("login.store"), {
@@ -29,34 +30,35 @@ const LoginForm = ({ username }: { username: string }) => {
                     placeholder="Entrez votre email professionnel"
                     value={data.username}
                     onChange={(e) => setData("username", e.target.value)}
+                    autoFocus
                 />
-                <InputError className="mt-2" message={errors.username} />
+                <InputError className="mt-1" message={errors.username} />
             </div>
             <div>
                 <Input
                     type="password"
                     id="password"
                     placeholder="*****"
-                    isFocused
                     value={data.password}
                     onChange={(e) => setData("password", e.target.value)}
                 />
+                <InputError className="mt-1" message={errors.password} />
             </div>
             <div className="flex items-center justify-between">
                 <div className="flex items-start">
                     <div className="flex items-center h-5">
                         <Checkbox
                             id="remember"
-                            checked={data.remember}
-                            onChange={(e) =>
-                                setData("remember", e.target.checked)
+                            onCheckedChange={(checked) =>
+                                setData("remember", !!checked)
                             }
+                            checked={data.remember}
                         />
                     </div>
                     <div className="ml-3 text-sm">
-                        <InputLabel htmlFor="remember" className="select-none">
+                        <Label htmlFor="remember" className="select-none">
                             Souviens-toi de moi
-                        </InputLabel>
+                        </Label>
                     </div>
                 </div>
                 <Link
@@ -67,9 +69,14 @@ const LoginForm = ({ username }: { username: string }) => {
                 </Link>
             </div>
             <div>
-                <PrimaryButton type="submit" className="w-full">
+                <Button
+                    type="submit"
+                    variant="primary"
+                    className="w-full"
+                    disabled={processing}
+                >
                     Se connecter
-                </PrimaryButton>
+                </Button>
             </div>
         </form>
     );
