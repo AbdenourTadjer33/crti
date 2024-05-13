@@ -5,6 +5,7 @@ export default function Welcome() {
     return (
         <AuthLayout>
             <Head title="App" />
+            gere
         </AuthLayout>
     );
 }

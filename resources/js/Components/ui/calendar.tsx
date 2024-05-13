@@ -1,15 +1,17 @@
 import * as React from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+
+import { Button, buttonVariants } from "@/Components/ui/button";
 import {
     CaptionProps,
     DayPicker,
     useDayPicker,
     useNavigation,
 } from "react-day-picker";
-import { cn } from "@/Utils/utils";
-import { Button, buttonVariants } from "@/Components/ui/button";
-import { format, setDefaultOptions } from "date-fns";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover";
+import { format, setDefaultOptions } from "date-fns";
+
+import { cn } from "@/Utils/utils";
 import { fr } from "date-fns/locale";
 
 setDefaultOptions({ locale: fr });
@@ -73,7 +75,7 @@ function Calendar({
 function CustomCalendarCaption({ displayMonth }: CaptionProps) {
     const { nextMonth, previousMonth, goToMonth } = useNavigation();
     const { classNames } = useDayPicker();
-    const [isYearSelect, setIsYearSelect] = React.useState<boolean>(true);
+    const [isYearSelect, setIsYearSelect] = React.useState<boolean>(false);
 
     return (
         <div className="flex items-center justify-between">

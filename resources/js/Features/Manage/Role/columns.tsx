@@ -77,9 +77,7 @@ export const columnDef = [
                         <MdKeyboardArrowRight className="w-5 h-5"/>
                     )}
                 </Button>
-            ) : (
-                null
-            );
+            ) : null
         },
         enableHiding: false,
         enableSorting: false,

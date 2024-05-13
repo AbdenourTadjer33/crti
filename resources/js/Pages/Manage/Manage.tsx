@@ -20,8 +20,8 @@ const apps = [
         link: route("manage.devision.index"),
     },
     {
-        title: "gestion d'etablissements",
-        link: route("manage.establishment.index"),
+        title: "gestion d'unité",
+        link: route("manage.unit.index"),
     },
 ];
 

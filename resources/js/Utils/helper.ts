@@ -14,4 +14,14 @@ function capitalize(word: string) {
     return word.charAt(0).toUpperCase() + word.slice(1);
 }
 
-export { capitalize, route };
+function isNumber(any: any): boolean {
+    return !isNaN(Number(any));
+}
+
+function assert(condition: any, message: string) {
+    if (!condition) {
+        throw new Error(message);
+    }
+}
+
+export { capitalize, route, assert};

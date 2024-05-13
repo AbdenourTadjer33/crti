@@ -4,12 +4,13 @@ import "../css/app.css";
 import { createRoot } from "react-dom/client";
 import { createInertiaApp } from "@inertiajs/react";
 import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
-import { BrowserRouter } from "react-router-dom";
+import { StrictMode } from "react";
+import { capitalize } from "./Utils/helper";
 
 const appName = import.meta.env.VITE_APP_NAME || "Laravel";
 
 createInertiaApp({
-    title: (title) => `${title} - ${appName}`,
+    title: (title) => `${title} - ${capitalize(appName)}`,
     resolve: (name) =>
         resolvePageComponent(
             `./Pages/${name}.tsx`,
@@ -18,13 +19,10 @@ createInertiaApp({
     setup({ el, App, props }) {
         const root = createRoot(el);
 
-        root.render(
-            <BrowserRouter>
-                <App {...props} />
-            </BrowserRouter>
-        );
+        root.render(<App {...props} />);
     },
     progress: {
-        color: "#4B5563",
+        color: "#655bf5",
+        showSpinner: true,
     },
 }).then(() => document.getElementById("app")?.removeAttribute("data-page"));

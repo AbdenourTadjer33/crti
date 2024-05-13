@@ -1,6 +1,6 @@
-import { createContext, useState } from "react";
+import React from "react";
 
-export const AuthLayoutContext = createContext<{
+const AuthLayoutContext = React.createContext<{
     isOpen?: boolean;
     setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
     isHidden?: boolean;
@@ -13,17 +13,17 @@ export const AuthLayoutContext = createContext<{
     setSidebarState: () => {},
 });
 
-export const AuthLayoutProvider: React.FC<{ children: React.ReactNode }> = ({
+const AuthLayoutProvider: React.FC<{ children: React.ReactNode }> = ({
     children,
 }) => {
-    const [isOpen, setIsOpen] = useState<boolean>(() => {
+    const [isOpen, setIsOpen] = React.useState<boolean>(() => {
         const storedValue = localStorage.getItem("sidebar");
         return storedValue
             ? storedValue.trim().toLowerCase() === "true"
             : false;
     });
-    const [isHidden, setIsHidden] = useState<boolean>(false);
-    const [sidebarState, setSidebarState] = useState(() => {
+    const [isHidden, setIsHidden] = React.useState<boolean>(false);
+    const [sidebarState, setSidebarState] = React.useState(() => {
         const sidebarStates: string[] = ["opened", "closed", "hidden"];
 
         const storedValue = localStorage.getItem("sidebar-state");
@@ -54,3 +54,5 @@ export const AuthLayoutProvider: React.FC<{ children: React.ReactNode }> = ({
         </AuthLayoutContext.Provider>
     );
 };
+
+export { AuthLayoutContext, AuthLayoutProvider };

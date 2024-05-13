@@ -1,6 +1,6 @@
+import React, { createContext, ReactNode } from "react";
 import { User } from "@/types";
 import { usePage } from "@inertiajs/react";
-import React, { createContext, ReactNode } from "react";
 
 export const UserContext = createContext<User | null>(null);
 

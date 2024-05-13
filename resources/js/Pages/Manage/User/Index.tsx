@@ -1,28 +1,29 @@
-import React from "react";
-import {Head, Link} from "@inertiajs/react";
+import { Head, Link } from "@inertiajs/react";
+import { MdAdd, MdHome } from "react-icons/md";
+import { Pagination, User } from "@/types";
+
 import AuthLayout from "@/Layouts/AuthLayout";
 import Breadcrumb from "@/Features/Breadcrumb/Breadcrumb";
+import { Button } from "@/Components/ui/button";
+import { Heading } from "@/Components/ui/heading";
+import React from "react";
 import Table from "@/Features/Manage/User/Table";
-import {User} from "@/types";
-import {Heading} from "@/Components/ui/heading";
-import {Text} from "@/Components/ui/paragraph";
-import {Button} from "@/Components/ui/button";
-import {MdAdd, MdHome} from "react-icons/md";
-import {route} from "@/Utils/helper";
+import { Text } from "@/Components/ui/paragraph";
+import { route } from "@/Utils/helper";
 
 const breadcrumbs = [
-    {href: route('app'), label: <MdHome className="w-6 h-6"/>},
-    {href: route('manage.index'), label: "Centres d'administration"},
-    {label: "Gestion d'utilisateurs"}
+    { href: route("app"), label: <MdHome className="w-6 h-6" /> },
+    { href: route("manage.index"), label: "Centres d'administration" },
+    { label: "Gestion d'utilisateurs" },
 ];
 
-const Index: React.FC<{ users: any }> = ({users}) => {
+const Index: React.FC<{ users: Pagination<User> }> = ({ users }) => {
     return (
         <AuthLayout>
-            <Head title="Gestion d'utilisateur"/>
+            <Head title="Gestion d'utilisateur" />
 
             <div className="space-y-4">
-                <Breadcrumb items={breadcrumbs}/>
+                <Breadcrumb items={breadcrumbs} />
 
                 <div className="flex sm:flex-row flex-col justify-between sm:items-end gap-4">
                     <div className="space-y-2">
@@ -36,13 +37,14 @@ const Index: React.FC<{ users: any }> = ({users}) => {
                     </div>
 
                     <Button asChild>
-                        <Link href={route('manage.user.create')}>
-                            <MdAdd className="w-4 h-4 mr-2"/>Ajouter
+                        <Link href={route("manage.user.create")}>
+                            <MdAdd className="w-4 h-4 mr-2" />
+                            Ajouter
                         </Link>
                     </Button>
                 </div>
 
-                <Table users={users.data}/>
+                <Table users={users} />
             </div>
         </AuthLayout>
     );

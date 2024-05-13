@@ -78,7 +78,7 @@ const RegisterForm = () => {
                             >
                                 {data.dob
                                     ? format(new Date(data.dob), "dd/MM/yyy")
-                                    : "pick a date"}
+                                    : "Sélectionnez votre date de naissance"}
                                 <CalendarIcon className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                             </Button>
                         </PopoverTrigger>
