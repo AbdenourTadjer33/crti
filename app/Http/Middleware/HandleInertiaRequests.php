@@ -2,8 +2,10 @@
 
 namespace App\Http\Middleware;
 
-use Illuminate\Http\Request;
+use Closure;
 use Inertia\Middleware;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -15,6 +17,19 @@ class HandleInertiaRequests extends Middleware
      * @var string
      */
     protected $rootView = 'app';
+
+    protected $guestView = 'guest';
+
+    protected $authView = 'auth';
+
+    public function rootView(Request $request)
+    {
+        if (Auth::check()) {
+            return $this->authView;
+        }
+
+        return $this->guestView;
+    }
 
     /**
      * Determines the current asset version.
@@ -35,9 +50,16 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
-        return array_merge(parent::share($request), [
-            'user' => fn () => $request->user()?->loadPermissions()?->loadRoles(),
+
+        return [
+            ...parent::share($request),
+            'auth' => [
+                'user' => fn () => $request->user() ? $request->user()->toArray() : null,
+            ],
+            'flash' => [
+                'alert' => fn () => $request->session()->get('alert'),
+            ],
             'locale' => fn () => app()->getLocale(),
-        ]);
+        ];
     }
 }

@@ -18,6 +18,7 @@
     "include": [
         "resources/js/**/*.ts",
         "resources/js/**/*.tsx",
-        "resources/js/**/*.d.ts"
-    ]
+        "resources/js/**/*.d.ts",
+        "resources/js/__init__.js"
+, "resources/js/Features/Manage/Permission/actions.jsx", "resources/js/Hooks/useMediaQuery.js"    ]
 }

@@ -77,7 +77,7 @@ class User extends Authenticatable
     protected function lastName(): Attribute
     {
         return Attribute::make(
-            get: fn (string $value) => strtoupper($value),
+            get: fn (string $value) => ucfirst($value),
             set: fn (string $value) => strtolower($value)
         );
     }
@@ -94,6 +94,18 @@ class User extends Authenticatable
     public function setAttribute($key, $value)
     {
         return parent::setAttribute(Str::snake($key), $value);
+    }
+
+    public function toArray()
+    {
+        return [
+            'uuid' => $this->uuid,
+            'name' => $this->last_name . ' ' . $this->first_name,
+            'email' => $this->email,
+            'isEmailVerified' => (bool) $this->email_verified_at,
+            'status' => $this->status,
+            'permissions' => $this->getDirectPermissions()->toArray(),
+        ];
     }
 
     /**
@@ -117,5 +129,15 @@ class User extends Authenticatable
     public function scopeActive(Builder $query)
     {
         $query->where('status', true);
+    }
+
+    public function isActive()
+    {
+        return (bool) $this->status;
+    }
+
+    public function isTrashed()
+    {
+        return (bool) $this->deleted_at;
     }
 }
