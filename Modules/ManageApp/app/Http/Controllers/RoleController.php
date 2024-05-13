@@ -3,48 +3,59 @@
 namespace Modules\ManageApp\Http\Controllers;
 
 use App\Models\User;
+use Inertia\Inertia;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Modules\Permission\Models\Role;
+use Modules\Permission\Models\Permission;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Request;
-use Modules\Permission\Http\Requests\Role\StoreRequest;
+use Modules\ManageApp\Transformers\RoleResource;
+use Modules\ManageApp\Http\Requests\Role\StoreRequest;
 use Modules\Permission\Http\Requests\Role\UpdateRequest;
 
 class RoleController extends Controller
 {
     /** @var User */
     protected $user;
-    
+
     public function __construct()
     {
         $this->user = Request::user();
     }
 
-    public function index(): JsonResponse
+    public function index()
     {
-        Gate::authorize('role@read:*');
-        return $this->success([
-            'roles' => Role::getRoles(),
+        // Gate::authorize('role@read:*');
+        return Inertia::render('Manage/Role/Index', [
+            'roles' => RoleResource::collection(Role::getRoles())
         ]);
     }
 
-    public function store(StoreRequest $request): JsonResponse
-    {        
-        Gate::authorize('role@create');
-        $role = DB::transaction(function () use ($request) {
+    public function create()
+    {
+        return Inertia::render('Manage/Role/Create', [
+            'permissions' => Permission::getPermissions(),
+
+        ]);
+    }
+
+    public function store(StoreRequest $request)
+    {
+        // Gate::authorize('role@create');
+        DB::transaction(function () use ($request) {
             $role = Role::create([
                 'name' => $request->input('name'),
                 'description' => $request->input('description'),
             ]);
 
-            $role->givePermissionsTo($request->input('permissions'));
-            return $role->loadPermissions();
+            $role->attachPermissions($request->input('permissions'));
         });
 
-        return $this->success([
-            'role' => $role,
+        return redirect(route('manage.role.index'))->with('alert', [
+            'status' => 'success',
+            'message' => 'Role created successfully'
         ]);
     }
 
@@ -56,30 +67,49 @@ class RoleController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+    public function edit(Role $role)
+    {
+        return Inertia::render('Manage/Role/Edit', [
+            'permissions' => Permission::getPermissions(),
+            'role' => [
+                ...$role->only('id', 'name', 'description'),
+                'permissionIds' => $role->permissions->pluck('id'),
+            ]
+        ]);
+    }
+
     public function update(UpdateRequest $request, Role $role)
     {
-        Gate::authorize("role@edit:{$role->id}");
+        // Gate::authorize("role@edit:{$role->id}");
         $role = DB::transaction(function () use ($request, $role) {
             $role->update([
                 'name' => $request->input('name'),
                 'description' => $request->input('description')
             ]);
-            return $role;
+
+            $role->attachPermissions($request->input('permissions'));
         });
 
-        return $this->success(message: 'role updated successfully');
+        return redirect(route('manage.role.index'))->with('alert', [
+            'status' => 'success',
+            'message' => 'Role updated successfully',
+        ]);
     }
 
     public function destroy(Role $role)
     {
-        Gate::authorize("role@delete:{$role->id}");
+        // Gate::authorize("role@delete:{$role->id}");
+
         if (!DB::transaction(fn () => $role->delete())) {
-            return $this->error(code: 500, message: 'something went wrong');
+            return redirect()->back()->with('alert', [
+                'status' => 'danger',
+                'message' => "something went wrong"
+            ]);
         }
 
-        return $this->success(message: 'permission deleted successfully');
+        return redirect()->back()->with('alert', [
+            'status' => 'success',
+            'message' => 'Role supprimer avec succés',
+        ]);
     }
 }

@@ -3,11 +3,13 @@
 namespace Modules\ManageApp\Http\Controllers;
 
 use App\Models\User;
+use Inertia\Inertia;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Request;
+use Modules\ManageApp\Transformers\PermissionResource;
 use Modules\Permission\Models\Permission;
 use Modules\Permission\Enums\PermissionType;
 use Modules\Permission\Http\Requests\Permission\StoreRequest;
@@ -27,11 +29,12 @@ class PermissionController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): JsonResponse
+    public function index()
     {
         // Gate::authorize('permission@read:*');
-        return $this->success([
-            'permissions' => Permission::getPermissions(),
+
+        return Inertia::render('Manage/Permission/Index', [
+            'permissions' => PermissionResource::collection(Permission::getPermissions()),
         ]);
     }
 
@@ -90,11 +93,18 @@ class PermissionController extends Controller
      */
     public function destroy(Permission $permission)
     {
-        Gate::authorize("permission@delete:{$permission->id}");
+        // Gate::authorize("permission@delete:{$permission->id}");
+
         if (!DB::transaction(fn () => $permission->delete())) {
-            return $this->error(code: 500, message: "something went wrong");
+            return redirect()->back()->with('alert', [
+                'status' => 'danger',
+                'message' => "something went wrong"
+            ]);
         }
 
-        return $this->success(message: 'permission deleted successfully');
+        return redirect()->back()->with('alert', [
+            'status' => 'success',
+            'message' => 'Permission supprimer avec succés',
+        ]);
     }
 }

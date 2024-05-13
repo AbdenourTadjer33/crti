@@ -13,7 +13,11 @@ return new class extends Migration
     {
         if (!config('permission')) return;
 
-        Schema::create(config('permission.table_names.permissions'), function (Blueprint $table) {
+        $config = config('permission');
+        $table_names = $config['table_names'];
+        $columns = $config['columns'];
+
+        Schema::create($table_names['permissions'], function (Blueprint $table) {
             $table->id();
             $table->string('model');
             $table->string('action');
@@ -22,49 +26,49 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create(config('permission.table_names.roles'), function (Blueprint $table) {
+        Schema::create($table_names['roles'], function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
             $table->string('description')->nullable();
             $table->timestamps();
         });
 
-        Schema::create(config('permission.table_names.role_permission'), function (Blueprint $table) {
-            $table->foreignId(config('permission.columns.fk_role'))
-                ->constrained(config('permission.table_names.roles'))
+        Schema::create($table_names['role_permission'], function (Blueprint $table) use ($table_names, $columns) {
+            $table->foreignId($columns['fk_role'])
+                ->constrained($table_names['roles'])
                 ->cascadeOnDelete();
 
-            $table->foreignId(config('permission.columns.fk_permission'))
-                ->constrained(config('permission.table_names.permissions'))
+            $table->foreignId($columns['fk_permission'])
+                ->constrained($table_names['permissions'])
                 ->cascadeOnDelete();
 
             $table->primary([
-                config('permission.columns.fk_role'),
-                config('permission.columns.fk_permission')
+                $columns['fk_permission'],
+                $columns['fk_role'],
             ]);
         });
 
-        Schema::create(config('permission.table_names.model_has_permissions'), function (Blueprint $table) {
-            $table->foreignId(config('permission.columns.fk_permission'))
-                ->constrained(config('permission.table_names.permissions'))
+        Schema::create($table_names['model_has_permissions'], function (Blueprint $table) use ($table_names, $columns) {
+            $table->foreignId($columns['fk_permission'])
+                ->constrained($table_names['permissions'])
                 ->cascadeOnDelete();
             $table->morphs('modelable');
 
             $table->unique([
-                config('permission.columns.fk_permission'),
+                $columns['fk_permission'],
                 'modelable_type',
                 'modelable_id',
             ], 'model_has_permissions_unique');
         });
 
-        Schema::create(config('permission.table_names.model_has_roles'), function (Blueprint $table) {
-            $table->foreignId(config('permission.columns.fk_role'))
-                ->constrained(config('permission.table_names.roles'))
+        Schema::create($table_names['model_has_roles'], function (Blueprint $table) use ($table_names, $columns) {
+            $table->foreignId($columns['fk_role'])
+                ->constrained($table_names['roles'])
                 ->cascadeOnDelete();
             $table->morphs('modelable');
 
             $table->unique([
-                config('permission.columns.fk_role'),
+                $columns['fk_role'],
                 'modelable_type',
                 'modelable_id',
             ], 'model_has_roles_unique');
@@ -76,11 +80,12 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists(config('permission.table_names.role_permission'));
-        Schema::dropIfExists(config('permission.table_names.contexts'));
-        Schema::dropIfExists(config('permission.table_names.model_has_permissions'));
-        Schema::dropIfExists(config('permission.table_names.model_has_roles'));
-        Schema::dropIfExists(config('permission.table_names.permissions'));
-        Schema::dropIfExists(config('permission.table_names.roles'));
+        $table_names = config('permission.table_names');
+
+        Schema::dropIfExists($table_names['role_permission']);
+        Schema::dropIfExists($table_names['model_has_permissions']);
+        Schema::dropIfExists($table_names['model_has_roles']);
+        Schema::dropIfExists($table_names['permissions']);
+        Schema::dropIfExists($table_names['roles']);
     }
 };

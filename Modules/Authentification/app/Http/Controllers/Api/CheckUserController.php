@@ -16,17 +16,13 @@ class CheckUserController extends Controller
             'username' => ['required', 'email'],
         ]);
 
-        $user = User::where('email', $request->input('username'))->select('uuid', 'status')->first();
+        /** @var User */
+        $user = User::withTrashed()->where('email', $request->input('username'))->select('status')->first();
 
         if (!$user) {
             return $this->error(404);
         }
 
-        if (!$user->status) {
-            throw ValidationException::withMessages([
-                'username' => trans('auth.inactive')
-            ]);
-        }
-        return $this->success();
+        return $this->success(code: 204);
     }
 }

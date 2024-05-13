@@ -29,7 +29,7 @@ class PermissionController extends Controller
      */
     public function index(): JsonResponse
     {
-        Gate::authorize('permission@read:*');
+        // Gate::authorize('permission@read:*');
         return $this->success([
             'permissions' => Permission::getPermissions(),
         ]);

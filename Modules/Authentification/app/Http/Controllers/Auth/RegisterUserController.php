@@ -3,6 +3,7 @@
 namespace Modules\Authentification\Http\Controllers\Auth;
 
 use App\Models\User;
+use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\URL;
 use App\Http\Controllers\Controller;
@@ -12,6 +13,11 @@ use Modules\Authentification\Http\Requests\RegisterRequest;
 
 class RegisterUserController extends Controller
 {
+    public function create()
+    {
+        return Inertia::render('Auth/Register');
+    }
+
     public function store(RegisterRequest $request)
     {
         /** @var User */
@@ -28,6 +34,11 @@ class RegisterUserController extends Controller
 
         event(new Registered($user));
 
-        return redirect(URL::signedRoute('auth.created'));
+        return redirect(URL::signedRoute('register.created', expiration: now()->addMinutes(5)));
+    }
+
+    public function created()
+    {
+        return Inertia::render('Auth/Created');
     }
 }

@@ -11,6 +11,6 @@ class ManageAppDatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // $this->call([]);
+
     }
 }

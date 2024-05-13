@@ -6,9 +6,17 @@ use App\Models\User;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Modules\Permission\Models\Role;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
-use Modules\Client\Http\Requests\User\StoreRequest;
+use Modules\Permission\Models\Permission;
+use Modules\ManageApp\Transformers\UserResource;
+use Modules\ManageApp\Http\Requests\User\StoreRequest;
+use Modules\ManageApp\Models\Diploma;
+use Modules\ManageApp\Models\Grades;
+use Modules\ManageApp\Models\University;
+use Modules\Unit\Models\Unit;
 
 class UserController extends Controller
 {
@@ -18,8 +26,25 @@ class UserController extends Controller
     public function index()
     {
         // Gate::authorize('user@read:*');
-        return Inertia::render('User/Index', [
-            "users" => User::with(['permissions', 'roles'])->get()
+
+        $users = UserResource::collection(
+            User::paginate(10)
+        );
+
+        return Inertia::render('Manage/User/Index', [
+            'users' => $users
+        ]);
+    }
+
+    public function create()
+    {
+        return Inertia::render('Manage/User/Create', [
+            'permissions' => Permission::getPermissions(),
+            'roles' => Role::getRoles(),
+            'universities' => Cache::remember('universities', now()->addMinutes(10), fn () => University::get()),
+            'grades' => Grades::get(),
+            'diplomes' => Diploma::get(),
+            'units' => Unit::get(['id', 'name'])
         ]);
     }
 
@@ -47,7 +72,8 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        Gate::authorize("user@read:{$user->id}");
+        // return [new UserResource($user)];
+        // Gate::authorize("user@read:{$user->id}");
         // return $this->success(
         //     $user->loadPermissions()->loadRoles(),
         // );
