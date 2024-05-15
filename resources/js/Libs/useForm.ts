@@ -19,9 +19,9 @@ const axiosInstance: AxiosInstance = axios.create({
     },
 });
 
-type setDataByObject<TForm> = (data: TForm) => void;
-type setDataByMethod<TForm> = (data: (previousData: TForm) => TForm) => void;
-type setDataByKeyValuePair<TForm> = <K extends keyof TForm>(
+export type setDataByObject<TForm> = (data: TForm) => void;
+export type setDataByMethod<TForm> = (data: (previousData: TForm) => TForm) => void;
+export type setDataByKeyValuePair<TForm> = <K extends keyof TForm>(
     key: K,
     value: TForm[K]
 ) => void;
