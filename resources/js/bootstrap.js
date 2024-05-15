@@ -10,11 +10,6 @@ dayjs.locale(fr);
 dayjs.extend(objectSupport);
 dayjs.extend(relativeTime);
 dayjs.extend(localData);
-// console.log(dayjs.months());
-// console.log(dayjs.weekdays());
-// console.log(dayjs.weekdaysShort());
-// console.log(dayjs.weekdaysMin());
-// console.log(dayjs.monthsShort());
 
 axios.defaults.withCredentials = true;
 axios.defaults.withXSRFToken = true;
@@ -52,5 +47,4 @@ window.axios = axios;
 
 router.on("invalid", (event) => {
     // event.preventDefault();
-    console.log(event);
 });
