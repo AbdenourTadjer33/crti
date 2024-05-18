@@ -6,7 +6,6 @@ import { Button } from "@/Components/ui/button";
 import { Label } from "@radix-ui/react-label";
 import { Input } from "@/Components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/Components/ui/select";
-import { Table } from "lucide-react";
 import { Calendar } from "@/Components/ui/calendar";
 import DataTable from "@/Components/DataTable";
 import { Textarea } from "@/Components/ui/textarea";

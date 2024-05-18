@@ -12,6 +12,7 @@ use Modules\Project\Models\Project;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Cache;
+use Inertia\Inertia;
 use Modules\Project\Http\Requests\StoreRequest;
 use Modules\Project\Http\Requests\UpdateRequest;
 
@@ -37,8 +38,7 @@ class ProjectController extends Controller
 
     public function __construct(Request $request)
     {
-        auth()->login(User::first());
-        $this->user = User::first();
+        $this->user = $request->user();
     }
 
     /**
@@ -46,6 +46,8 @@ class ProjectController extends Controller
      */
     public function index()
     {
+
+        return Inertia::render('Project/Index');
         return $this->success([
             'projects' => Project::get()
         ]);
