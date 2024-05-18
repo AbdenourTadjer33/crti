@@ -16,10 +16,6 @@ const apps = [
         link: route("manage.permission.index"),
     },
     {
-        title: "Gestion de divisions",
-        link: route("manage.devision.index"),
-    },
-    {
         title: "gestion d'unité",
         link: route("manage.unit.index"),
     },
