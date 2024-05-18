@@ -38,6 +38,11 @@ class PermissionController extends Controller
         ]);
     }
 
+    public function create()
+    {
+        return Inertia::render('Manage/Permission/Create');
+    }
+
     /**
      * Store a newly created resource in storage.
      */

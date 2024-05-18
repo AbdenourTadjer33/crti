@@ -6,6 +6,7 @@ namespace App\Models;
 
 use Ramsey\Uuid\Uuid;
 use Illuminate\Support\Str;
+use Laravel\Scout\Searchable;
 use Laravel\Sanctum\HasApiTokens;
 use Modules\Permission\Traits\HasRole;
 use Illuminate\Notifications\Notifiable;
@@ -19,7 +20,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
 {
-    use HasFactory, HasUuids, Notifiable, HasApiTokens, HasPermission, HasRole, SoftDeletes;
+    use Searchable, HasFactory, HasUuids, Notifiable, HasApiTokens, HasPermission, HasRole, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -66,8 +67,8 @@ class User extends Authenticatable
     protected function firstName(): Attribute
     {
         return Attribute::make(
-            get: fn (string $value) => ucfirst($value),
-            set: fn (string $value) => strtolower($value),
+            get: fn (?string $value) => ucfirst($value),
+            set: fn (?string $value) => strtolower($value),
         );
     }
 
@@ -77,35 +78,9 @@ class User extends Authenticatable
     protected function lastName(): Attribute
     {
         return Attribute::make(
-            get: fn (string $value) => ucfirst($value),
-            set: fn (string $value) => strtolower($value)
+            get: fn (?string $value) => ucfirst($value),
+            set: fn (?string $value) => strtolower($value)
         );
-    }
-
-    public function getAttribute($key)
-    {
-        if (array_key_exists($key, $this->relations)) {
-            return parent::getAttribute($key);
-        } else {
-            return parent::getAttribute(Str::snake($key));
-        }
-    }
-
-    public function setAttribute($key, $value)
-    {
-        return parent::setAttribute(Str::snake($key), $value);
-    }
-
-    public function toArray()
-    {
-        return [
-            'uuid' => $this->uuid,
-            'name' => $this->last_name . ' ' . $this->first_name,
-            'email' => $this->email,
-            'isEmailVerified' => (bool) $this->email_verified_at,
-            'status' => $this->status,
-            'permissions' => $this->getDirectPermissions()->toArray(),
-        ];
     }
 
     /**
@@ -124,6 +99,20 @@ class User extends Authenticatable
     public function uniqueIds(): array
     {
         return ['uuid'];
+    }
+
+    /**
+     * Get the indexable data array for the model.
+     *
+     * @return array<string, mixed>
+     */
+    public function toSearchableArray(): array
+    {
+        return [
+            'first_name' => $this->first_name,
+            'last_name' => $this->last_name,
+            'email' => $this->email,
+        ];
     }
 
     public function scopeActive(Builder $query)

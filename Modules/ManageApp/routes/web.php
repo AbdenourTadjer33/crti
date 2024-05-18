@@ -20,5 +20,6 @@ Route::prefix('/app/manage')->as('manage.')->middleware('auth')->group(function 
     Route::resource('permissions', PermissionController::class)->names('permission');
     Route::resource('roles', RoleController::class)->names('role');
 
+    Route::get('/users/search', [UserController::class, 'search'])->name('user.search');
     Route::resource('users', UserController::class)->names('user');
 });

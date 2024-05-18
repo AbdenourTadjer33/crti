@@ -125,7 +125,7 @@ const CreateForm = () => {
                             Ajouter
                         </Button>
                     </div>
-                    <DataTable table={table} />
+                    <DataTable options={{ table }} />
                 </TableWraper>
             </div>
 

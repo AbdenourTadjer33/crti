@@ -24,4 +24,15 @@ function assert(condition: any, message: string) {
     }
 }
 
-export { capitalize, route, assert};
+function searchForKeyByPattern(obj: object, key: string) {
+    return Object.keys(obj);
+}
+
+function isKeyExisit(obj: object, key: string)
+{
+    
+
+    return Object.keys(obj)
+}
+
+export { capitalize, route, assert, searchForKeyByPattern, isKeyExisit};

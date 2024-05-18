@@ -42,7 +42,7 @@ class UserController extends Controller
             'permissions' => Permission::getPermissions(),
             'roles' => Role::getRoles(),
             'universities' => Cache::remember('universities', now()->addMinutes(10), fn () => University::get()),
-            'grades' => Grades::get(),
+            // 'grades' => Grades::get(),
             'diplomes' => Diploma::get(),
             'units' => Unit::get(['id', 'name'])
         ]);
@@ -72,11 +72,24 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        // return [new UserResource($user)];
+        return new UserResource($user);
         // Gate::authorize("user@read:{$user->id}");
         // return $this->success(
         //     $user->loadPermissions()->loadRoles(),
         // );
+    }
+
+    public function search(Request $request)
+    {
+        if (app()->isProduction() && !$request->isXmlHttpRequest()) {
+            abort(401);
+        }
+
+        if (!$request->input('query')) {
+            return redirect()->back();
+        }
+
+        return $result = User::search($request->input('query'))->simplePaginateRaw()->items();
     }
 
     /**

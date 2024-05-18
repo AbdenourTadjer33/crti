@@ -1,125 +1,117 @@
 import React from "react";
 import { route } from "@/Utils/helper";
-import { Link,  useForm } from "@inertiajs/react";
-import { Button } from "@/Components/ui/button";
-import { Input } from "@/Components/ui/input";
-import { Label } from "@/Components/ui/label";
-import { Textarea } from "@/Components/ui/textarea";
-import { CreateDivision } from "./Division/CreateDivision";
-import { Division } from "@/types";
 import {
-    setDataByKeyValuePair,
-    setDataByMethod,
+    useForm,
     setDataByObject,
-} from "@/types/form";
-import {
-    Stepper,
-    FormStepper,
-    StepsData,
-    useStepper,
-} from "@/Components/Stepper";
+    setDataByMethod,
+    setDataByKeyValuePair,
+} from "@/Libs/useForm";
+import { Stepper, useStepper } from "@/Components/Stepper";
+import { Button } from "@/Components/ui/button";
+import { FormWrapper } from "@/Components/ui/form";
+import { UnitInformationForm } from "@/Features/Manage/Unit/UnitInformationForm";
+import { UnitDivisionsForm } from "@/Features/Manage/Unit/UnitDivisionsForm";
+
+interface UnitForm {
+    name: string;
+    abbr: string;
+    description: string;
+    divisions: {
+        name: string;
+        description: string;
+        abbr: string;
+        members: { uuid: string; role: string }[];
+    }[];
+}
 
 export const CreateUnitContext = React.createContext<{
     data: UnitForm;
     setData: setDataByObject<UnitForm> &
         setDataByMethod<UnitForm> &
         setDataByKeyValuePair<UnitForm>;
-    errors: Partial<Record<keyof UnitForm, string>>;
+    errors: Partial<Record<keyof UnitForm | string, string>>;
 }>({
     data: {
         name: "",
         description: "",
+        abbr: "",
         divisions: [],
     },
     setData: () => {},
-    errors: {},
+    errors: {
+        name: "",
+        abbr: "",
+        description: "",
+        divisions: "",
+    },
 });
 
-interface UnitForm {
-    name: string;
-    description: string;
-    divisions: Division[];
-}
-
 const CreateForm = () => {
-    const { data, setData, errors, clearErrors, post, processing, reset } =
-        useForm<UnitForm>({
+    const { data, setData, errors, processing, validate, post, validating } =
+        useForm<UnitForm>(route("manage.unit.store"), "post", {
             name: "",
+            abbr: "",
             description: "",
             divisions: [],
         });
 
-    const steps: StepsData = [
+
+    const steps = [
         {
-            label: "informations de l'unité",
-            form: () => <Step1 />,
+            label: "Informations de l'unité",
+            form: <UnitInformationForm />,
+            isError: false,
         },
         {
-            label: "information sur les divisions",
-            form: () => <CreateDivision />,
+            label: "Informations des divisions",
+            form: <UnitDivisionsForm />,
+            isError: false,
         },
-        { label: "infrastructure de l'unité", form: () => <Step2 /> },
-        { label: "confirmation", form: () => <></> },
+        // {
+        //     label: "Infrastructure de l'unité",
+        //     form: <UnitInfrastructureForm />,
+        //     isError: false,
+        // },
+        // {
+        //     label: "Confirmation",
+        //     form: <UnitFormConfirmation />,
+        //     isError: false,
+        //     canNavigate: false,
+        // },
     ];
 
-    const { stepper, formStepper, step, next, prev, canGoNext, canGoPrev } =
-        useStepper(steps);
+    const stepper = useStepper({ steps });
 
     const submitHandler = (e: React.FormEvent) => {
         e.preventDefault();
-        alert("form submited");
-        return;
-        post(route("manage.unit.store"), {
-            only: ["errors", "flash"],
-            preserveScroll: true,
-            preserveState: true,
-            onSuccess: () => reset(),
-        });
+
+        post(route("manage.unit.store", {}));
     };
 
     return (
-        <CreateUnitContext.Provider value={{ data, setData, errors }}>
-            <div className="space-y-8">
+        <FormWrapper className="space-y-4 md:space-y-8">
+            <CreateUnitContext.Provider value={{ data, setData, errors }}>
                 <Stepper stepper={stepper} />
 
-                <form onSubmit={(e: React.FormEvent) => e.preventDefault()}>
-                    {formStepper.map((renderForm, idx) => (
-                        <React.Fragment key={idx}>
-                            {idx === step ? renderForm() : null}
-                        </React.Fragment>
-                    ))}
-                </form>
-
-                <div className="flex items-center gap-2 max-w-lg mx-auto">
-                    {canGoPrev ? (
+                <div className="mx-auto max-w-lg flex items-center gap-4">
+                    {stepper.canGoPrev && (
                         <Button
                             type="button"
-                            variant="secondary"
-                            onClick={() => prev()}
+                            variant="ghost"
                             className="w-full"
+                            onClick={() => stepper.prev()}
                         >
-                            Précedent
-                        </Button>
-                    ) : (
-                        <Button
-                            type="button"
-                            variant="destructive"
-                            className="w-full"
-                            asChild
-                        >
-                            <Link href={route("manage.unit.index")}>
-                                Annuler
-                            </Link>
+                            Précendant
                         </Button>
                     )}
-
-                    {canGoNext ? (
+                    {stepper.canGoNext ? (
                         <Button
                             type="button"
-                            onClick={() => next()}
+                            variant="ghost"
                             className="w-full"
+                            onClick={() => stepper.next()}
                         >
-                            Next
+                            Suivant
                         </Button>
                     ) : (
                         <Button
@@ -132,50 +124,11 @@ const CreateForm = () => {
                         </Button>
                     )}
                 </div>
-            </div>
-        </CreateUnitContext.Provider>
+
+                <pre>{JSON.stringify({ data, errors }, null, 2)}</pre>
+            </CreateUnitContext.Provider>
+        </FormWrapper>
     );
 };
-
-function Step1() {
-    const { data, setData, errors } = React.useContext(CreateUnitContext);
-
-    React.useEffect(() => console.log(data), [data]);
-
-    return (
-        <div>
-            <div className="space-y-1">
-                <Label>Nom de l'unité</Label>
-                <Input
-                    value={data.name}
-                    onChange={(e) => setData("name", e.target.value)}
-                />
-            </div>
-            <div className="space-y-1">
-                <Label>Description</Label>
-                <Textarea
-                    value={data.description}
-                    onChange={(e) => setData("description", e.target.value)}
-                />
-            </div>
-            <pre>{JSON.stringify(data, null, 2)}</pre>
-        </div>
-    );
-}
-
-function Step2() {
-    return (
-        <div>
-            <div className="space-y-1">
-                <Label>Matos</Label>
-                <Input />
-            </div>
-            <div className="space-y-1">
-                <Label>description de matos</Label>
-                <Textarea />
-            </div>
-        </div>
-    );
-}
 
 export default CreateForm;

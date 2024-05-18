@@ -2,7 +2,7 @@ import AppLogo from "@/Components/AppLogo";
 import { FormWrapper } from "@/Components/ui/form";
 import React, { useEffect } from "react";
 
-export default function ({ children }: React.PropsWithChildren) {
+export default function ({ ...props }: React.PropsWithChildren) {
     useEffect(() => {
         if (document.documentElement.classList.contains("dark")) {
             document.documentElement.classList.remove("dark");
@@ -16,9 +16,7 @@ export default function ({ children }: React.PropsWithChildren) {
             >
                 <AppLogo />
             </a>
-            <FormWrapper className="w-full sm:max-w-xl p-6 space-y-4 md:space-y-6">
-                {children}
-            </FormWrapper>
+            <div className="w-full sm:max-w-xl" {...props} />
         </div>
     );
 }

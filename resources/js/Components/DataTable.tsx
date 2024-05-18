@@ -1,11 +1,10 @@
-import React from "react";
+import * as React from "react";
 import { flexRender, Table as TanstackTable, Row } from "@tanstack/react-table";
 
 import {
     Table,
     TableBody,
     TableCell,
-    TableFooter,
     TableHead,
     TableHeader,
     TableRow,
@@ -13,23 +12,19 @@ import {
 import { PaginationLinks, PaginationMeta } from "@/types";
 import Pagination from "./Pagination";
 
-export default function DataTable({
-    table,
-    subComponent,
-    pagination,
-}: {
+interface DataTableOptions {
     table: TanstackTable<any>;
-    subComponent?: (props: { row: Row<any> }) => React.ReactElement;
-    pagination?: {
-        links: PaginationLinks;
-        meta: PaginationMeta;
-    };
-}) {
+    subComponent?: (pwrops: { row: Row<any> }) => React.ReactElement;
+    pagination?: { links: PaginationLinks; meta: PaginationMeta };
+    noDataPlaceholder?: () => React.ReactNode;
+}
+
+export default function DataTable({ options }: { options: DataTableOptions }) {
     return (
         <>
             <Table>
                 <TableHeader>
-                    {table.getHeaderGroups().map((headerGroup) => (
+                    {options.table.getHeaderGroups().map((headerGroup) => (
                         <TableRow key={headerGroup.id}>
                             {headerGroup.headers.map((header) => (
                                 <TableHead key={header.id}>
@@ -45,8 +40,8 @@ export default function DataTable({
                     ))}
                 </TableHeader>
                 <TableBody>
-                    {table.getRowModel().rows?.length ? (
-                        table.getRowModel().rows.map((row) => (
+                    {options.table.getRowModel().rows?.length ? (
+                        options.table.getRowModel().rows.map((row) => (
                             <React.Fragment key={row.id}>
                                 <TableRow
                                     data-state={
@@ -63,7 +58,7 @@ export default function DataTable({
                                     ))}
                                 </TableRow>
                                 {row.getCanExpand() &&
-                                typeof subComponent != "undefined"
+                                typeof options.subComponent != "undefined"
                                     ? row.getIsExpanded() && (
                                           <TableRow className="hover:bg-transparent dark:hover:bg-transparent">
                                               <TableCell
@@ -72,7 +67,9 @@ export default function DataTable({
                                                           .length
                                                   }
                                               >
-                                                  {subComponent({ row })}
+                                                  {options.subComponent({
+                                                      row,
+                                                  })}
                                               </TableCell>
                                           </TableRow>
                                       )
@@ -82,21 +79,24 @@ export default function DataTable({
                     ) : (
                         <TableRow>
                             <TableCell
-                                colSpan={table.getAllColumns().length}
+                                colSpan={options.table.getAllColumns().length}
                                 className="h-24 text-center"
                             >
-                                No results.
+                                {options.noDataPlaceholder
+                                    ? options.noDataPlaceholder()
+                                    : "Aucun résultat."}
                             </TableCell>
                         </TableRow>
                     )}
                 </TableBody>
             </Table>
             <div className="bg-white dark:bg-gray-700 py-2">
-                {pagination &&
-                    pagination.meta.per_page < pagination.meta.total && (
+                {options.pagination &&
+                    options.pagination.meta.per_page <
+                        options.pagination.meta.total && (
                         <Pagination
-                            links={pagination.links}
-                            meta={pagination.meta}
+                            links={options.pagination.links}
+                            meta={options.pagination.meta}
                         />
                     )}
             </div>

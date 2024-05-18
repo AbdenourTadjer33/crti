@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { cn } from "@/Utils/utils";
 
 interface FormWrapperProps extends React.FormHTMLAttributes<HTMLFormElement> {
@@ -28,4 +28,11 @@ const FormWrapper = React.forwardRef<HTMLFormElement, FormWrapperProps>(
 
 FormWrapper.displayName = "FormWrapper";
 
-export { FormWrapper };
+const SubForm = React.forwardRef<
+    HTMLDivElement,
+    React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+    <div ref={ref} className={cn("", className)} {...props} />
+));
+
+export { FormWrapper, SubForm };

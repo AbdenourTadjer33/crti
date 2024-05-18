@@ -25,6 +25,7 @@ export type setDataByKeyValuePair<TForm> = <K extends keyof TForm>(
     key: K,
     value: TForm[K]
 ) => void;
+
 type FormDataType = object;
 
 export interface InertiaFormProps<TForm extends FormDataType> {

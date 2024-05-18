@@ -99,8 +99,10 @@ const Table: React.FC<{ users: PaginationType<User> }> = ({ users }) => {
             </div>
 
             <DataTable
-                table={table}
-                pagination={{ links: users.links, meta: users.meta }}
+                options={{
+                    table,
+                    pagination: { links: users.links, meta: users.meta },
+                }}
             />
         </TableWraper>
     );
