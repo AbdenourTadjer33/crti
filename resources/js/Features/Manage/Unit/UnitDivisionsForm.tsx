@@ -151,7 +151,7 @@ const UnitDivisionsForm = () => {
     );
 };
 
-const DivisionMembers = ({ divisionIdx }: { divisionIdx: number }) => {
+export const DivisionMembers = ({ divisionIdx }: { divisionIdx: number }) => {
     const { users } = usePage().props;
     const { data, setData } = React.useContext(CreateUnitContext);
     const finalData = React.useMemo(() => users.data, [users.data]);

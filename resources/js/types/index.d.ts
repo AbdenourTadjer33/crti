@@ -24,8 +24,7 @@ export type Division = {
     description?: string;
 }
 
-
-
+// 0556 16 29 62
 export type User = {
     uuid: string;
     name: string;
