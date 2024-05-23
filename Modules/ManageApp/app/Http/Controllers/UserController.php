@@ -86,10 +86,10 @@ class UserController extends Controller
         }
 
         if (!$request->input('query')) {
-            return redirect()->back();
+            return abort(404);
         }
 
-        return $result = User::search($request->input('query'))->simplePaginateRaw()->items();
+        return User::search($request->input('query'))->simplePaginateRaw()->items();
     }
 
     /**
