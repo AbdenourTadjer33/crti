@@ -1,5 +1,11 @@
 import * as React from "react";
-import { flexRender, Table as TanstackTable, Row } from "@tanstack/react-table";
+import {
+    flexRender,
+    Table as TanstackTable,
+    Row,
+    CellContext,
+    HeaderContext,
+} from "@tanstack/react-table";
 
 import {
     Table,
@@ -11,6 +17,9 @@ import {
 } from "@/Components/ui/table";
 import { PaginationLinks, PaginationMeta } from "@/types";
 import Pagination from "./Pagination";
+import { Checkbox } from "./ui/checkbox";
+import { Button } from "./ui/button";
+import { MdKeyboardArrowDown, MdKeyboardArrowRight } from "react-icons/md";
 
 interface DataTableOptions {
     table: TanstackTable<any>;
@@ -103,3 +112,41 @@ export default function DataTable({ options }: { options: DataTableOptions }) {
         </>
     );
 }
+
+function HeaderSelecter({ table }: HeaderContext<any, any>) {
+    return (
+        <Checkbox
+            checked={
+                table.getIsAllPageRowsSelected() ||
+                (table.getIsSomePageRowsSelected() && "indeterminate")
+            }
+            onCheckedChange={(value) =>
+                table.toggleAllPageRowsSelected(!!value)
+            }
+        />
+    );
+}
+
+function RowSelecter({ row }: CellContext<any, any>) {
+    return (
+        <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
+            aria-label="Select row"
+        />
+    );
+}
+
+function RowExpander({ row }: CellContext<any, any>) {
+    return row.getCanExpand() ? (
+        <Button variant="ghost" onClick={row.getToggleExpandedHandler()}>
+            {row.getIsExpanded() ? (
+                <MdKeyboardArrowDown className="w-5 h-5" />
+            ) : (
+                <MdKeyboardArrowRight className="w-5 h-5" />
+            )}
+        </Button>
+    ) : null;
+}
+
+export { HeaderSelecter, RowSelecter, RowExpander };
