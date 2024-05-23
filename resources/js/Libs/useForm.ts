@@ -20,7 +20,9 @@ const axiosInstance: AxiosInstance = axios.create({
 });
 
 export type setDataByObject<TForm> = (data: TForm) => void;
-export type setDataByMethod<TForm> = (data: (previousData: TForm) => TForm) => void;
+export type setDataByMethod<TForm> = (
+    data: (previousData: TForm) => TForm
+) => void;
 export type setDataByKeyValuePair<TForm> = <K extends keyof TForm>(
     key: K,
     value: TForm[K]
@@ -59,7 +61,7 @@ export interface InertiaFormProps<TForm extends FormDataType> {
 
 interface ExtendedFormProps<TForm extends FormDataType>
     extends InertiaFormProps<TForm> {
-    validate: (...fields: (keyof TForm)[]) => void;
+    validate: (...fields: string[]) => void;
     validating: boolean;
 }
 
@@ -73,11 +75,24 @@ const useForm = <TForm extends FormDataType>(
 
     const [validating, setValidating] = React.useState<boolean>(false);
 
-    const validate = async (...fields: (keyof TForm)[]) => {
+    const validate = async (...fields: string[]) => {
         setValidating(true);
 
-        const dataToValidate: Partial<TForm> = {};
-        fields.forEach((field) => (dataToValidate[field] = form.data[field]));
+        let dataToValidate: any = {};
+
+        for (const field of fields) {
+            if (field.split(".").length > 1) {
+                const keys = field.split(".");
+                let value: any = form.data;
+                keys.forEach((key) => (value = value[key]));
+                dataToValidate[field] = value;
+            } else {
+                // @ts-expect-error
+                dataToValidate[field] = form.data[field];
+            }
+        }
+
+        dataToValidate = form.data;
 
         try {
             await axiosInstance.request({
@@ -86,7 +101,7 @@ const useForm = <TForm extends FormDataType>(
                 data: dataToValidate,
                 headers: {
                     Precognition: "true",
-                    "Precognition-Validate-Only": fields.join(","),
+                    // "Precognition-Validate-Only": fields.join(","),
                 },
             });
         } catch (error) {

@@ -11,20 +11,22 @@ export type PageProps<
 
 export type Unit = {
     id: string;
-    slug: string;
     name: string;
-    description: string;
-    address: string;
-    coordinates: string;
+    abbr?: string;
+    description?: string;
+    address?: string;
+    city?: string;
+    country?: string;
+    createdAt?: string;
+    updatedAt?: string;
+    divisions?: Division[];
 };
 
 export type Division = {
     id?: string;
     name: string;
     description?: string;
-}
-
-
+};
 
 export type User = {
     uuid: string;

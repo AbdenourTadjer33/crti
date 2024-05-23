@@ -14,6 +14,7 @@ import {
 import {
     getCoreRowModel,
     getExpandedRowModel,
+    Row,
     useReactTable,
 } from "@tanstack/react-table";
 
@@ -25,7 +26,6 @@ import { MdSearch } from "react-icons/md";
 import React from "react";
 import { TableWraper } from "@/Components/ui/table";
 import { columnDef } from "./columns";
-import Pagination from "@/Components/Pagination";
 
 const Table: React.FC<{ users: PaginationType<User> }> = ({ users }) => {
     const finalData = React.useMemo(() => users.data, [users.data]);
@@ -41,9 +41,16 @@ const Table: React.FC<{ users: PaginationType<User> }> = ({ users }) => {
         manualPagination: true,
     });
 
+    function subComponent({ row }: { row: Row<User> }) {
+        return (
+            <div className="flex flex-wrap gap-2">
+                <pre>{JSON.stringify(row, null, 2)}</pre>;
+            </div>
+        );
+    }
+
     return (
         <TableWraper>
-            {/* <pre>{JSON.stringify(users, null, 2)}</pre> */}
             <div className="p-4 flex justify-between gap-2">
                 <div className="relative sm:w-80">
                     <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
@@ -102,6 +109,7 @@ const Table: React.FC<{ users: PaginationType<User> }> = ({ users }) => {
                 options={{
                     table,
                     pagination: { links: users.links, meta: users.meta },
+                    subComponent,
                 }}
             />
         </TableWraper>

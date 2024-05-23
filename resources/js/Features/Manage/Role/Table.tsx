@@ -111,7 +111,7 @@ const Table: React.FC<{ roles: Role[] }> = ({ roles }) => {
                 </DropdownMenu>
             </div>
 
-            <DataTable table={table} subComponent={subComponent} />
+            <DataTable options={{ table, subComponent }} />
         </TableWraper>
     );
 };

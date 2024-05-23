@@ -1,7 +1,6 @@
 import React from "react";
-import {Link, router} from "@inertiajs/react";
-import {createColumnHelper} from "@tanstack/react-table";
-import {Checkbox} from "@/Components/ui/checkbox";
+import { Link, router } from "@inertiajs/react";
+import { createColumnHelper } from "@tanstack/react-table";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -9,7 +8,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/Components/ui/dropdown-menu";
-import {Button} from "@/Components/ui/button";
+import { Button } from "@/Components/ui/button";
 import {
     Tooltip,
     TooltipContent,
@@ -17,14 +16,9 @@ import {
     TooltipTrigger,
 } from "@/Components/ui/tooltip";
 import dayjs from "dayjs";
-import {MoreHorizontal} from "lucide-react";
-import {Role} from "@/types";
-import {
-    MdDelete,
-    MdEdit,
-    MdKeyboardArrowDown,
-    MdKeyboardArrowRight,
-} from "react-icons/md";
+import { MoreHorizontal } from "lucide-react";
+import { Role } from "@/types";
+import { MdDelete, MdEdit } from "react-icons/md";
 import {
     Dialog,
     DialogContent,
@@ -32,53 +26,27 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/Components/ui/dialog";
-import {FaInfoCircle} from "react-icons/fa";
-import {route} from "@/Utils/helper";
+import { FaInfoCircle } from "react-icons/fa";
+import {
+    HeaderSelecter,
+    RowExpander,
+    RowSelecter,
+} from "@/Components/DataTable";
 
 const columnHelper = createColumnHelper<Role>();
 
 export const columnDef = [
     columnHelper.display({
         id: "selecter",
-        header: ({table}) => (
-            <Checkbox
-                checked={
-                    table.getIsAllPageRowsSelected() ||
-                    (table.getIsSomePageRowsSelected() && "indeterminate")
-                }
-                onCheckedChange={(value) =>
-                    table.toggleAllPageRowsSelected(!!value)
-                }
-                aria-label="Select all"
-            />
-        ),
-        cell: ({row}) => (
-            <Checkbox
-                checked={row.getIsSelected()}
-                onCheckedChange={(value) => row.toggleSelected(!!value)}
-                aria-label="Select row"
-            />
-        ),
+        header: ({ table }) => <HeaderSelecter table={table} />,
+        cell: ({ row }) => <RowSelecter row={row} />,
         enableHiding: false,
         enableSorting: false,
     }),
 
     columnHelper.display({
         id: "expander",
-        cell: ({row}) => {
-            return row.getCanExpand() ? (
-                <Button
-                    variant={"ghost"}
-                    onClick={row.getToggleExpandedHandler()}
-                >
-                    {row.getIsExpanded() ? (
-                        <MdKeyboardArrowDown className="w-5 h-5"/>
-                    ) : (
-                        <MdKeyboardArrowRight className="w-5 h-5"/>
-                    )}
-                </Button>
-            ) : null
-        },
+        cell: ({ row }) => <RowExpander row={row} />,
         enableHiding: false,
         enableSorting: false,
     }),
@@ -93,65 +61,64 @@ export const columnDef = [
 
     columnHelper.accessor("description", {
         header: "description",
-        cell: ({getValue}) => <p>{getValue()}</p>,
+        cell: ({ getValue }) => <p>{getValue()}</p>,
     }),
 
     columnHelper.accessor("permissions", {
         header: "Permissions",
-        cell: ({getValue}) => <>{getValue()?.length}</>,
+        cell: ({ getValue }) => <>{getValue()?.length}</>,
     }),
 
     columnHelper.accessor("createdAt", {
         header: "créer le",
-        cell: ({getValue}) => {
-            const datetime = dayjs(getValue());
-            return (
-                <TooltipProvider>
-                    <Tooltip>
-                        <TooltipTrigger>{datetime.fromNow()}</TooltipTrigger>
-                        <TooltipContent>
-                            <p>{datetime.format("DD-MM-YYYY HH:mm:ss")}</p>
-                        </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-            );
-        },
+        cell: ({ getValue }) => (
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger>
+                        {dayjs(getValue()).fromNow()}
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <p>{dayjs(getValue()).format("DD-MM-YYYY HH:mm:ss")}</p>
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+        ),
     }),
 
     columnHelper.accessor("updatedAt", {
         header: "modifier le",
-        cell: ({getValue}) => {
-            const datetime = dayjs(getValue());
-            return (
-                <TooltipProvider>
-                    <Tooltip>
-                        <TooltipTrigger>{datetime.fromNow()}</TooltipTrigger>
-                        <TooltipContent>
-                            <p>{datetime.format("DD-MM-YYYY HH:mm:ss")}</p>
-                        </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-            );
-        },
+        cell: ({ getValue }) => (
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger>
+                        {dayjs(getValue()).fromNow()}
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <p>{dayjs(getValue()).format("DD-MM-YYYY HH:mm:ss")}</p>
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+        ),
     }),
 
     columnHelper.display({
         id: "Actions",
-        cell: ({row}) => {
-            return <Actions id={row.id}/>;
+        cell: ({ row }) => {
+            return <Actions id={row.id} />;
         },
         enableHiding: false,
     }),
 ];
 
-const Actions = ({id}: { id: string }) => {
+const Actions = ({ id }: { id: string }) => {
     const [beforeDeleteModal, setBeforeDeleteModal] = React.useState(false);
 
     const deleteHandler = () => {
-        router.delete(route("manage.role.destroy", {role: id}), {
+        router.delete(route("manage.role.destroy", { role: id }), {
             preserveScroll: true,
             preserveState: true,
             only: ["flash", "roles"],
+            onSuccess: () => setBeforeDeleteModal(false),
         });
     };
     return (
@@ -159,7 +126,7 @@ const Actions = ({id}: { id: string }) => {
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="w-8 h-8 p-0">
-                        <MoreHorizontal className="w-5 h-5"/>
+                        <MoreHorizontal className="w-5 h-5" />
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
@@ -168,16 +135,16 @@ const Actions = ({id}: { id: string }) => {
                     loop
                 >
                     <DropdownMenuItem asChild>
-                        <Link href={route("manage.role.edit", {role: id})}>
-                            <MdEdit className="w-4 h-4 mr-2"/>
+                        <Link href={route("manage.role.edit", { role: id })}>
+                            <MdEdit className="w-4 h-4 mr-2" />
                             Modifier
                         </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator/>
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem
                         onClick={() => setBeforeDeleteModal(true)}
                     >
-                        <MdDelete className="w-4 h-4 mr-2 text-red-500 dark:text-red-600"/>
+                        <MdDelete className="w-4 h-4 mr-2 text-red-500 dark:text-red-600" />
                         Supprimer
                     </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -190,7 +157,7 @@ const Actions = ({id}: { id: string }) => {
                 <DialogContent onOpenAutoFocus={(e) => e.preventDefault()}>
                     <DialogHeader>
                         <DialogTitle className="inline-flex items-center gap-2">
-                            <FaInfoCircle className="w-6 h-6 text-red-500 dark:text-red-600"/>
+                            <FaInfoCircle className="w-6 h-6 text-red-500 dark:text-red-600" />
                             Etes-vous absolument sûr?
                         </DialogTitle>
                     </DialogHeader>
