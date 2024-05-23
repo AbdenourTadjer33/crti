@@ -1,22 +1,12 @@
 import { createColumnHelper } from "@tanstack/react-table";
 import { Checkbox } from "@/Components/ui/checkbox";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/Components/ui/dropdown-menu";
-import { Button } from "@/Components/ui/button";
-import {
     Tooltip,
     TooltipContent,
     TooltipProvider,
     TooltipTrigger,
 } from "@/Components/ui/tooltip";
 import dayjs from "dayjs";
-import { MoreHorizontal } from "lucide-react";
 import { Permission } from "@/types";
 import Actions from "./actions";
 
@@ -52,18 +42,22 @@ export const columnDef = [
         header: "id",
     }),
 
-    columnHelper.accessor('model', {
+    columnHelper.accessor("model", {
         header: "model",
     }),
 
-    columnHelper.accessor('action', {
+    columnHelper.accessor("action", {
         header: "action",
     }),
 
     columnHelper.display({
         id: "permission",
         header: "permission",
-        cell: ({ row }) => <>{row.original.model}@{row.original.action}</>
+        cell: ({ row }) => (
+            <>
+                {row.original.model}@{row.original.action}
+            </>
+        ),
     }),
 
     columnHelper.accessor("type", {

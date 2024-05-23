@@ -4,8 +4,14 @@ import "../css/app.css";
 import { createRoot } from "react-dom/client";
 import { createInertiaApp } from "@inertiajs/react";
 import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
-import { StrictMode } from "react";
 import { capitalize } from "./Utils/helper";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { Ziggy } from "./ziggy";
+import { route } from "ziggy-js";
+
+globalThis.Ziggy = Ziggy;
+globalThis.route = route;
 
 const appName = import.meta.env.VITE_APP_NAME || "Laravel";
 
@@ -19,7 +25,12 @@ createInertiaApp({
     setup({ el, App, props }) {
         const root = createRoot(el);
 
-        root.render(<App {...props} />);
+        root.render(
+            <QueryClientProvider client={new QueryClient()}>
+                <App {...props} />
+                <ReactQueryDevtools initialIsOpen={false} />
+            </QueryClientProvider>
+        );
     },
     progress: {
         color: "#655bf5",

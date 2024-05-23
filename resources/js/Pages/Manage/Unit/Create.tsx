@@ -1,7 +1,6 @@
 import React from "react";
 import { Head } from "@inertiajs/react";
 import CreateForm from "@/Features/Manage/Unit/CreateForm";
-import { route } from "@/Utils/helper";
 import AuthLayout from "@/Layouts/AuthLayout";
 import { MdHome } from "react-icons/md";
 import Breadcrumb from "@/Features/Breadcrumb/Breadcrumb";
@@ -17,7 +16,7 @@ const breadcrubms = [
 
 const Create: React.FC<{}> = () => (
     <AuthLayout>
-        <Head title={"Créer unité"} />
+        <Head title="Créer unité" />
         <div className="space-y-4">
             <Breadcrumb items={breadcrubms} />
 

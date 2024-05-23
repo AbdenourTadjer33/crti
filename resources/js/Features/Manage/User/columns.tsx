@@ -20,31 +20,26 @@ import {
     TooltipTrigger,
 } from "@/Components/ui/tooltip";
 import { Indicator } from "@/Components/ui/indicator";
+import {
+    HeaderSelecter,
+    RowExpander,
+    RowSelecter,
+} from "@/Components/DataTable";
 
 const columnHelper = createColumnHelper<User>();
 
 export const columnDef = [
     columnHelper.display({
-        id: "select",
-        header: ({ table }) => (
-            <Checkbox
-                checked={
-                    table.getIsAllPageRowsSelected() ||
-                    (table.getIsSomePageRowsSelected() && "indeterminate")
-                }
-                onCheckedChange={(value) =>
-                    table.toggleAllPageRowsSelected(!!value)
-                }
-                aria-label="Select all"
-            />
-        ),
-        cell: ({ row }) => (
-            <Checkbox
-                checked={row.getIsSelected()}
-                onCheckedChange={(value) => row.toggleSelected(!!value)}
-                aria-label="Select row"
-            />
-        ),
+        id: "selecter",
+        header: ({ table }) => <HeaderSelecter table={table} />,
+        cell: ({ row }) => <RowSelecter row={row} />,
+        enableHiding: false,
+        enableSorting: false,
+    }),
+
+    columnHelper.display({
+        id: "expander",
+        cell: ({ row }) => <RowExpander row={row} />,
         enableHiding: false,
         enableSorting: false,
     }),
@@ -67,8 +62,7 @@ export const columnDef = [
                         column.toggleSorting(column.getIsSorted() === "asc")
                     }
                 >
-                    Email up/down
-                    {/* <ArrowUpDown className="ml-2 h-4 w-4" /> */}
+                    Email
                 </Button>
             );
         },

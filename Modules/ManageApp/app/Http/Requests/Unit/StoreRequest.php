@@ -12,13 +12,27 @@ class StoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'min:10'],
+            'name' => ['required', 'string',],
             'abbr' => ['nullable', 'string'],
-            'description' => ['required', 'string'],
-            'divisions' => ['required', 'array', 'min:1'],
-            'divisions.*' => ['required', 'array'],
-            'divisions.*.name' => ['required', 'string'],
-            'divisions.*.description' => ['required', 'string']
+            'description' => ['nullable', 'string'],
+            'address' => ['required', 'string'],
+            'city' => ['required', 'string'],
+            'country' => ['required', 'string'],
+
+            'divisions' => ['nullable', 'array'],
+            'divisions.*' => ['sometimes', 'required', 'array'],
+            'divisions.*.name' => ['sometimes', 'required', 'string'],
+            'divisions.*.description' => ['nullable', 'string'],
+            'divisions.*.members' => ['nullable', 'array'],
+            'divisions.*.members.*' => ['sometimes', 'required', 'array'],
+            'divisions.*.members.*.uuid' => ['sometimes', 'required', 'string'],
+            'divisions.*.members.*.grade' => ['sometimes', 'required', 'string'],
+
+            'infrastructures' => ['nullable', 'array'],
+            'infrastructures.*' => ['sometimes', 'required', 'array'],
+            'infrastructures.*.name' => ['sometimes', 'required', 'string'],
+            'infrastructures.*.descrption' => ['sometimes', 'required', 'string'],
+
         ];
     }
 

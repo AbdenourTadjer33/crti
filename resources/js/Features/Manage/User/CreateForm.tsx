@@ -27,6 +27,7 @@ import {
     CommandEmpty,
     CommandItem,
 } from "@/Components/ui/command";
+import { FormWrapper } from "@/Components/ui/form";
 
 const CreateForm: React.FC<{
     universities: { id: number; name: string }[];
@@ -68,11 +69,8 @@ const CreateForm: React.FC<{
     };
 
     return (
-        <form onSubmit={submitHandler} className="space-y-4">
-            <div
-                className="grid lg:grid-cols-5 md:grid-cols-4 sm:grid-cols-3 gap-4"
-                // className="grid grid-cols-3 gap-4"
-            >
+        <FormWrapper className="space-y-4" onSubmit={submitHandler}>
+            <div className="grid lg:grid-cols-5 md:grid-cols-4 sm:grid-cols-3 gap-4">
                 <div>
                     <Label>Nom</Label>
                     <Input
@@ -330,7 +328,7 @@ const CreateForm: React.FC<{
                     Créer
                 </Button>
             </div>
-        </form>
+        </FormWrapper>
     );
 };
 

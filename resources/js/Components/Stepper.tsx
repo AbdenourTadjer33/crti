@@ -4,9 +4,14 @@ import { capitalize } from "@/Utils/helper";
 
 export type Step = {
     label: string;
-    form: React.ReactNode;
+    form: React.ReactNode | ((props: FormProps) => React.ReactNode);
     isError?: boolean;
 };
+
+export interface FormProps {
+    step: number;
+    isError?: boolean;
+}
 
 interface StepperOptions {
     steps: Step[];
@@ -89,7 +94,13 @@ const Stepper = ({ stepper }: { stepper: StepperHook }) => {
 
             {stepper.steps.map((step, idx) => (
                 <React.Fragment key={idx}>
-                    {stepper.currentStep === idx ? step.form : null}
+                    {stepper.currentStep === idx &&
+                        (typeof step.form === "function"
+                            ? step.form({
+                                  isError: step.isError,
+                                  step: stepper.currentStep,
+                              })
+                            : step.form)}
                 </React.Fragment>
             ))}
         </React.Fragment>

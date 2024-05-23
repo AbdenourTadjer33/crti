@@ -16,7 +16,8 @@
         "laravel/tinker": "^2.9",
         "nwidart/laravel-modules": "^11.0",
         "predis/predis": "^2.0",
-        "tightenco/ziggy": "^2.1"
+        "tightenco/ziggy": "^2.1",
+        "typesense/typesense-php": "^4.9"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.12",
