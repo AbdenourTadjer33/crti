@@ -1,18 +1,21 @@
 import * as React from "react";
-import { CreateUnitContext } from "@/Features/Manage/Unit/CreateForm";
+import { usePage } from "@inertiajs/react";
+import {
+    CreateUnitContext,
+    DivisionForm,
+} from "@/Features/Manage/Unit/CreateForm";
 import { Label } from "@/Components/ui/label";
 import { Input, InputError } from "@/Components/ui/input";
 import { Textarea } from "@/Components/ui/textarea";
 import { Button } from "@/Components/ui/button";
 import * as TanstackTable from "@tanstack/react-table";
+import { RowSelectionState } from "@tanstack/react-table";
 import { columnDef } from "../User/columns";
 import { TableWraper } from "@/Components/ui/table";
 import { MdAdd, MdSearch } from "react-icons/md";
 import DataTable from "@/Components/DataTable";
 import { useMediaQuery } from "@/Hooks/use-media-query";
 import { Heading } from "@/Components/ui/heading";
-import { router, usePage } from "@inertiajs/react";
-import { route } from "@/Utils/helper";
 import {
     Accordion,
     AccordionContent,
@@ -20,6 +23,7 @@ import {
     AccordionTrigger,
 } from "@/Components/ui/accordion";
 import debounce from "lodash.debounce";
+import { searchUsers } from "@/Services/api/users";
 
 const UnitDivisionsForm = () => {
     const { data, setData, errors } = React.useContext(CreateUnitContext);
@@ -36,154 +40,227 @@ const UnitDivisionsForm = () => {
         });
     };
 
-    const newMember = (divisionIdx: number) => {
-        setData((data) => {
-            data.divisions[divisionIdx].members.push({ uuid: "", role: "" });
-            return { ...data };
-        });
-    };
+    function canAddMoreDivisions(): boolean {
+        for (const division of data.divisions) {
+            if (!division.valid) {
+                return false;
+            }
+        }
 
-    const validateDivision = () => {};
+        return true;
+    }
 
     React.useEffect(() => {
-        newDivision();
+        if (!data.divisions.length) {
+            newDivision();
+        }
     }, []);
 
     return (
-        <div className="space-y-4">
-            {data.divisions.map((division, divisionIdx) => (
-                <div
-                    key={divisionIdx}
-                    className="p-4 bg-gray-50 dark:bg-gray-800 rounded border dark:border-gray-500 grid grid-cols-3 gap-4"
-                >
-                    <div className="space-y-1 col-span-2">
-                        <Label>Nom de division</Label>
-                        <Input
-                            value={division.name}
-                            onChange={(e) =>
-                                setData((data) => {
-                                    data.divisions[divisionIdx].name =
-                                        e.target.value;
-                                    return { ...data };
-                                })
-                            }
-                        />
-                        <InputError
-                            message={errors[`divisions.${divisionIdx}.name`]}
-                        />
-                    </div>
-                    <div className="space-y-1 col-span-1">
-                        <Label>Abréviation</Label>
-                        <Input
-                            value={division.abbr}
-                            onChange={(e) =>
-                                setData((data) => {
-                                    data.divisions[divisionIdx].abbr =
-                                        e.target.value;
-                                    return { ...data };
-                                })
-                            }
-                        />
-                        <InputError
-                            message={errors[`divisions.${divisionIdx}.abbr`]}
-                        />
-                    </div>
-                    <div className="space-y-1 col-span-3">
-                        <Label>Description</Label>
-                        <Textarea
-                            value={division.description}
-                            onChange={(e) =>
-                                setData((data) => {
-                                    data.divisions[divisionIdx].description =
-                                        e.target.value;
-                                    return { ...data };
-                                })
-                            }
-                        />
-                        <InputError
-                            message={
-                                errors[`divisions.${divisionIdx}.description`]
-                            }
-                        />
-                    </div>
-                    <div className="space-y-2 col-span-3">
-                        <Accordion type="single" collapsible>
-                            <AccordionItem value="1">
-                                <AccordionTrigger>
-                                    Selectionnez les members de la divisions
-                                </AccordionTrigger>
-                                <AccordionContent>
-                                    <div className="flex items-center justify-between gap-2">
-                                        <Button
-                                            type="button"
-                                            className="sm:hidden"
-                                        >
-                                            <MdAdd className="w-4 h-4 mr-2" />
-                                            Ajouter un utilisateur
-                                        </Button>
-                                    </div>
-                                    <DivisionMembers
-                                        divisionIdx={divisionIdx}
-                                    />
-                                </AccordionContent>
-                            </AccordionItem>
-                        </Accordion>
-                    </div>
-                    <div className="inline-flex gap-4 col-span-3">
-                        <Button
-                            type="button"
-                            className="w-full"
-                            variant="destructive"
-                        >
-                            Annuler
-                        </Button>
-                        <Button
-                            type="button"
-                            className="w-full"
-                            variant="primary"
-                        >
-                            Ajouter
-                        </Button>
-                    </div>
-                </div>
-            ))}
+        <div className="space-y-2">
+            {data.divisions.map((division, divisionIdx) =>
+                !division.valid ? (
+                    <DivisionInformationForm
+                        key={divisionIdx}
+                        divisionIdx={divisionIdx}
+                        division={division}
+                    />
+                ) : (
+                    <DivisionWidget
+                        key={divisionIdx}
+                        divisionIdx={divisionIdx}
+                        division={division}
+                    />
+                )
+            )}
+
+            {canAddMoreDivisions() && (
+                <Button variant="link" onClick={newDivision}>
+                    Ajouter une division
+                </Button>
+            )}
         </div>
     );
 };
 
-const DivisionMembers = ({ divisionIdx }: { divisionIdx: number }) => {
+const DivisionInformationForm = ({
+    division,
+    divisionIdx,
+}: {
+    division: DivisionForm;
+    divisionIdx: number;
+}) => {
+    const { errors, setData } = React.useContext(CreateUnitContext);
+
+    const validateDivision = () => {
+        if (!division.name) return;
+        setData((data) => {
+            data.divisions[divisionIdx].valid = true;
+            return { ...data };
+        });
+    };
+
+    const cancelDivision = () => {
+        setData((data) => {
+            data.divisions.splice(divisionIdx, 1);
+            return { ...data };
+        });
+    };
+
+    return (
+        <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded border dark:border-gray-500 grid grid-cols-3 gap-4">
+            <div className="space-y-1 col-span-2">
+                <Label>Nom de division</Label>
+                <Input
+                    autoFocus
+                    value={division.name}
+                    name={`divisions.0.name`}
+                    onChange={(e) =>
+                        setData((data) => {
+                            data.divisions[divisionIdx].name = e.target.value;
+                            return { ...data };
+                        })
+                    }
+                />
+                <InputError message={errors[`divisions.${divisionIdx}.name`]} />
+            </div>
+            <div className="space-y-1 col-span-1">
+                <Label>Abréviation</Label>
+                <Input
+                    value={division.abbr}
+                    onChange={(e) =>
+                        setData((data) => {
+                            data.divisions[divisionIdx].abbr = e.target.value;
+                            return { ...data };
+                        })
+                    }
+                />
+                <InputError message={errors[`divisions.${divisionIdx}.abbr`]} />
+            </div>
+            <div className="space-y-1 col-span-3">
+                <Label>Description</Label>
+                <Textarea
+                    value={division.description}
+                    onChange={(e) =>
+                        setData((data) => {
+                            data.divisions[divisionIdx].description =
+                                e.target.value;
+                            return { ...data };
+                        })
+                    }
+                />
+                <InputError
+                    message={errors[`divisions.${divisionIdx}.description`]}
+                />
+            </div>
+            <div className="space-y-2 col-span-3">
+                <Accordion type="single" collapsible>
+                    <AccordionItem value="1">
+                        <AccordionTrigger>
+                            Selectionnez les members de la divisions
+                        </AccordionTrigger>
+                        <AccordionContent>
+                            <div className="flex items-center justify-between gap-2">
+                                <Button type="button" className="sm:hidden">
+                                    <MdAdd className="w-4 h-4 mr-2" />
+                                    Ajouter un utilisateur
+                                </Button>
+                            </div>
+                            <SelectDivisionMembers divisionIdx={divisionIdx} />
+                        </AccordionContent>
+                    </AccordionItem>
+                    {!!division.members.length && (
+                        <AccordionItem value="2">
+                            <AccordionTrigger>
+                                Ajouter le role des members dans la division
+                            </AccordionTrigger>
+                            <AccordionContent>
+                                <DivisionMembers divisionIdx={divisionIdx} />
+                            </AccordionContent>
+                        </AccordionItem>
+                    )}
+                </Accordion>
+            </div>
+            <div className="inline-flex gap-4 col-span-3">
+                <Button
+                    type="button"
+                    className="w-full"
+                    variant="destructive"
+                    onClick={() => cancelDivision()}
+                >
+                    Annuler
+                </Button>
+                <Button
+                    type="button"
+                    className="w-full"
+                    variant="primary"
+                    onClick={() => validateDivision()}
+                >
+                    Ajouter
+                </Button>
+            </div>
+        </div>
+    );
+};
+
+const DivisionWidget = ({
+    division,
+    divisionIdx,
+}: {
+    division: DivisionForm;
+    divisionIdx: number;
+}) => {
+    const { setData } = React.useContext(CreateUnitContext);
+
+    const invalidate = () => {
+        setData((data) => {
+            delete data.divisions[divisionIdx].valid;
+            return { ...data };
+        });
+    };
+
+    return (
+        <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded border dark:border-gray-500 flex justify-between">
+            <ul>
+                <li>
+                    {division.name} {division.abbr && `(${division.abbr})`}
+                </li>
+                <li>{division.description}</li>
+            </ul>
+            <Button
+                variant="link"
+                onClick={invalidate}
+                className=" place-self-end"
+            >
+                Modifier
+            </Button>
+        </div>
+    );
+};
+
+const SelectDivisionMembers = ({ divisionIdx }: { divisionIdx: number }) => {
+    const isDesktop = useMediaQuery("(min-width: 768px)");
     const { users } = usePage().props;
-    const { data, setData } = React.useContext(CreateUnitContext);
     const finalData = React.useMemo(() => users.data, [users.data]);
     const finalColumnDef = React.useMemo(() => columnDef, []);
     const [filtering, setFiltering] = React.useState<string>("");
+    const [selected, setSelected] = React.useState<RowSelectionState>({});
     const [searchQuery, setSearchQuery] = React.useState<string>("");
-    const isDesktop = useMediaQuery("(min-width: 768px)");
+    const [isLoading, setIsLoading] = React.useState(false);
+    const { data, setData } = React.useContext(CreateUnitContext);
 
-    const calculate = React.useCallback(() => {
-        console.log(window);
-    }, []);
-
-    const debouncedCalculate = React.useMemo(
-        () => debounce(calculate, 100),
-        [calculate]
-    );
-
-    const searchUsers = React.useCallback(() => {
-        router.get(
-            route("manage.user.search", { query: searchQuery }),
-            undefined,
-            {}
-        );
-        router.visit(route("manage.user.search", { query: searchQuery }), {
-            method: "get",
-            preserveScroll: true,
-            preserveState: true,
-        });
+    const searchUsersCallback = React.useCallback(async () => {
+        setIsLoading(true);
+        const result = await searchUsers(searchQuery);
+        if (result.length) {
+            // setTableData(result);
+        }
+        setIsLoading(false);
     }, [searchQuery]);
-    const debouncedSearchUsers = React.useMemo(
-        () => debounce(searchUsers, 250),
-        [searchUsers]
+
+    const debouncedSearching = React.useMemo(
+        () => debounce(searchUsersCallback, 500),
+        [searchUsersCallback]
     );
 
     const table = TanstackTable.useReactTable({
@@ -193,8 +270,10 @@ const DivisionMembers = ({ divisionIdx }: { divisionIdx: number }) => {
         getFilteredRowModel: TanstackTable.getFilteredRowModel(),
         getRowId: (row) => row.uuid,
         onGlobalFilterChange: setFiltering,
+        onRowSelectionChange: setSelected,
         state: {
             globalFilter: filtering,
+            rowSelection: selected,
             columnVisibility: {
                 uuid: isDesktop,
                 createdAt: false,
@@ -205,26 +284,42 @@ const DivisionMembers = ({ divisionIdx }: { divisionIdx: number }) => {
         },
     });
 
-    React.useEffect(
-        () =>
-            setData((data) => {
-                data.divisions[divisionIdx].members = Object.keys(
-                    table.getState().rowSelection
-                ).map((uuid) => {
-                    return { uuid, role: "" };
-                });
-                return { ...data };
-            }),
-        [table.getState().rowSelection]
-    );
+    React.useEffect(() => {
+        const members = data.divisions[divisionIdx].members;
+        if (members.length) {
+            setSelected(() =>
+                members.reduce((acc: RowSelectionState, member) => {
+                    acc[member.uuid] = true;
+                    return acc;
+                }, {})
+            );
+        }
+    }, []);
 
     React.useEffect(() => {
-        debouncedSearchUsers();
+        setData((data) => {
+            data.divisions[divisionIdx].members = Object.keys(selected).map(
+                (uuid) => {
+                    console.log(table.getRowModel().rowsById?.[uuid].original);
+                    return {
+                        ...table.getRowModel().rowsById?.[uuid].original,
+                        grade: "",
+                    };
+                }
+            );
+            return { ...data };
+        });
+    }, [selected]);
+
+    React.useEffect(() => {
+        if (searchQuery) {
+            debouncedSearching();
+        }
 
         return () => {
-            debouncedSearchUsers.cancel();
+            debouncedSearching.cancel();
         };
-    }, [debouncedSearchUsers]);
+    }, [debouncedSearching]);
 
     const noDataPlaceholder = (): React.ReactNode => {
         return (
@@ -263,6 +358,40 @@ const DivisionMembers = ({ divisionIdx }: { divisionIdx: number }) => {
                 }}
             />
         </TableWraper>
+    );
+};
+
+const DivisionMembers = ({ divisionIdx }: { divisionIdx: number }) => {
+    const { data, setData } = React.useContext(CreateUnitContext);
+
+    return (
+        <div className="py-0.5 space-y-4">
+            {data.divisions[divisionIdx].members.map((member, idx) => (
+                <div
+                    key={idx}
+                    className="grid sm:grid-cols-2 gap-4 bg-gray-100 dark:bg-gray-800/90 p-2 rounded border dark:border-gray-500"
+                >
+                    <Button
+                        type="button"
+                        variant="outline"
+                        className="justify-start"
+                    >
+                        {member.name}
+                    </Button>
+                    <Input
+                        value={member.grade}
+                        onChange={(e) =>
+                            setData((data) => {
+                                data.divisions[divisionIdx].members[idx].grade =
+                                    e.target.value;
+                                return { ...data };
+                            })
+                        }
+                        placeholder={`Entrez le grade de ${member.name}`}
+                    />
+                </div>
+            ))}
+        </div>
     );
 };
 

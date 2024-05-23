@@ -6,78 +6,116 @@ import {
     setDataByMethod,
     setDataByKeyValuePair,
 } from "@/Libs/useForm";
-import { Stepper, useStepper } from "@/Components/Stepper";
+import { Step, Stepper, useStepper } from "@/Components/Stepper";
 import { Button } from "@/Components/ui/button";
 import { FormWrapper } from "@/Components/ui/form";
 import { UnitInformationForm } from "@/Features/Manage/Unit/UnitInformationForm";
 import { UnitDivisionsForm } from "@/Features/Manage/Unit/UnitDivisionsForm";
+import UnitInfrastructureForm from "./UnitInfrastructureForm";
+import { Heading } from "@/Components/ui/heading";
+import { User } from "@/types";
 
-interface UnitForm {
+export interface UnitForm {
     name: string;
     abbr: string;
     description: string;
-    divisions: {
-        name: string;
-        description: string;
-        abbr: string;
-        members: { uuid: string; role: string }[];
-    }[];
+    divisions: DivisionForm[];
+    infrastructures: InfrastructureForm[];
+}
+
+export interface DivisionForm {
+    name: string;
+    abbr: string;
+    description: string;
+    members: MemberForm[];
+    valid?: true;
+}
+
+export interface MemberForm extends User {
+    grade: string;
+}
+
+export interface InfrastructureForm {
+    name: string;
+    state: string;
+    description: string;
+    valid?: boolean;
 }
 
 export const CreateUnitContext = React.createContext<{
     data: UnitForm;
+    errors: Partial<Record<keyof UnitForm | string, string>>;
+    processing: boolean;
+    validating: boolean;
     setData: setDataByObject<UnitForm> &
         setDataByMethod<UnitForm> &
         setDataByKeyValuePair<UnitForm>;
-    errors: Partial<Record<keyof UnitForm | string, string>>;
+    validate: (...fields: (keyof UnitForm | string)[]) => void;
+    clearErrors: (...fields: (keyof UnitForm)[]) => void;
 }>({
     data: {
         name: "",
         description: "",
         abbr: "",
         divisions: [],
+        infrastructures: [],
     },
+    errors: {},
     setData: () => {},
-    errors: {
-        name: "",
-        abbr: "",
-        description: "",
-        divisions: "",
-    },
+    validate: () => {},
+    clearErrors: () => {},
+    validating: false,
+    processing: false,
 });
 
 const CreateForm = () => {
-    const { data, setData, errors, processing, validate, post, validating } =
-        useForm<UnitForm>(route("manage.unit.store"), "post", {
-            name: "",
-            abbr: "",
-            description: "",
-            divisions: [],
-        });
+    const {
+        data,
+        setData,
+        errors,
+        processing,
+        validate,
+        post,
+        validating,
+        clearErrors,
+    } = useForm<UnitForm>(route("manage.unit.store"), "post", {
+        name: "",
+        abbr: "",
+        description: "",
+        divisions: [],
+        infrastructures: [],
+    });
 
-
-    const steps = [
+    const steps: Step[] = [
         {
             label: "Informations de l'unité",
             form: <UnitInformationForm />,
-            isError: false,
+            isError: !!(errors.name || errors.description || errors.abbr),
         },
         {
             label: "Informations des divisions",
             form: <UnitDivisionsForm />,
-            isError: false,
+            isError: Object.keys(errors).some((key) =>
+                key.startsWith("divisions")
+            ),
         },
-        // {
-        //     label: "Infrastructure de l'unité",
-        //     form: <UnitInfrastructureForm />,
-        //     isError: false,
-        // },
-        // {
-        //     label: "Confirmation",
-        //     form: <UnitFormConfirmation />,
-        //     isError: false,
-        //     canNavigate: false,
-        // },
+        {
+            label: "Infrastructure de l'unité",
+            form: <UnitInfrastructureForm />,
+            isError: Object.keys(errors).some((key) =>
+                key.startsWith("infrastructures")
+            ),
+        },
+        {
+            label: "Confirmation",
+            form: ({ isError }) => (
+                <div>
+                    <Heading level={4}>Confirmation step</Heading>
+                    <pre>{JSON.stringify({ data, errors }, null, 2)}</pre>
+                </div>
+            ),
+            isError: !!Object.keys(errors).length,
+        },
     ];
 
     const stepper = useStepper({ steps });
@@ -85,19 +123,31 @@ const CreateForm = () => {
     const submitHandler = (e: React.FormEvent) => {
         e.preventDefault();
 
-        post(route("manage.unit.store", {}));
+        post(route("manage.unit.store", {}), {
+            preserveScroll: true,
+        });
     };
 
     return (
         <FormWrapper className="space-y-4 md:space-y-8">
-            <CreateUnitContext.Provider value={{ data, setData, errors }}>
+            <CreateUnitContext.Provider
+                value={{
+                    data,
+                    setData,
+                    errors,
+                    validate,
+                    clearErrors,
+                    processing,
+                    validating,
+                }}
+            >
                 <Stepper stepper={stepper} />
 
                 <div className="mx-auto max-w-lg flex items-center gap-4">
                     {stepper.canGoPrev && (
                         <Button
                             type="button"
-                            variant="ghost"
+                            variant="secondary"
                             className="w-full"
                             onClick={() => stepper.prev()}
                         >
@@ -107,7 +157,7 @@ const CreateForm = () => {
                     {stepper.canGoNext ? (
                         <Button
                             type="button"
-                            variant="ghost"
+                            variant="secondary"
                             className="w-full"
                             onClick={() => stepper.next()}
                         >
@@ -124,8 +174,6 @@ const CreateForm = () => {
                         </Button>
                     )}
                 </div>
-
-                <pre>{JSON.stringify({ data, errors }, null, 2)}</pre>
             </CreateUnitContext.Provider>
         </FormWrapper>
     );

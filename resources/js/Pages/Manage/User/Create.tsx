@@ -40,9 +40,8 @@ const Create: React.FC<{
                         Votre modèle de tableau de bord de gestion d'accées.
                     </Text>
                 </div>
-                <FormWrapper>
-                    <CreateForm units={units} universities={universities} />
-                </FormWrapper>
+                
+                <CreateForm units={units} universities={universities} />
             </div>
         </AuthLayout>
     );

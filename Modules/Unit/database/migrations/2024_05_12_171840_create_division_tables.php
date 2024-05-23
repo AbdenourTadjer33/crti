@@ -14,11 +14,12 @@ return new class extends Migration
         Schema::create('divisions', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('abbr')->nullable();
             $table->string('description')->nullable();
             $table->timestamps();
         });
 
-        Schema::create('user_division', function (Blueprint $table) {
+        Schema::create('division_user', function (Blueprint $table) {
             $table->foreignId('user_id')
                 ->constrained('users', 'id')
                 ->cascadeOnDelete();
@@ -27,9 +28,7 @@ return new class extends Migration
                 ->constrained('divisions', 'id')
                 ->cascadeOnDelete();
 
-            $table->enum('role', ['chef de division', 'chercheur'])
-                ->default("chercheur")
-                ->comment("here i want all roles on a division");
+            $table->string('grade')->nullable();
 
             $table->timestamps();
 
@@ -43,6 +42,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('divisions');
-        Schema::dropIfExists('user_division');
+        Schema::dropIfExists('division_user');
     }
 };

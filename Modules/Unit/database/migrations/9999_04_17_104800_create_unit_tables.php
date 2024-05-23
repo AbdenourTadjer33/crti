@@ -18,12 +18,11 @@ return new class extends Migration
         Schema::create($config['table_name'], function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
-            $table->string('code')->nullable();
+            $table->string('abbr')->nullable();
             $table->text('description')->nullable();
             $table->string('address')->nullable();
             $table->string('city')->nullable();
             $table->string('country')->nullable();
-            $table->json('coordinates')->nullable();
             $table->timestamps();
         });
 

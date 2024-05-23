@@ -1,5 +1,5 @@
 import React from "react";
-import { Unit } from "@/types";
+import { Pagination as PaginationType, Unit } from "@/types";
 import { columnDef } from "@/Features/Manage/Unit/columns";
 import {
     getCoreRowModel,
@@ -11,23 +11,44 @@ import { TableWraper } from "@/Components/ui/table";
 import { MdSearch } from "react-icons/md";
 import { Input } from "@/Components/ui/input";
 import DataTable from "@/Components/DataTable";
+import {
+    DropdownMenu,
+    DropdownMenuCheckboxItem,
+    DropdownMenuContent,
+    DropdownMenuTrigger,
+} from "@/Components/ui/dropdown-menu";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/Components/ui/tooltip";
+import { Button } from "@/Components/ui/button";
+import { IoMdOptions } from "react-icons/io";
 
-const Table: React.FC<{ units: Unit[] }> = ({ units }) => {
-    const finalData = React.useMemo(() => units, [units]);
+const Table: React.FC<{ units: PaginationType<Unit> }> = ({ units }) => {
+    const finalData = React.useMemo(() => units.data, [units.data]);
     const finalColumnDef = React.useMemo(() => columnDef, []);
 
     const table = useReactTable({
         columns: finalColumnDef,
-        data: finalData,
+        data: finalData ?? [],
         getCoreRowModel: getCoreRowModel(),
         getRowId: (row) => row.id,
         getRowCanExpand: () => true,
         getExpandedRowModel: getExpandedRowModel(),
-        state: {},
+        manualPagination: true,
     });
 
     const subComponent = ({ row }: { row: Row<Unit> }) => {
-        return <></>;
+        return (
+            <div className="flex flex-wrap gap-2">
+                <ul>
+                    
+                </ul>
+                <pre>{JSON.stringify(row, null, 2)}</pre>
+            </div>
+        );
     };
 
     return (
@@ -39,9 +60,60 @@ const Table: React.FC<{ units: Unit[] }> = ({ units }) => {
                     </div>
                     <Input placeholder="Search" className="pl-10" />
                 </div>
+
+                <DropdownMenu>
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost">
+                                        <IoMdOptions className="ww-5 h-5" />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                visibilité des colonnes
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
+                    <DropdownMenuContent
+                        align="end"
+                        onCloseAutoFocus={(e) => e.preventDefault()}
+                        loop
+                        className="w-40"
+                    >
+                        {table
+                            .getAllColumns()
+                            .filter((col) => col.getCanHide())
+                            .map((col) => {
+                                const title =
+                                    typeof col.columnDef.header === "string"
+                                        ? col.columnDef.header
+                                        : col.id;
+                                return (
+                                    <DropdownMenuCheckboxItem
+                                        key={col.id}
+                                        checked={col.getIsVisible()}
+                                        onCheckedChange={(value) =>
+                                            col.toggleVisibility(!!value)
+                                        }
+                                        onSelect={(e) => e.preventDefault()}
+                                    >
+                                        {title}
+                                    </DropdownMenuCheckboxItem>
+                                );
+                            })}
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
 
-            <DataTable options={{ table, subComponent }} />
+            <DataTable
+                options={{
+                    table,
+                    subComponent,
+                    pagination: { links: units.links, meta: units.meta },
+                }}
+            />
         </TableWraper>
     );
 };
