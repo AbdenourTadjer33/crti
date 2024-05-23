@@ -203,6 +203,7 @@ const DivisionInformationForm = ({
     );
 };
 
+export const DivisionMembers = ({ divisionIdx }: { divisionIdx: number }) => {
 const DivisionWidget = ({
     division,
     divisionIdx,
@@ -240,6 +241,7 @@ const DivisionWidget = ({
 
 const SelectDivisionMembers = ({ divisionIdx }: { divisionIdx: number }) => {
     const isDesktop = useMediaQuery("(min-width: 768px)");
+
     const { users } = usePage().props;
     const finalData = React.useMemo(() => users.data, [users.data]);
     const finalColumnDef = React.useMemo(() => columnDef, []);

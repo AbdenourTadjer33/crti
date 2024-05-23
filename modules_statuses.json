@@ -1,7 +1,7 @@
 {
     "Permission": true,
     "Authentification": true,
-    "Project": false,
+    "Project": true,
     "Unit": true,
     "ManageApp": true,
     "Team": true
