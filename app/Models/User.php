@@ -5,7 +5,6 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 use Ramsey\Uuid\Uuid;
-use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
 use Laravel\Sanctum\HasApiTokens;
 use Modules\Permission\Traits\HasRole;
@@ -108,11 +107,10 @@ class User extends Authenticatable
      */
     public function toSearchableArray(): array
     {
-        return [
-            'first_name' => $this->first_name,
-            'last_name' => $this->last_name,
-            'email' => $this->email,
-        ];
+        return array_merge($this->toArray(), [
+            'id' => (string) $this->id,
+            'created_at' => $this->created_at->timestamp,
+        ]);
     }
 
     public function scopeActive(Builder $query)
