@@ -203,7 +203,7 @@ const DivisionInformationForm = ({
     );
 };
 
-export const DivisionMembers = ({ divisionIdx }: { divisionIdx: number }) => {
+
 const DivisionWidget = ({
     division,
     divisionIdx,
@@ -395,6 +395,6 @@ const DivisionMembers = ({ divisionIdx }: { divisionIdx: number }) => {
             ))}
         </div>
     );
-};
+}
 
 export { UnitDivisionsForm };
