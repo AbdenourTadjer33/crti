@@ -1,7 +1,6 @@
 import * as React from "react";
 import { Head, Link } from "@inertiajs/react";
 import AuthLayout from "@/Layouts/AuthLayout";
-import {route} from "@/Utils/helper";
 import {MdHome} from "react-icons/md";
 import {Heading} from "@/Components/ui/heading"
 import {Text} from "@/Components/ui/paragraph";

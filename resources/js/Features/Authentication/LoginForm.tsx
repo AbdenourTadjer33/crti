@@ -1,11 +1,11 @@
 import React from "react";
 import { Link, useForm } from "@inertiajs/react";
-import { route } from "@/Utils/helper";
 import { Input, InputError } from "@/Components/ui/input";
 import { Checkbox } from "@/Components/ui/checkbox";
 import { Label } from "@/Components/ui/label";
 import { Button } from "@/Components/ui/button";
 import { FormWrapper } from "@/Components/ui/form";
+import { Heading } from "@/Components/ui/heading";
 
 const LoginForm = () => {
     const { data, setData, post, errors, processing } = useForm({
@@ -16,6 +16,7 @@ const LoginForm = () => {
 
     const loginHandler = async (e: React.FormEvent) => {
         e.preventDefault();
+
 
         post(route("login.store"), {
             preserveScroll: true,
@@ -28,9 +29,10 @@ const LoginForm = () => {
             className="w-full sm:max-w-xl p-6 space-y-4 md:space-y-6"
             onSubmit={loginHandler}
         >
-            <h1 className="text-xl font-bold leading-tight tracking-tight text-primary-950 md:text-2xl dark:text-primary-50">
+            <Heading level={3} className="font-medium">
                 Connectez-vous à votre compte
-            </h1>
+            </Heading>
+            
             <div>
                 <Input
                     id="username"
