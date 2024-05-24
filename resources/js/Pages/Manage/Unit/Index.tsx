@@ -1,6 +1,6 @@
 import React from "react";
 import { Head, Link } from "@inertiajs/react";
-import { route } from "@/Utils/helper";
+
 import AuthLayout from "@/Layouts/AuthLayout";
 import { MdHome } from "react-icons/md";
 import Breadcrumb from "@/Features/Breadcrumb/Breadcrumb";

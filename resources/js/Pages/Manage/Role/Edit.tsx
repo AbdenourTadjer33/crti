@@ -3,7 +3,7 @@ import AuthLayout from "@/Layouts/AuthLayout";
 import { Permission, Role } from "@/types";
 import { Head } from "@inertiajs/react";
 import { MdHome } from "react-icons/md";
-import { route } from "@/Utils/helper";
+
 import { Heading } from "@/Components/ui/heading";
 import { Text } from "@/Components/ui/paragraph";
 import { FormWrapper } from "@/Components/ui/form";

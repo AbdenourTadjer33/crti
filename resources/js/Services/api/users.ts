@@ -1,5 +1,5 @@
 import axios from "axios";
-import { route } from "@/Utils/helper";
+
 
 async function searchUsers(query: string) {
     try {

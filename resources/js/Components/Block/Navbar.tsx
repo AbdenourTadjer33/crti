@@ -2,7 +2,6 @@ import React from "react";
 import { Link } from "@inertiajs/react";
 import Avatar from "../Avatar";
 import { useUser } from "@/Hooks/useUser";
-import { route } from "@/Utils/helper";
 import { PiMoonFill, PiSunFill } from "react-icons/pi";
 import { MdMenu, MdSearch } from "react-icons/md";
 import { FaBell } from "react-icons/fa";
