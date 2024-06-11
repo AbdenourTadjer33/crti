@@ -1,5 +1,6 @@
 import defaultTheme from "tailwindcss/defaultTheme";
 import forms from "@tailwindcss/forms";
+import tailwindcssAnimate from "tailwindcss-animate";
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -49,6 +50,34 @@ module.exports = {
             },
         },
     },
-    plugins: [forms, require("tailwindcss-animate")],
+    plugins: [
+        forms,
+        tailwindcssAnimate,
+        function ({ addUtilities }) {
+            addUtilities(
+                {
+                    ".custom-scrollbar::-webkit-scrollbar": {
+                        width: "6px",
+                        height: "2px",
+                    },
+
+                    ".custom-scrollbar::-webkit-scrollbar-track": {
+                        background: "#f1f1f1",
+                        height: "2px",
+                    },
+                    ".custom-scrollbar::-webkit-scrollbar-thumb": {
+                        backgroundColor: "#888",
+                        borderRadius: "6px",
+                        border: "3px solid #f1f1f1",
+                        height: "2px",
+                    },
+                    ".custom-scrollbar::-webkit-scrollbar-thumb:hover": {
+                        background: "#555",
+                    },
+                },
+                ["responsive"]
+            );
+         }
+    ],
     darkMode: "class",
 };

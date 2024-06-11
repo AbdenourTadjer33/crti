@@ -143,6 +143,10 @@ const CreateForm = () => {
             >
                 <Stepper stepper={stepper} />
 
+                <pre>
+                    {JSON.stringify(data, null, 2)}
+                </pre>
+
                 <div className="mx-auto max-w-lg flex items-center gap-4">
                     {stepper.canGoPrev && (
                         <Button

@@ -12,7 +12,15 @@ class StoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'tasks' => ['required', 'array', 'min:5'],
+            'tasks.*' => ['required', 'array'],
+            'tasks.*.name' => ['required', 'string'],
+            'tasks.*.description' => ['required', 'string'],
+            'tasks.*.user_uuid' => ['required', 'string'],
+            'tasks.*.priority' => ['required', 'string'],
+            'tasks.*.timeline' => ['required', 'array:from,to'],
+            'tasks.*.timeline.from' => ['required'], 
+            'tasks.*.timeline.to' => ['required'],
         ];
     }
 

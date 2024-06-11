@@ -17,13 +17,12 @@ import {
 } from "@/Components/ui/command";
 import { CreateProjectContext } from "./Form";
 import { Button } from "@/Components/ui/button";
-import { CalendarIcon, Check } from "lucide-react";
+import { CalendarIcon, Check, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/Utils/utils";
 import { capitalize } from "@/Utils/helper";
 import { format } from "date-fns";
 import { useToast } from "@/Components/ui/use-toast";
 import { Calendar } from "@/Components/ui/calendar";
-import MarkdownEditor from "@uiw/react-markdown-editor";
 
 const Identification = () => {
     const { data, setData, errors } = React.useContext(CreateProjectContext);
@@ -174,6 +173,7 @@ const ProjectNature = () => {
                     {data.nature
                         ? capitalize(data.nature)
                         : "Sélectionnez la nature de projet"}
+                    <ChevronDown className="h-4 w-4" />
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0">
@@ -194,9 +194,9 @@ const ProjectNature = () => {
                             <span className="font-medium">{search}</span>.
                         </CommandEmpty>
                         <CommandGroup>
-                            {projectNatures.map((nature) => (
+                            {projectNatures.map((nature, idx) => (
                                 <CommandItem
-                                    key={nature}
+                                    key={idx}
                                     value={nature}
                                     onSelect={(currentValue) => {
                                         setData("nature", currentValue);
@@ -284,15 +284,18 @@ const DomainField = () => {
                     {data.domain.length > 0
                         ? data.domain.join(",")
                         : "Domaine d'application"}
+                    <ChevronDown className="h-4 w-4" />
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0">
                 <Command loop>
-                    <CommandInput
-                        value={search}
-                        onValueChange={setSearch}
-                        placeholder="Rechercher..."
-                    />
+                    <CommandHeader>
+                        <CommandInput
+                            value={search}
+                            onValueChange={setSearch}
+                            placeholder="Rechercher..."
+                        />
+                    </CommandHeader>
                     <CommandList>
                         <CommandEmpty className="py-4" asChild>
                             {!search ? (

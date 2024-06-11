@@ -20,7 +20,7 @@ const Index = () => {
             <Head title="Mes projet" />
 
             <div className="space-y-4">
-            <Breadcrumb items={breadcrumbs}/>
+            <Breadcrumb items={breadcrumbs} MAX_ITEMS={2}/>
 
             <div className="flex sm:flex-row flex-col justify-between sm:items-end gap-4">
                 <div className="space-y-2">

@@ -12,7 +12,7 @@ import IdentificationForm from "./IdentificationForm";
 import { DateRange } from "react-day-picker";
 import MemberForm from "./MemberForm";
 import ResourceForm from "./ResourceForm";
-import TaskForm from "./TaskForm";
+import TasksStep from "./Task";
 
 export interface ProjectForm {
     name: string;
@@ -31,7 +31,8 @@ export interface ProjectForm {
 
 export interface MemberForm {
     uuid: string;
-    fullName?: string;
+    name: string;
+    email: string;
     unit?: string;
     division?: string;
     grade?: string;
@@ -46,20 +47,29 @@ export interface MaterialForm {
 }
 
 export interface TaskForm {
-    [x: string]: any;
     name: string;
     description: string;
-    timeline: DateRange | undefined;
+    begin: string;
+    end: string;
+    uuid: string[];
+    priority: string;
+    isValid?: boolean;
+}
+
+interface SetError {
+    (errors: Record<keyof ProjectForm, string>): void;
+    (field: keyof ProjectForm, value: string): void;
 }
 
 export const CreateProjectContext = React.createContext<{
     data: ProjectForm;
+    errors: Partial<Record<keyof ProjectForm | string, string>>;
+    processing: boolean;
     setData: setDataByObject<ProjectForm> &
         setDataByKeyValuePair<ProjectForm> &
         setDataByMethod<ProjectForm>;
-    errors: Partial<Record<keyof ProjectForm | string, string>>;
-    processing: boolean;
     clearErrors: (...fields: (keyof ProjectForm)[]) => void;
+    setError: SetError;
 }>({
     data: {
         name: "",
@@ -82,10 +92,11 @@ export const CreateProjectContext = React.createContext<{
     processing: false,
     setData: () => {},
     clearErrors: () => {},
+    setError: () => {},
 });
 
 const Form = () => {
-    const { data, setData, errors, clearErrors, processing } =
+    const { data, setData, errors, clearErrors, processing, setError } =
         useForm<ProjectForm>({
             name: "",
             nature: "",
@@ -111,30 +122,35 @@ const Form = () => {
                 label: "Membres de l'équipe",
                 form: <MemberForm />,
             },
-            {
-                label: "Ressources nécessaires",
-                form: <ResourceForm />,
-            },
+            // {
+            // label: "Ressources nécessaires",
+            // form: <ResourceForm />,
+            // },
             {
                 label: "Orgnisation des travaux",
-                form: <TaskForm />,
+                form: <TasksStep />,
             },
             // {
-            //     label: "Confirmation",
-            //     form: <Confirmation />
+                // label: "Confirmation",
+                // form: <Confirmation />
             // }
         ],
-        state: {
-            initial: 3,
-        },
     });
 
     const submitHandler = (e: React.FormEvent) => {};
 
+
     return (
         <FormWrapper className="space-y-4 md:space-y-8">
             <CreateProjectContext.Provider
-                value={{ data, setData, errors, clearErrors, processing }}
+                value={{
+                    data,
+                    setData,
+                    errors,
+                    clearErrors,
+                    processing,
+                    setError,
+                }}
             >
                 <Stepper {...{ stepper }} />
 

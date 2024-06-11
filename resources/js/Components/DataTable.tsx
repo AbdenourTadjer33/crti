@@ -5,6 +5,8 @@ import {
     Row,
     CellContext,
     HeaderContext,
+    TableMeta,
+    ColumnMeta,
 } from "@tanstack/react-table";
 
 import {
@@ -20,6 +22,7 @@ import Pagination from "./Pagination";
 import { Checkbox } from "./ui/checkbox";
 import { Button } from "./ui/button";
 import { MdKeyboardArrowDown, MdKeyboardArrowRight } from "react-icons/md";
+
 
 interface DataTableOptions {
     table: TanstackTable<any>;
@@ -99,16 +102,16 @@ export default function DataTable({ options }: { options: DataTableOptions }) {
                     )}
                 </TableBody>
             </Table>
-            <div className="bg-white dark:bg-gray-700 py-2">
-                {options.pagination &&
-                    options.pagination.meta.per_page <
-                        options.pagination.meta.total && (
+            {options.pagination &&
+                options.pagination.meta.per_page <
+                    options.pagination.meta.total && (
+                    <div className="bg-white dark:bg-gray-700 py-2">
                         <Pagination
                             links={options.pagination.links}
                             meta={options.pagination.meta}
                         />
-                    )}
-            </div>
+                    </div>
+                )}
         </>
     );
 }
@@ -148,5 +151,7 @@ function RowExpander({ row }: CellContext<any, any>) {
         </Button>
     ) : null;
 }
+
+
 
 export { HeaderSelecter, RowSelecter, RowExpander };

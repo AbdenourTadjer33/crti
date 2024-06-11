@@ -109,7 +109,7 @@ class User extends Authenticatable
     {
         return array_merge($this->toArray(), [
             'id' => (string) $this->id,
-            'created_at' => $this->created_at->timestamp,
+            'created_at' => $this->created_at?->timestamp,
         ]);
     }
 

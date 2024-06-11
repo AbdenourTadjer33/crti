@@ -9,6 +9,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Ziggy } from "./ziggy";
 import { route } from "ziggy-js";
+import { TestApp } from "./Libs/FormBuilder/component";
+import React from "react";
 
 globalThis.Ziggy = Ziggy;
 globalThis.route = route;
@@ -26,10 +28,13 @@ createInertiaApp({
         const root = createRoot(el);
 
         root.render(
-            <QueryClientProvider client={new QueryClient()}>
-                <App {...props} />
-                <ReactQueryDevtools initialIsOpen={false} />
-            </QueryClientProvider>
+            <React.StrictMode>
+                <QueryClientProvider client={new QueryClient()}>
+                    <App {...props} />
+                    {/* <TestApp /> */}
+                    <ReactQueryDevtools initialIsOpen={false} />
+                </QueryClientProvider>
+            </React.StrictMode>
         );
     },
     progress: {

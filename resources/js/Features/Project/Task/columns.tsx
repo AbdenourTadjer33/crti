@@ -3,9 +3,13 @@ import { Checkbox } from "@/Components/ui/checkbox";
 import { createColumnHelper } from "@tanstack/react-table";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import { useHover } from "@/Hooks/use-hover";
-import { Task } from "@/types/task";
+import { CreateProjectContext, TaskForm } from "../Create/Form";
+import { EditableTableCell } from "@/Components/common/editable-table-cell";
+import { Button } from "@/Components/ui/button";
+import { Check, Edit, X } from "lucide-react";
+import { format, isDate } from "date-fns";
 
-const columnHelper = createColumnHelper<Task>();
+const columnHelper = createColumnHelper<TaskForm>();
 
 export const columnDef = [
     columnHelper.display({
@@ -46,19 +50,117 @@ export const columnDef = [
     }),
 
     columnHelper.accessor("name", {
-        header: "Tâches",
-        cell: ({ getValue }) => <div>{getValue()}</div>,
+        header: "tâche",
+        cell: (props) =>
+            props.row.getIsOnEditMode() ? (
+                <EditableTableCell field={{ type: "text" }} {...props} />
+            ) : (
+                props.getValue()
+            ),
     }),
 
     columnHelper.accessor("description", {
         header: "description",
+        cell: (props) =>
+            props.row.getIsOnEditMode() ? (
+                <EditableTableCell field={{ type: "textarea" }} {...props} />
+            ) : (
+                props.getValue()
+            ),
     }),
 
-    columnHelper.accessor("timeline.from", {
+    columnHelper.accessor("begin", {
         header: "Date début",
+        cell: (props) =>
+            props.row.getIsOnEditMode() ? (
+                <EditableTableCell field={{ type: "day" }} {...props} />
+            ) : isDate(props.getValue()) ? (
+                format(props.getValue(), "dd-mm-yyy")
+            ) : (
+                ""
+            ),
     }),
 
-    columnHelper.accessor("timeline.to", {
+    columnHelper.accessor("end", {
         header: "Date end",
+        cell: (props) =>
+            props.row.getIsOnEditMode() ? (
+                <EditableTableCell field={{ type: "day" }} {...props} />
+            ) : isDate(props.getValue()) ? (
+                format(props.getValue(), "dd-mm-yyy")
+            ) : (
+                ""
+            ),
+        meta: {
+            type: "calendar",
+        },
+    }),
+
+    columnHelper.accessor("uuid", {
+        header: "assigné à",
+        cell: (props) => {
+            const { data } = React.useContext(CreateProjectContext);
+            return props.row.getIsOnEditMode() ? (
+                <EditableTableCell
+                    field={{
+                        type: "combobox",
+                        options: data.members.map((member) => {
+                            return {
+                                label: member.name,
+                                value: member.uuid,
+                            };
+                        }),
+                        placeholder: "Sélectionner les members",
+                        many: true,
+                    }}
+                    {...props}
+                />
+            ) : (
+                props.getValue()
+            );
+        },
+    }),
+
+    columnHelper.accessor("priority", {
+        header: "priorité",
+        cell: (props) =>
+            props.row.getIsOnEditMode() ? (
+                <EditableTableCell
+                    field={{
+                        type: "combobox",
+                        options: ["basse", "Moyenne", "Haute"],
+                        placeholder: "Sélectionner la priorité de la tâche",
+                    }}
+                    {...props}
+                />
+            ) : (
+                props.getValue()
+            ),
+    }),
+
+    columnHelper.display({
+        id: "update-row",
+        cell: ({ row }) => {
+            return (
+                <div className="flex items-center gap-4">
+                    <Button
+                        variant="primary"
+                        size="icon"
+                        onClick={() =>
+                            row.toggleEditMode(!row.getIsOnEditMode())
+                        }
+                    >
+                        {row.getIsOnEditMode() ? <Check /> : <Edit />}
+                    </Button>
+                    <Button
+                        onClick={() => row.removeRow()}
+                        variant="destructive"
+                        size="icon"
+                    >
+                        <X />
+                    </Button>
+                </div>
+            );
+        },
     }),
 ];

@@ -1,3 +1,4 @@
+import { cn } from "@/Utils/utils";
 import React from "react";
 
 export function Indicator({
@@ -29,7 +30,11 @@ export function Indicator({
 
     return (
         <span
-            className={`flex w-3 h-3 rounded-full ${colors[color]} ${className}`}
+            className={cn(
+                "flex w-3 h-3 rounded-full",
+                colors[color],
+                className
+            )}
         />
     );
 }

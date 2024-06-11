@@ -3,9 +3,9 @@ import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/Utils/utils";
-
+// ring-offset-white focus:ring-1 focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500
 const buttonVariants = cva(
-    "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-white transition-colors focus:ring-1 focus:outline-none focus:ring-primary-600 focus:border-primary-600 disabled:pointer-events-none disabled:opacity-50 dark:focus:ring-primary-500 dark:focus:border-primary-500",
+    "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus:outline-none disabled:pointer-events-none disabled:opacity-50",
     {
         variants: {
             variant: {
@@ -54,6 +54,21 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         );
     }
 );
+
 Button.displayName = "Button";
 
-export { Button, buttonVariants };
+interface ButtonGroupProps extends React.HTMLAttributes<HTMLDivElement> {}
+
+const ButtonGroup = ({ className, ...props }: ButtonGroupProps) => {
+    return (
+        <div
+            className={cn(
+                "flex items-center *:rounded-none divide-gray-400 divide-x rounded-md overflow-hidden",
+                className
+            )}
+            {...props}
+        />
+    );
+};
+
+export { Button, buttonVariants, ButtonGroup };

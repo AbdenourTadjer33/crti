@@ -1,18 +1,28 @@
-type Field = "text" | "number" | "textarea" | "list" | "combobox" | "day";
+import React from "react";
+import FormField from "../component";
 
-type FieldOptions = string[] | { label: string; value: string }[];
+export type FieldType = "text" | "number" | "textarea" | "list" | "combobox" | "day";
 
-interface BaseFormFieldProps {
-    type: Exclude<Field, 'list' | 'combobox'>;
-    name?: string;
+type ClassNames = Partial<Record<FieldType, string>>;
+
+export interface FieldBase {
+    classNames?: ClassNames;
+    components?: Partial<Record<FieldType, React.ReactElement>>;
+    placeholder?: string;
 }
 
-interface ListFormFieldProps {
-    type: Extract<Field, 'list' | 'combobox'>
-    options: FieldOptions;
-    many: boolean;
+export interface BaseFormField extends FieldBase {
+    type: Exclude<FieldType, 'list' | 'combobox'>;
+    value?: string;
+    onValueChange?: (updateFn: React.SetStateAction<string>) => void;
 }
 
-type FormFieldProps<T extends Field> = T extends "list" | "combobox" ? ListFormFieldProps : BaseFormFieldProps;
+export interface FormField extends FieldBase {
+    type: Extract<FieldType, 'list' | 'combobox'>;
+    options: string[] | { label: string; value: string }[];
+    many?: boolean;
+    value?: string | string[];
+    onValueChange?: (updateFn: React.SetStateAction<string>) => void;
+}
 
-function FormField<T extends Field>(props: FormFieldProps<T>) { }
+export type FormFieldProps<T extends FieldType> = T extends 'list' | 'combobox' ? FormField : BaseFormField;

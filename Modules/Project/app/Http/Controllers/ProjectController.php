@@ -2,48 +2,27 @@
 
 namespace Modules\Project\Http\Controllers;
 
-use App\Models\User;
-use App\Actions\History;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use Inertia\Inertia;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Modules\Project\Models\Project;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Cache;
-use Inertia\Inertia;
+use Illuminate\Routing\Controllers\Middleware;
 use Modules\Project\Http\Requests\StoreRequest;
 use Modules\Project\Http\Requests\UpdateRequest;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests;
 
-class ProjectController extends Controller
+class ProjectController extends Controller implements HasMiddleware
 {
-    /** @var User */
-    protected $user;
 
-    public function test()
+    public static function middleware(): array
     {
-        /** @var Project */
-        $project = Project::first();
-
-        $this->user;
-
-        $project->updateStatus('en examen');
-
-        // action + utilisateur + instance + attribute + now
-
-
-
+        return [
+            new Middleware(HandlePrecognitiveRequests::class, only: ['store'])
+        ];
     }
 
-    public function __construct(Request $request)
-    {
-        $this->user = $request->user();
-    }
-
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
 
@@ -60,18 +39,20 @@ class ProjectController extends Controller
 
     public function store(StoreRequest $request): JsonResponse
     {
-        $project = DB::transaction(function () use ($request) {
-            /** @var Project */
-            $project = Project::create($request->only([]));
-            $version = $project->versions()->create([
-                'user_id' => $this->user->id
-            ]);
-            return $project->setRelation('versions', collect($version));
-        });
 
-        return $this->success([
-            'project' => $project
-        ]);
+        dd("on the store method of the project controller");
+        // $project = DB::transaction(function () use ($request) {
+        //     /** @var Project */
+        //     $project = Project::create($request->only([]));
+        //     $version = $project->versions()->create([
+        //         'user_id' => $this->user->id
+        //     ]);
+        //     return $project->setRelation('versions', collect($version));
+        // });
+
+        // return $this->success([
+        //     'project' => $project
+        // ]);
     }
 
     public function show(Project $project)

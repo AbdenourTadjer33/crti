@@ -11,12 +11,11 @@ return Application::configure(basePath: dirname(__DIR__))
         api: __DIR__ . '/../routes/api.php',
         commands: __DIR__ . '/../routes/console.php',
         health: '/up',
-        then: function () {
-            
-        }
      )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->redirectUsersTo('/app');
+        $middleware->redirectUsersTo(function () {
+            return session('url.intended', '/app');
+        });
         $middleware->redirectGuestsTo('/');
         $middleware->web([
             HandleInertiaRequests::class
