@@ -1,6 +1,6 @@
 import AuthLayout from "@/Layouts/AuthLayout";
 import { Head, Link } from "@inertiajs/react";
-import { capitalize, route } from "@/Utils/helper";
+import { capitalize } from "@/Utils/helper";
 
 const apps = [
     {
