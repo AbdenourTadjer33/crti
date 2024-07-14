@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('versions', function (Blueprint $table) {
-            $table->id('version_id');
+            $table->id('id');
             $table->morphs('versionable');
-            $table->string('user_id')->nullable();
+            $table->foreignId('user_id')->nullable()->constrained('users', 'id')->nullOnDelete();
             $table->longText('model_data');
             $table->string('reason', 100)->nullable();
             $table->timestamps();
