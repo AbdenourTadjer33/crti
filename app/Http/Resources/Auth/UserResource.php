@@ -16,7 +16,7 @@ class UserResource extends JsonResource
     {
         return [
             'uuid' => $this->uuid,
-            'name' => $this->last_name . ' ' . $this->first_name,
+            'name' => $this->first_name . ' ' . $this->last_name,
             'email' => $this->email,
             'isEmailVerified' => (bool) $this->email_verified_at,
             'status' => $this->status,
