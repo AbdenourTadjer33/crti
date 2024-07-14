@@ -21,6 +21,7 @@ export interface EditModeInstance<TData extends TanstackTable.RowData> {
     setRowOnEditMode: (updater: TanstackTable.Updater<EditModeState>) => void;
     addRow: (row: TData) => void;
     updateData: (rowIdx: number, columnIdx: keyof TData, value: any) => void;
+    removeRows: (...rowIdx: number[]) => void;
 }
 
 export interface EditModeRow {
@@ -73,21 +74,27 @@ export const EditMode: TanstackTable.TableFeature<any> = {
                 throw new Error("you must pass a setData to table options");
             }
 
-            setData((old) => [...old, row])
-            table.setRowOnEditMode((prev) => {
-                return prev
+            setData((old) => {
+                return [...old, row]
             })
         };
         table.updateData = (rowIdx, columnIdx, value) => {
             if (!setData) {
-                throw new Error("you must pass a setData to table options");
+                throw new Error("you must pass setData function to table options")
             }
 
             setData((data) => {
                 data[rowIdx][columnIdx] = value;
                 return [...data];
             })
-        }
+        };
+        table.removeRows = (...rowIdx: number[]) => {
+            if (!setData) {
+                throw new Error("you must pass setData function to table options")
+            }
+
+            setData((data) => data.filter((_, idx) => !rowIdx.includes(idx)))
+        };
 
     },
     createRow: <TData extends TanstackTable.RowData>(row: TanstackTable.Row<TData>, table: TanstackTable.Table<TData>): void => {
@@ -125,7 +132,7 @@ export const EditMode: TanstackTable.TableFeature<any> = {
 
         row.removeRow = () => {
             if (!setData) {
-                throw new Error("you must pass a setData to tble options");
+                throw new Error("you must pass a setData to table options");
             }
 
             setData((old) => {
@@ -181,6 +188,7 @@ export function editModeRowsFn<TData extends TanstackTable.RowData>(table: Tanst
         rowsById: newEditModeRowsById,
     }
 }
+
 export function isRowOnEditMode<TData extends TanstackTable.RowData>(row: TanstackTable.Row<TData>, editMode: Record<string, boolean>): boolean {
     return editMode[row.id] ?? false;
 }
