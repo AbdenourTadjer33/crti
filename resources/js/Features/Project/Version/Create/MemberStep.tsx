@@ -2,9 +2,8 @@ import React from "react";
 import { skipToken, useQuery } from "@tanstack/react-query";
 import { searchUsers } from "@/Services/api/users";
 import { useDebounce } from "@/Hooks/use-debounce";
-import { CreateProjectContext } from "./Form";
+import { CreateProjectContext } from "@/Contexts/Project/create-project-context";
 import { User } from "@/types";
-
 import { Button } from "@/Components/ui/button";
 import { InputError } from "@/Components/ui/input";
 import {
@@ -24,7 +23,7 @@ import { LoaderCircle, Plus, TriangleAlert, X } from "lucide-react";
 import Avatar from "@/Components/Avatar";
 import { deepKeys } from "@/Libs/Validation/utils";
 import { useToast } from "@/Components/ui/use-toast";
-import { useUser } from "@/Hooks/useUser";
+import { useUser } from "@/Hooks/use-user";
 import { Kbd } from "@/Components/ui/kbd";
 import { useEventListener } from "@/Hooks/use-event-listener";
 
@@ -87,10 +86,9 @@ const MemberForm = ({ prev, next }: FormProps) => {
     };
 
     return (
-        <div className="space-y-2">
-            <div className="flex items-center justify-between">
-                <Heading level={6}>Ajouter les membres du projet</Heading>
-            </div>
+        <div className="space-y-8">
+            <Heading level={6}>Ajouter les membres du projet</Heading>
+            
             <SearchMembers addMember={addMember} removeMember={removeMember} />
             <InputError message={errors.members} />
 
@@ -147,7 +145,7 @@ const SearchMembers = ({ addMember, removeMember }: SearchMemberProps) => {
                         ref={commandInputRef}
                         value={search}
                         onValueChange={setSearch}
-                        placeholder="Rechercher ..."
+                        placeholder="Rechercher..."
                         autoFocus
                     />
                     {isFetching && (
