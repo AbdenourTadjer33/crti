@@ -1,11 +1,9 @@
 import { User } from "@/types";
-import axios from "axios";
+import axios, { AxiosRequestConfig } from "axios";
 
 
-async function searchUsers(query: string): Promise<User[]> {
-    const response = await axios.get(
-        route("search.user", { query })
-    );
+async function searchUsers(query: string, config: AxiosRequestConfig = {}): Promise<User[]> {
+    const response = await axios.get(route("search.user", { query }), config);
     return await response.data;
 }
 
