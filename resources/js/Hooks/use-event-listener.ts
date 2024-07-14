@@ -1,38 +1,36 @@
-import { RefObject, useEffect, useRef } from 'react'
+import { RefObject, useEffect, useRef } from 'react';
 
-export function useEventListener<T extends HTMLElement = HTMLDivElement>(
-    eventName: keyof WindowEventMap,
-    handler: (event: Event) => void,
+type EventHandler<K extends keyof WindowEventMap> = (event: WindowEventMap[K]) => void;
+
+export function useEventListener<T extends HTMLElement = HTMLDivElement, K extends keyof WindowEventMap = keyof WindowEventMap>(
+    eventName: K,
+    handler: EventHandler<K>,
     element?: RefObject<T>
 ) {
     // Create a ref that stores handler
-    const savedHandler = useRef<(event: Event) => void>()
+    const savedHandler = useRef<EventHandler<K>>();
 
     useEffect(() => {
         // Define the listening target
-        const targetElement: T | Window = element?.current || window
+        const targetElement: T | Window = element?.current || window;
         if (!(targetElement && targetElement.addEventListener)) {
-            return
+            return;
         }
 
         // Update saved handler if necessary
-        if (savedHandler.current !== handler) {
-            savedHandler.current = handler
-        }
+        savedHandler.current = handler;
 
         // Create event listener that calls handler function stored in ref
         const eventListener = (event: Event) => {
-            // eslint-disable-next-line no-extra-boolean-cast
-            if (!!savedHandler?.current) {
-                savedHandler.current(event)
-            }
-        }
+            // Cast event to the specific event type
+            savedHandler.current?.(event as WindowEventMap[K]);
+        };
 
-        targetElement.addEventListener(eventName, eventListener)
+        targetElement.addEventListener(eventName, eventListener);
 
         // Remove event listener on cleanup
         return () => {
-            targetElement.removeEventListener(eventName, eventListener)
-        }
-    }, [eventName, element, handler])
+            targetElement.removeEventListener(eventName, eventListener);
+        };
+    }, [eventName, element, handler]);
 }
