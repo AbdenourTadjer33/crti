@@ -1,42 +1,68 @@
 import * as React from "react";
-import { Head, Link } from "@inertiajs/react";
+import { Head, Link, router } from "@inertiajs/react";
 import AuthLayout from "@/Layouts/AuthLayout";
-import {MdHome} from "react-icons/md";
-import Breadcrumb from "@/Features/Breadcrumb/Breadcrumb";
-import {Heading} from "@/Components/ui/heading"
-import {Text} from "@/Components/ui/paragraph";
-import {Button} from "@/Components/ui/button"
-import {MdAdd} from "react-icons/md";
-
+import Breadcrumb from "@/Components/Breadcrumb/Breadcrumb";
+import * as Dialog from "@/Components/ui/dialog";
+import * as Drawer from "@/Components/ui/drawer";
+import * as Select from "@/Components/ui/select";
+import { Heading } from "@/Components/ui/heading";
+import { Text } from "@/Components/ui/paragraph";
+import { Button, buttonVariants } from "@/Components/ui/button";
+import { LoaderCircle, MoveRight, Plus } from "lucide-react";
+import { MdHome } from "react-icons/md";
+import { useMediaQuery } from "@/Hooks/use-media-query";
+import { useMutation } from "@tanstack/react-query";
+import { createProject } from "@/Services/api/projects";
+import { Label } from "@/Components/ui/label";
+import { useEventListener } from "@/Hooks/use-event-listener";
+import { cn } from "@/Utils/utils";
+import { Progress } from "@/Components/ui/infinate-progress";
 
 const breadcrumbs = [
-    {href: route("app"), label: <MdHome className="w-6 h-6"/>},
-    {label: "Mes projets"}
+    { href: route("app"), label: <MdHome className="w-5 h-5" /> },
+    { label: "Mes projets" },
 ];
 
-const Index = () => {
+const Index: React.FC<any> = ({ projects, users }) => {
+    useEventListener("focus", function () {
+        router.reload({
+            only: ["projects"],
+        });
+    });
+
     return (
         <AuthLayout>
             <Head title="Mes projet" />
 
             <div className="space-y-4">
-            <Breadcrumb items={breadcrumbs} MAX_ITEMS={2}/>
+                <Breadcrumb items={breadcrumbs} MAX_ITEMS={2} />
 
-            <div className="flex sm:flex-row flex-col justify-between sm:items-end gap-4">
-                <div className="space-y-2">
-                    <Heading level={3} className="font-medium">
-                        Mes projets
-                    </Heading>
+                <div className="flex sm:flex-row flex-col justify-between sm:items-end gap-4">
+                    <div className="space-y-2">
+                        <Heading level={3} className="font-medium">
+                            Mes projets
+                        </Heading>
 
-                    <Text className={"max-w-7xl"}>
-                        Votre modèle de tableau de bord de gestion d'accées.
-                    </Text>
+                        <Text className={"max-w-7xl"}>
+                            Votre modèle de tableau de bord de gestion d'accées.
+                        </Text>
+                    </div>
+
+                    <ConfirmNewProjectCreation />
                 </div>
 
-                <Button asChild>
-                    <Link href={route('project.create')}>
-                        <MdAdd className="w-4 h-4 mr-2"/>Ajouter
-                    </Link>
+                <ul className="mt-5 ">
+                    {projects.map((project: any, idx: any) => (
+                        <li key={idx}>
+                            <Link
+                                href={route(
+                                    "project.version.create",
+                                    project.code
+                                )}
+                                className="text-blue-600 hover:underline"
+                            >
+                                edit project {project.id}
+                            </Link>
                         </li>
                     ))}
                 </ul>
