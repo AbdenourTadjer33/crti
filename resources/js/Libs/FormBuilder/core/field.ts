@@ -1,3 +1,5 @@
+import React from "react";
+import { CalendarProps } from "../components/common/calendar";
 import { ComboboxProps } from "../components/common/combobox";
 import { InputProps } from "../components/common/input";
 import { TextareaProps } from "../components/common/textarea";
@@ -11,8 +13,8 @@ export type Fields = {
     number: InputProps;
     textarea: TextareaProps;
     combobox: ComboboxProps;
+    calendar: CalendarProps;
     // list: any;
-    // calendar: any;
     // checkbox: any;
 }
 
@@ -26,8 +28,9 @@ type TextField = BaseField & { type: "text" } & Fields["text"];
 type NumberField = BaseField & { type: "number" } & Fields["number"];
 type TextareaField = BaseField & { type: "textarea" } & Fields["textarea"];
 type ComboboxField = BaseField & { type: "combobox" } & Fields["combobox"];
+type CalendarField = BaseField & { type: "calendar" } & Fields["calendar"];
 
-export type Field = TextField | NumberField | TextareaField | ComboboxField;
+export type Field = TextField | NumberField | TextareaField | ComboboxField | CalendarField;
 
 
 // export interface FieldBase {

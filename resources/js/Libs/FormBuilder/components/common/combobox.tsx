@@ -15,27 +15,51 @@ import {
 } from "@/Components/ui/popover";
 import { Check, ChevronDown } from "lucide-react";
 import { cn } from "@/Utils/utils";
-import { Button } from "@/Components/ui/button";
+import { Button, buttonVariants } from "@/Components/ui/button";
 import { OnValueChange, OnValuesChange } from "../../core/field";
 
+interface Option {
+    label: string;
+    value: string;
+}
+
+interface placeholders {
+    trigger?: string;
+}
+
+type ClassNames = {
+    trigger?: string;
+    content?: string;
+};
+
 interface CommonCombobox extends React.HTMLAttributes<HTMLElement> {
-    options: string[] | { label: string; value: string }[];
+    options: Option[] | string[];
     components?: any;
-    placeholders?: any;
+    placeholders?: placeholders;
     search?: string;
     setSearch?: React.Dispatch<React.SetStateAction<string>>;
+    classNames?: ClassNames;
+    empty?: (search: string) => React.ReactNode;
 }
 
 interface SingleSelectProps extends CommonCombobox {
-    many?: false;
+    multiple?: false;
     value?: string;
     onValueChange?: OnValueChange;
+    trigger?: (value?: string) => React.ReactNode;
+    labels?: {
+        trigger?: ((value: string) => React.ReactNode) | React.ReactNode;
+    };
 }
 
 interface MultiSelectProps extends CommonCombobox {
-    many?: true;
+    multiple?: true;
     value?: string[];
     onValueChange?: OnValuesChange;
+    trigger?: (value?: string[]) => React.ReactNode;
+    labels?: {
+        trigger?: ((value: string[]) => React.ReactNode) | React.ReactNode;
+    };
 }
 
 type ComboboxProps = SingleSelectProps | MultiSelectProps;
@@ -46,35 +70,56 @@ const SingleCombobox: React.FC<SingleSelectProps> = ({
     options,
     search,
     setSearch,
+    trigger,
+    classNames,
+    empty,
 }) => {
+    const [open, setOpen] = React.useState(false);
+    const [_search, _setSearch] = React.useState("");
+
     const selectHandler = (selected: string) => {
         if (onValueChange) {
             onValueChange(selected);
+            setOpen(false);
             return;
         }
     };
 
     return (
-        <Popover>
-            <PopoverTrigger asChild>
-                <Button
-                    variant="outline"
-                    className="justify-between gap-4 w-full"
+        <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger
+                className={cn(
+                    buttonVariants({ variant: "outline" }),
+                    "w-full justify-between gap-4 relative overflow-hidden",
+                    classNames?.trigger
+                )}
+            >
+                {trigger ? trigger(value) : value ? value : "select"}
+
+                <div
+                    className={cn(
+                        buttonVariants({ size: "sm", variant: "ghost" }),
+                        "absolute top-1/2 -translate-y-1/2 right-0"
+                    )}
                 >
                     <ChevronDown className="h-4 w-4" />
-                </Button>
+                </div>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0">
+            <PopoverContent className={cn("w-auto p-0", classNames?.content)}>
                 <Command loop>
                     <CommandHeader>
                         <CommandInput
-                            value={search}
-                            onValueChange={setSearch}
+                            value={search ?? _search}
+                            onValueChange={setSearch ?? _setSearch}
                             placeholder="rechercher..."
                         />
                     </CommandHeader>
                     <CommandList>
-                        <CommandEmpty>No data found</CommandEmpty>
+                        <CommandEmpty>
+                            {empty
+                                ? empty(search ?? _search)
+                                : "no result found"}
+                        </CommandEmpty>
                         <CommandGroup>
                             {options.map((option, idx) => {
                                 const itemLabel =
@@ -92,14 +137,13 @@ const SingleCombobox: React.FC<SingleSelectProps> = ({
                                         value={itemValue}
                                         onSelect={selectHandler}
                                     >
-                                        {itemLabel}
-
                                         <Check
                                             className={cn(
                                                 "mr-2 h-4 w-4 data-[checked=false]:opacity-0"
                                             )}
                                             data-checked={itemValue === value}
                                         />
+                                        {itemLabel}
                                     </CommandItem>
                                 );
                             })}
@@ -117,15 +161,19 @@ const MultipleCombobox: React.FC<MultiSelectProps> = ({
     options,
     search,
     setSearch,
+    classNames,
+    trigger,
+    empty,
 }) => {
-    const selectHandler = (selected: string) => {
+    const [_search, _setSearch] = React.useState("");
+    const selectHandler = (selectedValue: string) => {
         if (value && onValueChange) {
             const selectedValues = [...value];
 
-            if (selectedValues.includes(selected)) {
-                selectedValues.splice(selectedValues.indexOf(selected), 1);
+            if (selectedValues.includes(selectedValue)) {
+                selectedValues.splice(selectedValues.indexOf(selectedValue), 1);
             } else {
-                selectedValues.push(selected);
+                selectedValues.push(selectedValue);
             }
 
             onValueChange(selectedValues);
@@ -134,25 +182,42 @@ const MultipleCombobox: React.FC<MultiSelectProps> = ({
 
     return (
         <Popover>
-            <PopoverTrigger asChild>
-                <Button
-                    variant="outline"
-                    className="justify-between gap-4 w-full"
+            <PopoverTrigger
+                className={cn(
+                    buttonVariants({ variant: "outline" }),
+                    "w-full justify-between gap-4 relative overflow-hidden",
+                    classNames?.trigger
+                )}
+            >
+                {trigger
+                    ? trigger(value)
+                    : value?.length
+                    ? value.join(",")
+                    : "select"}
+                <div
+                    className={cn(
+                        buttonVariants({ size: "sm", variant: "ghost" }),
+                        "absolute top-1/2 -translate-y-1/2 right-0"
+                    )}
                 >
                     <ChevronDown className="h-4 w-4" />
-                </Button>
+                </div>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0">
+            <PopoverContent className={cn("w-auto p-0", classNames?.content)}>
                 <Command loop>
                     <CommandHeader>
                         <CommandInput
-                            value={search}
-                            onValueChange={setSearch}
+                            value={search ?? _search}
+                            onValueChange={setSearch ?? _setSearch}
                             placeholder="rechercher..."
                         />
                     </CommandHeader>
                     <CommandList>
-                        <CommandEmpty>No data found</CommandEmpty>
+                        <CommandEmpty>
+                            {empty
+                                ? empty(search ?? _search)
+                                : "no result found"}
+                        </CommandEmpty>
                         <CommandGroup>
                             {options.map((option, idx) => {
                                 const itemLabel =
@@ -167,19 +232,20 @@ const MultipleCombobox: React.FC<MultiSelectProps> = ({
                                 return (
                                     <CommandItem
                                         key={idx}
-                                        value={itemValue}
-                                        onSelect={selectHandler}
+                                        value={itemLabel}
+                                        onSelect={() =>
+                                            selectHandler(itemValue)
+                                        }
                                     >
-                                        {itemLabel}
-
                                         <Check
-                                            className={cn(
+                                            className={
                                                 "mr-2 h-4 w-4 data-[checked=false]:opacity-0"
-                                            )}
+                                            }
                                             data-checked={value?.includes(
                                                 itemValue
                                             )}
                                         />
+                                        {itemLabel}
                                     </CommandItem>
                                 );
                             })}
@@ -191,15 +257,12 @@ const MultipleCombobox: React.FC<MultiSelectProps> = ({
     );
 };
 
-const Combobox: React.FC<ComboboxProps> = ({ many = false, ...props }) => {
-    if (many) {
+const Combobox: React.FC<ComboboxProps> = ({ multiple = false, ...props }) => {
+    if (multiple) {
         return <MultipleCombobox {...(props as MultiSelectProps)} />;
     }
 
     return <SingleCombobox {...(props as SingleSelectProps)} />;
 };
 
-export {
-    type ComboboxProps,
-    Combobox
-};
+export { type ComboboxProps, Combobox };

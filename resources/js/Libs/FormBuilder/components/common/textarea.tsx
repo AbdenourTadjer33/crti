@@ -4,7 +4,7 @@ import { cn } from "@/Utils/utils";
 
 interface TextareaProps
     extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
-    value: string;
+    value?: string;
     onValueChange?: OnValueChange;
 }
 
