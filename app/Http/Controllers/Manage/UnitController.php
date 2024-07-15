@@ -7,8 +7,8 @@ use App\Models\User;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Unit\StoreRequest;
-use App\Http\Requests\Unit\UpdateRequest;
+use App\Http\Requests\Manage\Unit\StoreRequest;
+use App\Http\Requests\Manage\Unit\UpdateRequest;
 use App\Http\Resources\Manage\UnitResource;
 use App\Http\Resources\Manage\UserResource as ManageUserResource;
 
