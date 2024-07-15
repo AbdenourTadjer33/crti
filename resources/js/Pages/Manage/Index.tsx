@@ -8,15 +8,15 @@ const apps = [
         link: route("manage.user.index"),
     },
     {
-        title: "Gestion de roles",
+        title: "Gestion des roles",
         link: route("manage.role.index"),
     },
     {
-        title: "Gestion de permissions",
+        title: "Gestion des permissions",
         link: route("manage.permission.index"),
     },
     {
-        title: "gestion d'unité",
+        title: "Gestion d'unité et divisions",
         link: route("manage.unit.index"),
     },
 ];
@@ -32,7 +32,7 @@ export default function Manage() {
                         <Link
                             key={idx}
                             href={app.link}
-                            className="p-4 bg-gray-100 border rounded-md transition duration-75 hover:shadow-md"
+                            className="p-4 bg-white border rounded-md transition duration-75 hover:shadow-md"
                         >
                             {capitalize(app.title)}
                         </Link>
