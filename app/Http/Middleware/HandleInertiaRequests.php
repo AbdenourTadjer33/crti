@@ -59,7 +59,6 @@ class HandleInertiaRequests extends Middleware
             'flash' => [
                 'alert' => fn () => $request->session()->get('alert'),
             ],
-            'locale' => fn () => app()->getLocale(),
         ];
     }
 }
