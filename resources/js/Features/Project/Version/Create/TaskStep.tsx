@@ -12,13 +12,14 @@ import * as Dropdown from "@/Components/ui/dropdown-menu";
 import { X } from "lucide-react";
 import { FormProps } from "@/Components/Stepper";
 import { useSessionStorage } from "@/Hooks/use-session-storage-with-object";
+import { deepKeys } from "@/Libs/Validation/utils";
 
 const TaskStep = ({ prev, next }: FormProps) => {
     const { data, setData, processing, errors, validate, clearErrors } =
         React.useContext(CreateProjectContext);
 
     const goNext = () => {
-        const fields = "tasks";
+        const fields = "tasks," + deepKeys(data.tasks, "tasks");
 
         validate(fields, {
             onSuccess: () => {

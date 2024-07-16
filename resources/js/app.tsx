@@ -1,16 +1,14 @@
 import "./bootstrap";
 import "../css/app.css";
 
+import React from "react";
 import { createRoot } from "react-dom/client";
 import { createInertiaApp } from "@inertiajs/react";
 import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
 import { capitalize } from "./Utils/helper";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Ziggy } from "./ziggy";
 import { route } from "ziggy-js";
-import { TestApp } from "./Libs/FormBuilder/component";
-import React from "react";
 
 globalThis.Ziggy = Ziggy;
 globalThis.route = route;
@@ -28,17 +26,13 @@ createInertiaApp({
         const root = createRoot(el);
 
         root.render(
-            <React.StrictMode>
-                <QueryClientProvider client={new QueryClient()}>
-                    <App {...props} />
-                    {/* <TestApp /> */}
-                    <ReactQueryDevtools initialIsOpen={false} />
-                </QueryClientProvider>
-            </React.StrictMode>
+            <QueryClientProvider client={new QueryClient()}>
+                <App {...props} />
+            </QueryClientProvider>
         );
     },
     progress: {
-        color: "#655bf5",
+        color: "#4F46E5",
         showSpinner: true,
     },
 }).then(() => document.getElementById("app")?.removeAttribute("data-page"));

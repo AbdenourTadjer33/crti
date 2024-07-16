@@ -8,6 +8,7 @@ import {
 import { UserContextProvider } from "@/Contexts/UserContext";
 import { usePage } from "@inertiajs/react";
 import { Toaster } from "@/Components/ui/toaster";
+import { Toaster as Sonner } from "@/Components/ui/sonner";
 import { useToast } from "@/Components/ui/use-toast";
 
 export default function AuthLayout({ children }: React.PropsWithChildren) {
@@ -27,6 +28,7 @@ export default function AuthLayout({ children }: React.PropsWithChildren) {
                 <Sidebar />
                 <Main>{children}</Main>
                 <Toaster />
+                <Sonner closeButton />
             </AuthProvider>
         </UserContextProvider>
     );
@@ -37,7 +39,7 @@ function Main({ children }: React.PropsWithChildren) {
 
     return (
         <main
-            className={`p-4 ${
+            className={`p-2 sm:p-4 ${
                 sidebarState === "hidden"
                     ? ""
                     : `${sidebarState === "opened" ? "ml-64" : "ml-20"}`

@@ -4,12 +4,12 @@ import AuthLayout from "@/Layouts/AuthLayout";
 import { MdHome } from "react-icons/md";
 import { Heading } from "@/Components/ui/heading";
 import { Text } from "@/Components/ui/paragraph";
-import Breadcrumb from "@/Components/Breadcrumb/Breadcrumb";
-import Form from "@/Features/Project/Create/Form";
+import Breadcrumb from "@/Components/Breadcrumb";
+import Form from "@/Features/Project/Version/Create/Form";
 
 const breadcrubms = [
     { href: route("app"), label: <MdHome className="w-6 h-6" /> },
-    { href: route("project.index"), label: "Mes projets" },
+    { href: route("project.index"), label: "Projets" },
     { label: "Créer projet" },
 ];
 

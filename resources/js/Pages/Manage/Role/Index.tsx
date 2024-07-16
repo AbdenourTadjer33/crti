@@ -1,7 +1,7 @@
 import React from "react";
 import {Head, Link} from "@inertiajs/react";
 import AuthLayout from "@/Layouts/AuthLayout";
-import Breadcrumb from "@/Features/Breadcrumb/Breadcrumb";
+import Breadcrumb from "@/Components/Breadcrumb";
 import Table from "@/Features/Manage/Role/Table";
 import {Role} from "@/types";
 import {Heading} from "@/Components/ui/heading";

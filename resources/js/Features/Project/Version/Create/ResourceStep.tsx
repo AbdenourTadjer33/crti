@@ -166,44 +166,4 @@ const ResourcePartner = () => {
     return <div>resources partner</div>;
 };
 
-const ResourceForm123 = ({ next, prev }: FormProps) => {
-    const { data, setData, errors, processing } =
-        React.useContext(CreateProjectContext);
-
-    const goNext = () => {
-        next();
-    };
-
-    return (
-        <div className="space-y-5 md:space-y-10">
-            <div className="md:grid grid-cols-3 gap-4">
-                <div className=" col-span-3">
-                    <Heading level={5}>
-                        Matériel existant pouvant être utilisé dans l’exécution
-                        du projet 
-                    </Heading>
-                </div>
-            </div>
-
-            <div className="md:grid grid-cols-3 gap-4">
-                <Heading level={5} className="col-span-3">
-                    Matière première, composants et petits équipements à
-                    acquérir par le CRTI
-                </Heading>
-            </div>
-
-            {data.is_partner && (
-                <div className="md:grid grid-cols-3 gap-4">
-                    <div className="col-span-3">
-                        <Heading level={5}>
-                            Matière première, composants et petits équipements à
-                            acquérir par le partenaire socio-économique
-                        </Heading>
-                    </div>
-                </div>
-            )}
-        </div>
-    );
-};
-
 export default ResourceForm;

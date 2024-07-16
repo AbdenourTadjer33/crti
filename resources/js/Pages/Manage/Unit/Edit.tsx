@@ -1,7 +1,7 @@
 import React from "react";
 import { Heading } from "@/Components/ui/heading";
 import { Text } from "@/Components/ui/paragraph";
-import Breadcrumb from "@/Features/Breadcrumb/Breadcrumb";
+import Breadcrumb from "@/Components/Breadcrumb";
 import AuthLayout from "@/Layouts/AuthLayout";
 import { Head } from "@inertiajs/react";
 import { MdHome } from "react-icons/md";

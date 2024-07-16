@@ -2,6 +2,7 @@
 
 namespace Modules\Project\Http\Requests\Version;
 
+use Tiptap\Editor;
 use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -15,31 +16,50 @@ class StoreRequest extends FormRequest
         return true;
     }
 
-    // protected function prepareForValidation()
-    // {
-        // $this->merge([
-            // 'description' => $this->input('description'),
-        // ]);
-    // }
+    protected function prepareForValidation()
+    {
+        $editor = new Editor;
 
+        $description = $this->input('description');
+        $goals       = $this->input('goals');
+        $methodology = $this->input('methodology');
+
+        $this->merge([
+            '_description' => $description,
+            '_goals'       => $goals,
+            '_methodology' => $methodology,
+            'description'  => $description ? $editor->setContent($description)->getText() : $description,
+            'goals'        => $goals       ? $editor->setContent($goals)->getText()       : $goals,
+            'methodology'  => $methodology ? $editor->setContent($methodology)->getText() : $methodology,
+        ]);
+    }
+
+    protected function passedValidation(): void
+    {
+        $this->replace($this->except(['_description', '_goals', '_methodology', 'description', 'goals', 'methodology']) + [
+            'description' => $this->input('_description'),
+            'goals' => $this->input('_goals'),
+            'methodology' => $this->input('_methodology'),
+        ]);
+    }
     /**
      * Get the validation rules that apply to the request.
      */
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string'],
+            'name' => ['required', 'string', 'min:6', 'max:40'],
             'nature' => ['required', 'string'],
-            'description' => ['required', 'string'],
-            'goals' => ['required', 'string'],
-            'methodology' => ['required', 'string'],
+            'description' => ['required', 'string', 'min:50'],
+            'goals' => ['required', 'string', 'min:50'],
+            'methodology' => ['required', 'string', 'min:50'],
 
             'domains' => ['required', 'array', 'min:3', 'max:5'],
             'domains.*' => ['required', 'string'],
 
             'timeline' => ['required', 'array'],
-            'timeline.from' => ['required'],
-            'timeline.to' => ['required'],
+            'timeline.from' => ['required', 'date'],
+            'timeline.to' => ['required', 'date'],
 
             'is_partner' => ['required', 'boolean'],
 
@@ -51,20 +71,20 @@ class StoreRequest extends FormRequest
             'members.*' => ['required', 'array'],
             'members.*.uuid' => ['required', 'string', Rule::exists('users', 'uuid')],
 
-            'resources' => ['required', 'array'],
-            'resources.*.name' => ['required', 'string'],
+            // 'resources' => ['required', 'array'],
+            // 'resources.*.name' => ['required', 'string'],
 
-            'resources_crti' => ['required', 'array'],
-            'resources_crti.*' => ['required', 'array'],
+            // 'resources_crti' => ['required', 'array'],
+            // 'resources_crti.*' => ['required', 'array'],
 
-            'resource_partner' => ['exclude_if:is_partner,false', 'required', 'array'],
-            'resource_partner.*' => ['exclude_if:is_partner,false', 'required', 'array'],
+            // 'resource_partner' => ['exclude_if:is_partner,false', 'required', 'array'],
+            // 'resource_partner.*' => ['exclude_if:is_partner,false', 'required', 'array'],
 
-            'tasks' => ['required', 'array', 'min:5', 'max:20'],
+            'tasks' => ['required', 'array', 'min:3', 'max:20'],
             'tasks.*' => ['required', 'array'],
             'tasks.*.name' => ['required', 'string'],
             'tasks.*.description' => ['required', 'string'],
-            'tasks.*.users' => ['required', 'array', 'min:1', 'max:3'],
+            'tasks.*.users' => ['required', 'array', 'min:1', 'max:5'],
             'tasks.*.priority' => ['required', 'string'],
             'tasks.*.timeline' => ['required', 'array:from,to'],
             'tasks.*.timeline.from' => ['required', 'date'],
@@ -86,6 +106,4 @@ class StoreRequest extends FormRequest
             "members.required" => "Vous devez séléctionnez les members de projet.",
         ];
     }
-
-
 }

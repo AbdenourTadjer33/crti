@@ -1,5 +1,5 @@
 import React from "react";
-import { useForm } from "@inertiajs/react";
+import { router, useForm } from "@inertiajs/react";
 import { useMutation } from "@tanstack/react-query";
 import { LoaderCircle } from "lucide-react";
 import { useValidation } from "@/Libs/Validation";
@@ -54,7 +54,7 @@ const Form: React.FC<FormProps> = ({ version, params }) => {
         );
 
     const { validate, validating } = useValidation({
-        url: route("project.store"),
+        url: route("project.version.store", projectId),
         method: "post",
         data,
         onError: (errors) => setError(errors),
@@ -127,7 +127,7 @@ const Form: React.FC<FormProps> = ({ version, params }) => {
                         data,
                         setData,
                         errors,
-                        clearErrors,
+                        clearErrors: clearErrors as any,
                         processing: processing || validating,
                         setError,
                         validate,

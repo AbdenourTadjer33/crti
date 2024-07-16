@@ -166,37 +166,6 @@ const Identification = ({ next }: FormProps) => {
                             },
                         }}
                     />
-                    {/* <Popover>
-                    <PopoverTrigger asChild>
-                        <Button
-                            variant="outline"
-                            className="justify-between w-full"
-                        >
-                            {data.timeline
-                                ? `De ${
-                                      data.timeline.from &&
-                                      format(data.timeline.from, "dd/MM/yyy")
-                                  } à ${
-                                      data.timeline.to &&
-                                      format(data.timeline.to, "dd/MM/yyy")
-                                  }`
-                                : "sélectionnez la date du début-fin"}
-                            <CalendarIcon className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-                        </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                        <Calendar
-                            mode="range"
-                            selected={data.timeline}
-                            onSelect={(range) => {
-                                if (range) {
-                                    clearErrors("timeline");
-                                    setData("timeline", range);
-                                }
-                            }}
-                        />
-                    </PopoverContent>
-                </Popover> */}
                     <InputError message={errors.timeline} />
                 </div>
             </div>

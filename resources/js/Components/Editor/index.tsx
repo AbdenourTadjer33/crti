@@ -1,194 +1,63 @@
 import React from "react";
-import { Color } from "@tiptap/extension-color";
-import ListItem from "@tiptap/extension-list-item";
-import TextStyle from "@tiptap/extension-text-style";
 import {
     Content,
-    EditorProvider,
+    EditorContent,
+    EditorEvents,
+    Extensions,
+    FocusPosition,
     JSONContent,
-    useCurrentEditor,
+    useEditor,
+    Editor,
 } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import Document from "@tiptap/extension-document";
+import Color from "@tiptap/extension-color";
+import ListItem from "@tiptap/extension-list-item";
+import TextStyle from "@tiptap/extension-text-style";
+import Underline from "@tiptap/extension-underline";
+import Link from "@tiptap/extension-link";
+import Placeholder from "@tiptap/extension-placeholder";
+
 import { cn } from "@/Utils/utils";
+import { FixedMenu } from "./partials/fixed-menu";
+import { EditorProps } from "@tiptap/pm/view";
+import { Skeleton } from "../ui/skeleton";
 
-const Button: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement>> = ({
-    className,
-    ...props
-}) => {
-    return (
-        <button
-            className={cn(
-                "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50",
-                "h-10 px-4 py-2",
-                "bg-gray-100 text-gray-900 hover:bg-gray-100/50 dark:bg-gray-800 dark:text-gray-50 dark:hover:bg-gray-800/50",
-                "data-[active=true]:bg-primary-600 data-[active=true]:text-white data-[active=true]:hover:bg-primary-700 data-[active=true]:dark:bg-primary-700 data-[active=true]:dark:hover:bg-primary-800",
-                className
-            )}
-            {...props}
-        />
-    );
+type ClassNames = {
+    root: string;
+    wrapper: string;
+    content: string;
+    fixedMenu: string;
 };
 
-const MenuBar = () => {
-    const { editor } = useCurrentEditor();
+type Menu = "top" | "bottom";
 
-    if (!editor) {
-        return null;
-    }
+type SlotFn = (editor: Editor) => React.ReactNode | undefined;
+type OnContentChange = (content: {
+    json: JSONContent;
+    html: string;
+    text: string;
+}) => void;
+type EditorPropsFn = () => EditorProps;
 
-    return (
-        <div className="flex flex-wrap gap-1">
-            <Button
-                onClick={() => editor.chain().focus().toggleBold().run()}
-                disabled={!editor.can().chain().focus().toggleBold().run()}
-                data-active={editor.isActive("bold")}
-            >
-                Bold
-            </Button>
-            <Button
-                onClick={() => editor.chain().focus().toggleItalic().run()}
-                disabled={!editor.can().chain().focus().toggleItalic().run()}
-                data-active={editor.isActive("italic")}
-            >
-                Italic
-            </Button>
-            <Button
-                onClick={() => editor.chain().focus().toggleStrike().run()}
-                disabled={!editor.can().chain().focus().toggleStrike().run()}
-                data-active={editor.isActive("strike")}
-            >
-                Strike
-            </Button>
-            <Button
-                onClick={() => editor.chain().focus().toggleCode().run()}
-                disabled={!editor.can().chain().focus().toggleCode().run()}
-                data-active={editor.isActive("code")}
-            >
-                Code
-            </Button>
-            <Button
-                onClick={() => editor.chain().focus().unsetAllMarks().run()}
-            >
-                Clear marks
-            </Button>
-            <Button onClick={() => editor.chain().focus().clearNodes().run()}>
-                Clear nodes
-            </Button>
-            <Button
-                onClick={() => editor.chain().focus().setParagraph().run()}
-                data-active={editor.isActive("paragraph")}
-            >
-                Paragraph
-            </Button>
-            <Button
-                onClick={() =>
-                    editor.chain().focus().toggleHeading({ level: 1 }).run()
-                }
-                data-active={editor.isActive("heading", { level: 1 })}
-            >
-                H1
-            </Button>
-            <Button
-                onClick={() =>
-                    editor.chain().focus().toggleHeading({ level: 2 }).run()
-                }
-                data-active={editor.isActive("heading", { level: 2 })}
-            >
-                H2
-            </Button>
-            <Button
-                onClick={() =>
-                    editor.chain().focus().toggleHeading({ level: 3 }).run()
-                }
-                data-active={editor.isActive("heading", { level: 3 })}
-            >
-                H3
-            </Button>
-            <Button
-                onClick={() =>
-                    editor.chain().focus().toggleHeading({ level: 4 }).run()
-                }
-                data-active={editor.isActive("heading", { level: 4 })}
-            >
-                H4
-            </Button>
-            <Button
-                onClick={() =>
-                    editor.chain().focus().toggleHeading({ level: 5 }).run()
-                }
-                data-active={editor.isActive("heading", { level: 5 })}
-            >
-                H5
-            </Button>
-            <Button
-                onClick={() =>
-                    editor.chain().focus().toggleHeading({ level: 6 }).run()
-                }
-                data-active={editor.isActive("heading", { level: 6 })}
-            >
-                H6
-            </Button>
-            <Button
-                onClick={() => editor.chain().focus().toggleBulletList().run()}
-                data-active={editor.isActive("bulletList")}
-            >
-                Bullet list
-            </Button>
-            <Button
-                onClick={() => editor.chain().focus().toggleOrderedList().run()}
-                data-active={editor.isActive("orderedList")}
-            >
-                Ordered list
-            </Button>
-            <Button
-                onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-                data-active={editor.isActive("codeBlock")}
-            >
-                Code block
-            </Button>
-            <Button
-                onClick={() => editor.chain().focus().toggleBlockquote().run()}
-                data-active={editor.isActive("blockquote")}
-            >
-                Blockquote
-            </Button>
-            <Button
-                onClick={() => editor.chain().focus().setHorizontalRule().run()}
-            >
-                Horizontal rule
-            </Button>
-            <Button onClick={() => editor.chain().focus().setHardBreak().run()}>
-                Hard break
-            </Button>
-            <Button
-                onClick={() => editor.chain().focus().undo().run()}
-                disabled={!editor.can().chain().focus().undo().run()}
-            >
-                Undo
-            </Button>
-            <Button
-                onClick={() => editor.chain().focus().redo().run()}
-                disabled={!editor.can().chain().focus().redo().run()}
-            >
-                Redo
-            </Button>
-            <Button
-                onClick={() => editor.chain().focus().setColor("#958DF1").run()}
-                className={
-                    editor.isActive("textStyle", { color: "#958DF1" })
-                        ? "is-active"
-                        : ""
-                }
-            >
-                Purple
-            </Button>
-        </div>
-    );
-};
+interface RichEditorProps {
+    className?: string;
+    classNames?: Partial<ClassNames>;
+    editable?: boolean;
+    content?: Content;
+    onContentChange?: OnContentChange;
+    extensions?: (extensions: any) => Extensions;
+    menu?: Partial<Menu>;
+    slotBefore?: (editor: Editor) => React.ReactNode;
+    slotAfter?: (editor: Editor) => React.ReactNode;
+    autofocus?: FocusPosition;
+    spellCheck?: boolean;
+}
 
-const extensions = [
-    Color.configure({ types: [TextStyle.name, ListItem.name] }),
-    TextStyle,
+/**
+ * base extension is bunch of extension pre configured for you.
+ */
+const baseExtensions = [
     StarterKit.configure({
         bulletList: {
             keepMarks: true,
@@ -198,46 +67,113 @@ const extensions = [
             keepMarks: true,
             keepAttributes: true, // TODO : Making this as `false` becase marks are not preserved when I try to preserve attrs, awaiting a bit of help
         },
+        document: false,
     }),
+    Document,
+    Color.configure({ types: [TextStyle.name, ListItem.name] }),
+    TextStyle,
+    Underline,
+    Link,
 ];
 
-interface EditorProps {
-    editable?: boolean;
-    content?: Content;
-    onContentChange?: (content: {
-        json: JSONContent;
-        html: string;
-        text: string;
-    }) => void;
-}
-
-const Editor: React.FC<EditorProps> = ({
+const RichEditor: React.FC<RichEditorProps> = ({
+    className = "",
+    classNames,
     editable = true,
     content,
     onContentChange,
+    extensions,
+    menu = "top",
+    slotBefore,
+    slotAfter,
+    autofocus,
+    spellCheck = true,
 }) => {
+    const extensionFn = (): Extensions => {
+        if (!extensions) return baseExtensions;
+
+        return extensions({
+            StarterKit,
+            Document,
+            Color,
+            TextStyle,
+            Underline,
+            Link,
+            Placeholder,
+        });
+    };
+
+    const slotBeforeFn: SlotFn = (editor) => {
+        if (slotBefore) return slotBefore(editor);
+        if (menu === "top")
+            return (
+                <FixedMenu
+                    editor={editor}
+                    className={cn(classNames?.fixedMenu)}
+                />
+            );
+        return undefined;
+    };
+
+    const slotAfterFn: SlotFn = (editor) => {
+        if (slotAfter) return slotAfter(editor);
+        if (menu === "bottom")
+            return (
+                <FixedMenu
+                    editor={editor}
+                    className={cn(classNames?.fixedMenu)}
+                />
+            );
+        return undefined;
+    };
+
+    const onUpdateFn = ({ editor }: EditorEvents["update"]) => {
+        onContentChange &&
+            onContentChange({
+                json: editor.getJSON(),
+                html: editor.getHTML(),
+                text: editor.getText(),
+            });
+    };
+
+    const editorPropsFn: EditorPropsFn = () => {
+        return {
+            attributes: {
+                class: cn(
+                    "p-2 prose max-w-full focus:outline-none min-h-28 max-h-52 overflow-y-auto first:*:mt-0",
+                    classNames?.content
+                ),
+                spellCheck: String(spellCheck),
+            },
+        };
+    };
+
+    const editor = useEditor({
+        content: content,
+        onUpdate: onUpdateFn,
+        extensions: extensionFn(),
+        editable: editable,
+        autofocus: autofocus,
+        editorProps: editorPropsFn(),
+    });
+
+    if (!editor) {
+        return <Skeleton className="h-40 w-full" />;
+    }
+
     return (
-        <EditorProvider
-            slotBefore={editable ? <MenuBar /> : undefined}
-            extensions={extensions}
-            editable={editable}
-            content={content}
-            editorProps={{
-                attributes: {
-                    class: "prose max-w-full focus:outline-none min-h-28 first:*:mt-0",
-                },
-            }}
-            onUpdate={({ editor }) => {
-                onContentChange &&
-                    onContentChange({
-                        json: editor.getJSON(),
-                        html: editor.getHTML(),
-                        text: editor.getText(),
-                    });
-            }}
-            injectCSS={false}
-        ></EditorProvider>
+        <div
+            className={cn(
+                "bg-white rounded border",
+                className,
+                classNames?.root
+            )}
+        >
+            {slotBeforeFn(editor)}
+            <EditorContent editor={editor} className={cn(classNames?.wrapper)} />
+            {slotAfterFn(editor)}
+        </div>
     );
 };
 
-export default Editor;
+export { type OnContentChange, RichEditor as Editor };

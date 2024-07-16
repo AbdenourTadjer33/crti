@@ -7,6 +7,7 @@ namespace App\Models;
 use Ramsey\Uuid\Uuid;
 use Laravel\Scout\Searchable;
 use Laravel\Sanctum\HasApiTokens;
+use Modules\Project\Models\Project;
 use Modules\Permission\Traits\HasRole;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Builder;
@@ -14,7 +15,9 @@ use Modules\Permission\Traits\HasPermission;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
@@ -126,5 +129,32 @@ class User extends Authenticatable
     public function isTrashed()
     {
         return (bool) $this->deleted_at;
+    }
+
+    /**
+     * Get all projects associated with the user (creator)
+     * 
+     * This method defines a one-to-many relationship, indicating 
+     * that a user can have multiple projects and a project belongs to one user.
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function projects(): HasMany
+    {
+        return $this->hasMany(Project::class, 'user_id', 'id');
+    }
+
+    /**
+     * Get all projects associated with the user (member)
+     * 
+     * This method defines a many-to-many relationship, indicating 
+     * that a project can have multiple users (members), and a user 
+     * can be associated with multiple projects.
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function onProjects(): BelongsToMany
+    {
+        return $this->belongsToMany(Project::class, 'members', 'user_id', 'project_id');
     }
 }

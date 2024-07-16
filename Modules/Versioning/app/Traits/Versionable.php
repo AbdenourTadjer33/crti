@@ -47,18 +47,18 @@ trait Versionable
     protected $versioningEnabled = true;
 
     /**
-     * @return $this
+     * @return self
      */
-    public function enableVersioning()
+    public function enableVersioning(): self
     {
         $this->versioningEnabled = true;
         return $this;
     }
 
     /**
-     * @return $this
+     * @return self
      */
-    public function disableVersioning()
+    public function disableVersioning(): self
     {
         $this->versioningEnabled = false;
         return $this;
@@ -119,13 +119,13 @@ trait Versionable
     /**
      * Get a model based on the version id.
      *
-     * @param $version_id
+     * @param $id
      *
      * @return $this|null
      */
-    public function getVersionModel($version_id)
+    public function getVersionModel($id)
     {
-        $version = $this->versions()->where("version_id", "=", $version_id)->first();
+        $version = $this->versions()->where("id", "=", $id)->first();
         if (!is_null($version)) {
             return $version->getModel();
         }
@@ -139,7 +139,7 @@ trait Versionable
      */
     protected function versionablePreSave()
     {
-        if ($this->versioningEnabled === true) {
+        if ($this->isVersioningEnabled()) {
             $this->versionableDirtyData = $this->getDirty();
             $this->updating             = $this->exists;
         }
@@ -154,9 +154,13 @@ trait Versionable
         /**
          * We'll save new versions on updating and first creation.
          */
+
+        if ($this->isVersioningEnabled() && $this->isValidForVersioning()) {
+        }
+
         if (
-            ($this->versioningEnabled === true && $this->updating && $this->isValidForVersioning()) ||
-            ($this->versioningEnabled === true && !$this->updating && !is_null($this->versionableDirtyData) && count($this->versionableDirtyData))
+            ($this->isVersioningEnabled() && $this->updating && $this->isValidForVersioning()) ||
+            ($this->isVersioningEnabled() && !$this->updating && !is_null($this->versionableDirtyData) && count($this->versionableDirtyData))
         ) {
             // Save a new version
             $class                     = $this->getVersionClass();
@@ -198,10 +202,7 @@ trait Versionable
      */
     public function createInitialVersion()
     {
-        if (
-            true === $this->fresh()->versions->isEmpty() &&
-            true === $this->versioningEnabled
-        ) {
+        if ($this->isVersioningEnabled() && $this->fresh()->versions->isEmpty()) {
 
             $class                     = $this->getVersionClass();
             $version                   = new $class();
@@ -248,12 +249,27 @@ trait Versionable
     }
 
     /**
+     * Checking if versioning is enabled 
+     * 
+     * @return bool
+     */
+    private function isVersioningEnabled(): bool
+    {
+        return isset($this->autoVersioning) ? $this->autoVersioning : $this->versioningEnabled;
+    }
+
+    public static function isEnabled()
+    {
+        return (new Self)->isVersioningEnabled();
+    }
+
+    /**
      * Determine if a new version should be created for this model.
      * Checks if appropriate fields have been changed.
      *
      * @return bool
      */
-    private function isValidForVersioning()
+    private function isValidForVersioning(): bool
     {
         $removeableKeys = isset($this->dontVersionFields) ? $this->dontVersionFields : [];
         if (($updatedAt = $this->getUpdatedAtColumn()) !== null) {
@@ -264,7 +280,7 @@ trait Versionable
             $removeableKeys[] = $deletedAt;
         }
 
-        return (count(array_diff_key($this->versionableDirtyData, array_flip($removeableKeys))) > 0);
+        return count(array_diff_key($this->versionableDirtyData, array_flip($removeableKeys))) > 0;
     }
 
     /**
@@ -280,6 +296,6 @@ trait Versionable
      */
     protected function getLatestVersions()
     {
-        return $this->versions()->orderByDesc('version_id');
+        return $this->versions()->orderByDesc('id');
     }
 }

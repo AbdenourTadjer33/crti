@@ -4,18 +4,13 @@ namespace Modules\Versioning\Models;
 
 use Illuminate\Support\Facades\Config;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Version extends Model
 {
-    /**
-     * @var string
-     */
-    public $table = "versions";
+    protected $table = "versions";
 
-    /**
-     * @var string
-     */
-    protected $primaryKey = "version_id";
+    protected $guarded = [];
 
     /**
      * Sets up the relation
@@ -28,12 +23,22 @@ class Version extends Model
 
     /**
      * Return the user responsible for this version
+     */
+    public function user(): BelongsTo
+    {
+        $model = Config::get("auth.providers.users.model");
+        return $this->belongsTo($model, 'user_id', 'id');
+    }
+
+    /**
+     * Return the user responsible for this version
      * @return mixed
      */
     public function getResponsibleUserAttribute()
     {
-        $model = Config::get("auth.providers.users.model");
-        return $model::find($this->user_id);
+        if (!$this->user_id) return;
+
+        return $this->user;
     }
 
     /**
@@ -50,6 +55,7 @@ class Version extends Model
         $model = new $className();
         $model->unguard();
         $model->fill(unserialize($modelData));
+        // $model->setTable($model->getTable());
         $model->exists = true;
         $model->reguard();
         return $model;

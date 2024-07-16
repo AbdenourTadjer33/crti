@@ -1,7 +1,7 @@
 import { Head } from "@inertiajs/react";
 import CreateForm from "@/Features/Manage/Role/CreateForm";
 import AuthLayout from "@/Layouts/AuthLayout";
-import Breadcrumb from "@/Features/Breadcrumb/Breadcrumb";
+import Breadcrumb from "@/Components/Breadcrumb";
 
 import { MdHome } from "react-icons/md";
 import { PermissionContext } from "@/Contexts/Manage/Role/PermissionContext";

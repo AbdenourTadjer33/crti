@@ -1,11 +1,14 @@
 import React from "react";
 import { Rnd, RndDragCallback, RndResizeCallback } from "react-rnd";
-import { Edit, Grip, Pin, X } from "lucide-react";
+import { Edit, X } from "lucide-react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { useSessionStorage } from "@/Hooks/use-session-storage-with-object";
-import { cn } from "@/Utils/utils";
-import * as Tooltip from "./ui/tooltip";
 import { capitalize } from "@/Utils/helper";
+import { Editor, OnContentChange } from "./Editor";
+import Placeholder from "@tiptap/extension-placeholder";
+import StarterKit from "@tiptap/starter-kit";
+import Underline from "@tiptap/extension-underline";
+import Link from "@tiptap/extension-link";
 
 type Position = { x: number; y: number };
 type Size = { width: number; height: number };
@@ -99,7 +102,7 @@ const Note: React.FC<NoteProps> = ({
     );
     const [_size, _setSize] = useSessionStorage(
         `${_uniqueId}-size-state`,
-        size ?? { width: 350, height: 200 }
+        size ?? { width: 400, height: 200 }
     );
 
     return (
@@ -213,6 +216,28 @@ const NoteContent = () => {
         });
     };
 
+    const contentChangeFn: OnContentChange = ({ html }) => {
+        onValueChange && onValueChange(html);
+    };
+
+    const SlotBefore = () => {
+        return (
+            <div
+                className={`drag-handler-${_uniqueId} cursor-move bg-gray-900 px-2.5 py-2 flex items-center justify-between gap-4`}
+            >
+                <div className="text-gray-50 text-sm text-pretty">
+                    {capitalize(title ?? "")}
+                </div>
+                <button
+                    className="text-gray-50 hover:opacity-75"
+                    onClick={() => _setOpen(false)}
+                >
+                    <X className="h-5 w-5" />
+                </button>
+            </div>
+        );
+    };
+
     return (
         <Rnd
             size={_size}
@@ -220,39 +245,44 @@ const NoteContent = () => {
             position={_position}
             onDragStop={dragHandler}
             dragHandleClassName={`drag-handler-${_uniqueId}`}
-            className="bg-yellow-100 shadow-xl rounded"
             bounds="window"
-            minWidth={150}
-            minHeight={150}
+            minWidth={550}
+            minHeight={250}
+            maxWidth={750}
+            maxHeight={450}
+            className="shadow-xl overflow-hidden opacity-100"
         >
-            <div className="h-full w-full grid grid-rows-2">
-                <div
-                    className={cn(
-                        `drag-handler-${_uniqueId}`,
-                        "cursor-move bg-yellow-200 row-end-1 px-2.5 py-2 flex items center justify-between gap-4"
-                    )}
-                >
-                    <div className="text-gray-800 text-sm text-pretty">
-                        {capitalize(title ?? "")}
-                    </div>
-                    <button
-                        className="text-gray-600 hover:opacity-75"
-                        onClick={() => _setOpen(false)}
-                    >
-                        <X className="h-5 w-5" />
-                    </button>
-                </div>
-                <div className="">
-                    <textarea
-                        className="h-full w-full bg-inherit resize-none border-none outline-none focus:ring-0 focus-visible:ring-0"
-                        spellCheck={false}
-                        value={value}
-                        onChange={(e) =>
-                            onValueChange && onValueChange(e.target.value)
-                        }
-                    ></textarea>
-                </div>
-            </div>
+            <Editor
+                menu="bottom"
+                content={value}
+                onContentChange={contentChangeFn}
+                slotBefore={SlotBefore}
+                className="h-full flex flex-col justify-between border-none rounded-sm overflow-hidden"
+                classNames={{
+                    wrapper: "flex-grow overflow-auto",
+                    content: "max-h-none h-full",
+                    fixedMenu: "border-b-0 border-t",
+                }}
+                extensions={() => {
+                    return [
+                        StarterKit.configure({
+                            bulletList: {
+                                keepMarks: true,
+                                keepAttributes: true, // TODO : Making this as `false` becase marks are not preserved when I try to preserve attrs, awaiting a bit of help
+                            },
+                            orderedList: {
+                                keepMarks: true,
+                                keepAttributes: true, // TODO : Making this as `false` becase marks are not preserved when I try to preserve attrs, awaiting a bit of help
+                            },
+                        }),
+                        Underline,
+                        Link,
+                        Placeholder.configure({
+                            placeholder: "La description de la tâche..."
+                        })
+                    ];
+                }}
+            />
         </Rnd>
     );
 };

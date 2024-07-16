@@ -2,57 +2,59 @@
 
 namespace Modules\Project\Http\Controllers;
 
+use App\Models\User;
 use Inertia\Inertia;
-use Illuminate\Http\JsonResponse;
+use Nette\Utils\Random;
 use Illuminate\Support\Facades\DB;
 use Modules\Project\Models\Project;
 use App\Http\Controllers\Controller;
-use Illuminate\Routing\Controllers\Middleware;
-use Modules\Project\Http\Requests\StoreRequest;
-use Modules\Project\Http\Requests\UpdateRequest;
-use Illuminate\Routing\Controllers\HasMiddleware;
-use Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests;
 
-class ProjectController extends Controller implements HasMiddleware
+use Illuminate\Database\Eloquent\Builder;
+use Modules\Project\Enums\ProjectStatus;
+use Modules\Project\Http\Requests\Project\StoreRequest;
+
+class ProjectController extends Controller
 {
+    private User $user;
 
-    public static function middleware(): array
+    public function __construct()
     {
-        return [
-            new Middleware(HandlePrecognitiveRequests::class, only: ['store'])
-        ];
+        $this->user = request()->user();
     }
 
+    /**
+     * This endpoint return all project that user has access to.
+     * - user projects under creation.
+     * - 
+     * 
+     */
     public function index()
     {
+        /**
+         * This will hold all project id's that are fetched from the database.
+         */
+        $fetchedProjectIds = [];
 
-        return Inertia::render('Project/Index');
-        return $this->success([
-            'projects' => Project::get()
+        return Inertia::render('Project/Index', [
+            'myProjects' => fn () => $this->user->projects()->get(),
+            'onProjects' => fn () => $this->user->onProjects()->whereDoesntHave('user', fn (Builder $query) => $query->where('id', $this->user->id))->get(),
+            'divisionProjects' => fn () => [],
         ]);
     }
 
-    public function create()
+    public function store(StoreRequest $request)
     {
-        return Inertia::render('Project/Create');
-    }
+        /** @var Project */
+        $project = DB::transaction(function () use ($request) {
+            return Project::create([
+                'code' => Random::generate(),
+                'status' => ProjectStatus::creation->name,
+                'user_id' => $request->user()->id,
+                'division_id' => $request->input('division'),
+            ]);
+        });
 
-    public function store(StoreRequest $request): JsonResponse
-    {
-
-        dd("on the store method of the project controller");
-        // $project = DB::transaction(function () use ($request) {
-        //     /** @var Project */
-        //     $project = Project::create($request->only([]));
-        //     $version = $project->versions()->create([
-        //         'user_id' => $this->user->id
-        //     ]);
-        //     return $project->setRelation('versions', collect($version));
-        // });
-
-        // return $this->success([
-        //     'project' => $project
-        // ]);
+        return $project->only('code');
     }
 
     public function show(Project $project)
@@ -60,25 +62,5 @@ class ProjectController extends Controller implements HasMiddleware
         return $this->success([
             'project' => $project
         ]);
-    }
-
-    public function update(UpdateRequest $request, Project $project): JsonResponse
-    {
-        DB::transaction(function () use ($project) {
-            $project->versions()->create([]);
-        });
-
-        return $this->success([
-            'project' => $project
-        ]);
-
-    }
-
-    public function destroy(Project $project)
-    {
-        DB::transaction(
-            fn () => $project->delete()
-        );
-
     }
 }

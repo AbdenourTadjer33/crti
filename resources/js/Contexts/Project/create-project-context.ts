@@ -8,7 +8,7 @@ interface ProjectContext {
     errors: Partial<Record<keyof ProjectForm | string, string>>;
     processing: boolean;
     setData: setDataByObject<ProjectForm> & setDataByMethod<ProjectForm> & setDataByKeyValuePair<ProjectForm>;
-    clearErrors: (...fields: (keyof ProjectForm)[]) => void;
+    clearErrors: (...fields: (keyof ProjectForm | string)[]) => void;
     setError: SetError<ProjectForm>;
     validate: (fields: string, options?: Partial<ValidationOptions>) => void;
     post: (url: string, options?: VisitOptions) => void;

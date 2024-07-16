@@ -1,7 +1,7 @@
 import { Permission, Role } from "@/types";
 
 import AuthLayout from "@/Layouts/AuthLayout";
-import Breadcrumb from "@/Features/Breadcrumb/Breadcrumb";
+import Breadcrumb from "@/Components/Breadcrumb";
 import CreateForm from "@/Features/Manage/User/CreateForm";
 import { FormWrapper } from "@/Components/ui/form";
 import { Head } from "@inertiajs/react";

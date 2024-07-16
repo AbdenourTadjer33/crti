@@ -1,18 +1,9 @@
-import { Input, InputError } from "@/Components/ui/input";
-import { useForm } from "@/Libs/useForm";
-
 import React from "react";
+import { useForm } from "@inertiajs/react";
+import { Input, InputError } from "@/Components/ui/input";
 
 const Create: React.FC = () => {
-    const {
-        data,
-        setData,
-        validate,
-        errors,
-        clearErrors,
-        processing,
-        validating,
-    } = useForm(route("manage.unit.store"), "post", {
+    const { data, setData, errors, clearErrors, processing } = useForm({
         name: "",
         description: "",
     });
@@ -25,7 +16,6 @@ const Create: React.FC = () => {
                     clearErrors("name");
                 }}
                 value={data.name}
-                onBlur={(e) => validate("name")}
             />
 
             <pre className="my-4">
@@ -34,7 +24,6 @@ const Create: React.FC = () => {
                         data,
                         errors,
                         processing,
-                        validating,
                     },
                     null,
                     2

@@ -7,14 +7,13 @@ const ConfirmationStep = ({ prev }: FormProps) => {
     const { data, errors, processing, post } = React.useContext(ProjectContext);
 
     const submitHandler = () => {
-        post(route("project.version.store"), {
-            preserveScroll: true,
+        post(route("project.version.store", route().params.project), {
             preserveState: true,
         });
     };
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-8 overflow-hidden">
             <pre>{JSON.stringify({ data, errors }, null, 2)}</pre>
 
             <div className="flex gap-4 max-w-lg mx-auto">

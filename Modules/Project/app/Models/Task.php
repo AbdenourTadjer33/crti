@@ -8,19 +8,12 @@ use Modules\Project\Database\Factories\TaskFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Modules\Versioning\Traits\Versionable;
 
 class Task extends Model
 {
-    use HasFactory, Versionable;
+    use HasFactory;
 
     protected $guarded = [];
-
-    protected $dontVersionFields = [];
-
-    protected $versionableRelations = ["users"];
-
-    protected $versionableInverseRelation = "project";
 
     protected static function newFactory(): TaskFactory
     {

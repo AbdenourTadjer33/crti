@@ -1,4 +1,4 @@
-import Breadcrumb from "@/Features/Breadcrumb/Breadcrumb";
+import Breadcrumb from "@/Components/Breadcrumb";
 import AuthLayout from "@/Layouts/AuthLayout";
 import { Permission, Role } from "@/types";
 import { Head } from "@inertiajs/react";

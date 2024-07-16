@@ -1,12 +1,12 @@
 import React from "react";
 import { Link } from "@inertiajs/react";
 import Avatar from "../Avatar";
-import { useUser } from "@/Hooks/useUser";
+import { useUser } from "@/Hooks/use-user";
 import { PiMoonFill, PiSunFill } from "react-icons/pi";
 import { MdMenu, MdSearch } from "react-icons/md";
 import { FaBell } from "react-icons/fa";
 import { FaEye } from "react-icons/fa";
-import useStorage from "@/Hooks/useStorage";
+import useStorage from "@/Hooks/use-storage";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import {
@@ -34,7 +34,7 @@ export default function Navbar() {
     }
 
     return (
-        <nav className="px-4 py-2.5 z-50">
+        <nav className="p-2 sm:px-4 sm:py-2.5 z-50">
             <div className="flex justify-between items-center">
                 <button type="button">
                     <MdMenu className="w-8 h-8 text-primary-600" />

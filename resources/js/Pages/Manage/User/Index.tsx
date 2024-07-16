@@ -3,7 +3,7 @@ import { MdAdd, MdHome } from "react-icons/md";
 import { Pagination, User } from "@/types";
 
 import AuthLayout from "@/Layouts/AuthLayout";
-import Breadcrumb from "@/Features/Breadcrumb/Breadcrumb";
+import Breadcrumb from "@/Components/Breadcrumb";
 import { Button } from "@/Components/ui/button";
 import { Heading } from "@/Components/ui/heading";
 import React from "react";

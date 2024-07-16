@@ -1,19 +1,12 @@
 import React from "react";
 import { cn } from "@/Utils/utils";
 import { capitalize } from "@/Utils/helper";
-import { Heading } from "./ui/heading";
-import { Checkbox } from "./ui/checkbox";
 
 export type Step = {
     label: string;
     form: React.ReactNode | ((props: FormProps) => React.ReactNode);
     isError?: boolean;
 };
-
-export interface FormProps {
-    step: number;
-    isError?: boolean;
-}
 
 interface StepperOptions {
     steps: Step[];
@@ -31,6 +24,15 @@ interface StepperHook {
     prev: () => void;
     goTo: (to: number) => void;
     steps: Step[];
+}
+
+export interface FormProps {
+    step: number;
+    isError: boolean | undefined;
+    next: () => void;
+    prev: () => void;
+    canGoNext: boolean;
+    canGoPrev: boolean;
 }
 
 const useStepper = (options: StepperOptions): StepperHook => {
@@ -65,9 +67,8 @@ const useStepper = (options: StepperOptions): StepperHook => {
 };
 
 const Stepper = ({ stepper }: { stepper: StepperHook }) => {
-
     return (
-        <React.Fragment>
+        <>
             <ol
                 className={cn(
                     "items-center justify-center w-full space-y-4 sm:flex sm:space-x-8 sm:space-y-0"
@@ -88,14 +89,43 @@ const Stepper = ({ stepper }: { stepper: StepperHook }) => {
                             {idx + 1}
                         </span>
 
-                        <h4 className={cn("text-sm md:text-base font-medium max-w-20 truncate md:max-w-none")}>
+                        <h4
+                            className={cn(
+                                "text-sm md:text-base font-medium max-w-20 truncate md:max-w-none"
+                            )}
+                        >
                             {capitalize(step.label)}
                         </h4>
                     </li>
                 ))}
             </ol>
-{/* 
-            <div
+
+            {stepper.steps.map((step, idx) => (
+                <React.Fragment key={idx}>
+                    {stepper.currentStep === idx && (
+                        <>
+                            {typeof step.form === "function"
+                                ? step.form({
+                                      step: stepper.currentStep,
+                                      isError: step.isError,
+                                      next: stepper.next,
+                                      prev: stepper.prev,
+                                      canGoNext: stepper.canGoNext,
+                                      canGoPrev: stepper.canGoPrev,
+                                  })
+                                : step.form}
+                        </>
+                    )}
+                </React.Fragment>
+            ))}
+        </>
+    );
+};
+
+export { useStepper, Stepper };
+
+{
+    /* <div
                 className={cn(
                     "flex items-center gap-2 overflow-auto custom-scrollbar"
                 )}
@@ -127,26 +157,5 @@ const Stepper = ({ stepper }: { stepper: StepperHook }) => {
                         </h4>
                     </div>
                 ))}
-            </div> */}
-
-            {stepper.steps.map((step, idx) => (
-                <React.Fragment key={idx}>
-                    {stepper.currentStep === idx &&
-                        <>
-                            {/* <Heading level={4} className="font-medium">{step.label}</Heading> */}
-
-                            {(typeof step.form === "function"
-                                ? step.form({
-                                    isError: step.isError,
-                                    step: stepper.currentStep,
-                                })
-                                : step.form)}
-                        </>
-                    }
-                </React.Fragment>
-            ))}
-        </React.Fragment>
-    );
-};
-
-export { useStepper, Stepper };
+            </div> */
+}
