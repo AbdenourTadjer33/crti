@@ -2,12 +2,13 @@
 
 namespace Database\Factories;
 
+use App\Models\Unit;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Unit>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Division>
  */
-class UnitFactory extends Factory
+class DivisionFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -17,10 +18,10 @@ class UnitFactory extends Factory
     public function definition(): array
     {
         return [
+            'unit_id' => Unit::query()->get()->random()->id,
             'name' => fake()->company(),
             'abbr' => fake()->word(),
-            'description' => fake()->sentence(),
-            'address' => fake()->address(),
+            'description' => fake()->text(),
         ];
     }
 }
