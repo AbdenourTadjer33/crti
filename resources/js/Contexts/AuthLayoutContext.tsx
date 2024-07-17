@@ -1,51 +1,24 @@
 import React from "react";
+import { useLocalStorage } from "@/Hooks/use-local-storage";
+
+type SidebarState = "open" | "close" | "hidden";
 
 const AuthLayoutContext = React.createContext<{
-    isOpen?: boolean;
-    setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    isHidden?: boolean;
-    setIsHidden: React.Dispatch<React.SetStateAction<boolean>>;
-    sidebarState?: "opened" | "closed" | "hidden" | string;
-    setSidebarState: React.Dispatch<React.SetStateAction<string>>;
+    sidebarState: SidebarState;
+    setSidebarState: React.Dispatch<React.SetStateAction<SidebarState>>;
 }>({
-    setIsOpen: () => {},
-    setIsHidden: () => {},
+    sidebarState: "open",
     setSidebarState: () => {},
 });
 
 const AuthLayoutProvider: React.FC<{ children: React.ReactNode }> = ({
     children,
 }) => {
-    const [isOpen, setIsOpen] = React.useState<boolean>(() => {
-        const storedValue = localStorage.getItem("sidebar");
-        return storedValue
-            ? storedValue.trim().toLowerCase() === "true"
-            : false;
-    });
-    const [isHidden, setIsHidden] = React.useState<boolean>(false);
-    const [sidebarState, setSidebarState] = React.useState(() => {
-        const sidebarStates: string[] = ["opened", "closed", "hidden"];
-
-        const storedValue = localStorage.getItem("sidebar-state");
-
-        if (
-            !storedValue ||
-            !sidebarStates.includes(storedValue) ||
-            storedValue === "opened"
-        ) {
-            return "opened";
-        }
-
-        return storedValue;
-    });
+    const [sidebarState, setSidebarState] = useLocalStorage<SidebarState>("sidebar-state", "open");
 
     return (
         <AuthLayoutContext.Provider
             value={{
-                isOpen,
-                setIsOpen,
-                isHidden,
-                setIsHidden,
                 sidebarState,
                 setSidebarState,
             }}
