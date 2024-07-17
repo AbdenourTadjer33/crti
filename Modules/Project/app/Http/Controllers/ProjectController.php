@@ -33,8 +33,8 @@ class ProjectController extends Controller
         /**
          * This will hold all project id's that are fetched from the database.
          */
-        $fetchedProjectIds = [];
 
+        dd($this->user->divisions);
         return Inertia::render('Project/Index', [
             'myProjects' => fn () => $this->user->projects()->get(),
             'onProjects' => fn () => $this->user->onProjects()->whereDoesntHave('user', fn (Builder $query) => $query->where('id', $this->user->id))->get(),

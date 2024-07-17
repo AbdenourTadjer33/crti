@@ -23,6 +23,7 @@ return new class extends Migration
         Schema::create('division_user', function (Blueprint $table) {
             $table->foreignId('user_id')->constrained('users', 'id')->cascadeOnDelete();
             $table->foreignId('division_id')->constrained('divisions', 'id')->cascadeOnDelete();
+            $table->string('grade');
             $table->timestamps();
             $table->primary(['user_id', 'division_id']);
         });
