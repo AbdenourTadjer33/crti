@@ -1,15 +1,10 @@
-import axios from "axios";
-import { route } from "@/Utils/helper";
+import { User } from "@/types";
+import axios, { AxiosRequestConfig } from "axios";
 
-async function searchUsers(query: string) {
-    try {
-        const response = await axios.get(
-            route("manage.user.search", { query })
-        );
-        return response.data;
-    } catch (error) {
-        console.log(error);
-    }
+
+async function searchUsers(query: string, config: AxiosRequestConfig = {}): Promise<User[]> {
+    const response = await axios.get(route("search.user", { query }), config);
+    return await response.data;
 }
 
 export { searchUsers };

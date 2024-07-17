@@ -1,0 +1,11 @@
+{
+    "name": "Versioning",
+    "alias": "versioning",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Versioning\\Providers\\VersioningServiceProvider"
+    ],
+    "files": []
+}

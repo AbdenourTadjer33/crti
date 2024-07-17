@@ -5,7 +5,7 @@ import { Textarea } from "@/Components/ui/textarea";
 import { CreateUnitContext } from "@/Features/Manage/Unit/CreateForm";
 
 const UnitInformationForm = () => {
-    const { data, errors, setData, validate, clearErrors } =
+    const { data, errors, setData, clearErrors } =
         React.useContext(CreateUnitContext);
 
     return (

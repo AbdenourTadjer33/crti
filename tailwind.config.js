@@ -1,5 +1,7 @@
 import defaultTheme from "tailwindcss/defaultTheme";
 import forms from "@tailwindcss/forms";
+import tailwindcssAnimate from "tailwindcss-animate";
+import typography from "@tailwindcss/typography";
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -42,13 +44,48 @@ module.exports = {
                     from: { height: "var(--radix-accordion-content-height)" },
                     to: { height: "0" },
                 },
+                "infinite-progress": {
+                    "0%": { transform: "translateX(0) scaleX(0)" },
+                    "40%": { transform: "translateX(0) scaleX(0.4)" },
+                    "100%": { transform: "translateX(100%) scaleX(0.5)" },
+                },
             },
             animation: {
                 "accordion-down": "accordion-down 0.2s ease-out",
                 "accordion-up": "accordion-up 0.2s ease-out",
+                "infinite-progress": "infinite-progress 1s infinite linear",
             },
         },
     },
-    plugins: [forms, require("tailwindcss-animate")],
+    plugins: [
+        forms,
+        tailwindcssAnimate,
+        typography,
+        function ({ addUtilities }) {
+            addUtilities(
+                {
+                    ".custom-scrollbar::-webkit-scrollbar": {
+                        width: "6px",
+                        height: "2px",
+                    },
+
+                    ".custom-scrollbar::-webkit-scrollbar-track": {
+                        background: "#f1f1f1",
+                        height: "2px",
+                    },
+                    ".custom-scrollbar::-webkit-scrollbar-thumb": {
+                        backgroundColor: "#888",
+                        borderRadius: "6px",
+                        border: "3px solid #f1f1f1",
+                        height: "2px",
+                    },
+                    ".custom-scrollbar::-webkit-scrollbar-thumb:hover": {
+                        background: "#555",
+                    },
+                },
+                ["responsive"]
+            );
+        },
+    ],
     darkMode: "class",
 };

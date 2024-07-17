@@ -1,14 +1,13 @@
 import React from "react";
 import {Head, Link} from "@inertiajs/react";
 import AuthLayout from "@/Layouts/AuthLayout";
-import Breadcrumb from "@/Features/Breadcrumb/Breadcrumb";
+import Breadcrumb from "@/Components/Breadcrumb";
 import Table from "@/Features/Manage/Role/Table";
 import {Role} from "@/types";
 import {Heading} from "@/Components/ui/heading";
 import {Text} from "@/Components/ui/paragraph";
 import {Button} from "@/Components/ui/button";
 import {MdAdd, MdHome} from "react-icons/md";
-import {route} from "@/Utils/helper";
 
 const breadcrumbs = [
     {href: route("app"), label: <MdHome className="w-6 h-6"/>},

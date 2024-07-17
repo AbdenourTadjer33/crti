@@ -8,11 +8,6 @@ export type Step = {
     isError?: boolean;
 };
 
-export interface FormProps {
-    step: number;
-    isError?: boolean;
-}
-
 interface StepperOptions {
     steps: Step[];
     state?: {
@@ -29,6 +24,15 @@ interface StepperHook {
     prev: () => void;
     goTo: (to: number) => void;
     steps: Step[];
+}
+
+export interface FormProps {
+    step: number;
+    isError: boolean | undefined;
+    next: () => void;
+    prev: () => void;
+    canGoNext: boolean;
+    canGoPrev: boolean;
 }
 
 const useStepper = (options: StepperOptions): StepperHook => {
@@ -64,7 +68,7 @@ const useStepper = (options: StepperOptions): StepperHook => {
 
 const Stepper = ({ stepper }: { stepper: StepperHook }) => {
     return (
-        <React.Fragment>
+        <>
             <ol
                 className={cn(
                     "items-center justify-center w-full space-y-4 sm:flex sm:space-x-8 sm:space-y-0"
@@ -85,7 +89,11 @@ const Stepper = ({ stepper }: { stepper: StepperHook }) => {
                             {idx + 1}
                         </span>
 
-                        <h4 className={cn("text-sm md:text-base font-medium")}>
+                        <h4
+                            className={cn(
+                                "text-sm md:text-base font-medium max-w-20 truncate md:max-w-none"
+                            )}
+                        >
                             {capitalize(step.label)}
                         </h4>
                     </li>
@@ -94,17 +102,60 @@ const Stepper = ({ stepper }: { stepper: StepperHook }) => {
 
             {stepper.steps.map((step, idx) => (
                 <React.Fragment key={idx}>
-                    {stepper.currentStep === idx &&
-                        (typeof step.form === "function"
-                            ? step.form({
-                                  isError: step.isError,
-                                  step: stepper.currentStep,
-                              })
-                            : step.form)}
+                    {stepper.currentStep === idx && (
+                        <>
+                            {typeof step.form === "function"
+                                ? step.form({
+                                      step: stepper.currentStep,
+                                      isError: step.isError,
+                                      next: stepper.next,
+                                      prev: stepper.prev,
+                                      canGoNext: stepper.canGoNext,
+                                      canGoPrev: stepper.canGoPrev,
+                                  })
+                                : step.form}
+                        </>
+                    )}
                 </React.Fragment>
             ))}
-        </React.Fragment>
+        </>
     );
 };
 
 export { useStepper, Stepper };
+
+{
+    /* <div
+                className={cn(
+                    "flex items-center gap-2 overflow-auto custom-scrollbar"
+                )}
+                aria-label="stepper"
+            >
+                {stepper.steps.map((step, idx) => (
+                    <div
+                        key={idx}
+                        data-active={stepper.currentStep >= idx}
+                        data-error={step.isError}
+                        className="w-full flex-col space-y-2 cursor-default"
+                    >
+                        <div
+                            data-active={stepper.currentStep === idx}
+                            data-error={step.isError}
+                            className="h-2 sm:h-2.5 bg-gray-300 data-[active=true]:bg-primary-600 rounded-full transition-colors ease-in-out" />
+
+                        <h4 className="sm:text-xl text-base font-medium max-w-full flex items-center gap-2">
+                            <input type={stepper.currentStep === idx ? "radio" : "checkbox"} className="appearance-none checked:bg-primary-600 rounded-full w-4 h-4 ring-0 outline-none focus:ring-0 focus:outline-none transition-colors ease-in-out cursor-default"
+                                readOnly
+                                checked={stepper.currentStep >= idx}
+                            />
+                            <span
+                                data-active={stepper.currentStep === idx}
+                                data-error={step.isError}
+                                className="text-gray-600 data-[active=true]:text-primary-600 transition-colors ease-in-out truncate">
+                                {capitalize(step.label)}
+                            </span>
+                        </h4>
+                    </div>
+                ))}
+            </div> */
+}

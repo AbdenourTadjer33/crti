@@ -1,7 +1,7 @@
 import { Permission, Role } from "@/types";
 
 import AuthLayout from "@/Layouts/AuthLayout";
-import Breadcrumb from "@/Features/Breadcrumb/Breadcrumb";
+import Breadcrumb from "@/Components/Breadcrumb";
 import CreateForm from "@/Features/Manage/User/CreateForm";
 import { FormWrapper } from "@/Components/ui/form";
 import { Head } from "@inertiajs/react";
@@ -9,7 +9,7 @@ import { Heading } from "@/Components/ui/heading";
 import { MdHome } from "react-icons/md";
 import React from "react";
 import { Text } from "@/Components/ui/paragraph";
-import { route } from "@/Utils/helper";
+
 
 const breadcrumbs = [
     { href: route("app"), label: <MdHome className="w-6 h-6" /> },

@@ -1,76 +1,62 @@
 import * as React from "react";
-import {
-    flexRender,
-    Table as TanstackTable,
-    Row,
-    CellContext,
-    HeaderContext,
-} from "@tanstack/react-table";
-
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/Components/ui/table";
-import { PaginationLinks, PaginationMeta } from "@/types";
+import * as TanstackTable from "@tanstack/react-table";
+import * as Table from "@/Components/ui/table";
 import Pagination from "./Pagination";
-import { Checkbox } from "./ui/checkbox";
-import { Button } from "./ui/button";
+import { PaginationLinks, PaginationMeta } from "@/types";
+import { Checkbox } from "@/Components/ui/checkbox";
+import { Button } from "@/Components/ui/button";
 import { MdKeyboardArrowDown, MdKeyboardArrowRight } from "react-icons/md";
 
 interface DataTableOptions {
-    table: TanstackTable<any>;
-    subComponent?: (pwrops: { row: Row<any> }) => React.ReactElement;
+    table: TanstackTable.Table<any>;
+    subComponent?: (props: { row: TanstackTable.Row<any> }) => React.ReactElement;
     pagination?: { links: PaginationLinks; meta: PaginationMeta };
-    noDataPlaceholder?: () => React.ReactNode;
+    noDataPlaceholder?: React.ReactNode;
 }
 
 export default function DataTable({ options }: { options: DataTableOptions }) {
     return (
         <>
-            <Table>
-                <TableHeader>
+            <Table.Table>
+                <Table.TableHeader>
                     {options.table.getHeaderGroups().map((headerGroup) => (
-                        <TableRow key={headerGroup.id}>
+                        <Table.TableRow key={headerGroup.id}>
                             {headerGroup.headers.map((header) => (
-                                <TableHead key={header.id}>
+                                <Table.TableHead key={header.id}>
                                     {header.isPlaceholder
                                         ? null
-                                        : flexRender(
+                                        : TanstackTable.flexRender(
                                               header.column.columnDef.header,
                                               header.getContext()
                                           )}
-                                </TableHead>
+                                </Table.TableHead>
                             ))}
-                        </TableRow>
+                        </Table.TableRow>
                     ))}
-                </TableHeader>
-                <TableBody>
+                </Table.TableHeader>
+                <Table.TableBody>
                     {options.table.getRowModel().rows?.length ? (
                         options.table.getRowModel().rows.map((row) => (
                             <React.Fragment key={row.id}>
-                                <TableRow
+                                <Table.TableRow
                                     data-state={
                                         row.getIsSelected() && "selected"
                                     }
                                 >
                                     {row.getVisibleCells().map((cell) => (
-                                        <TableCell key={cell.id}>
-                                            {flexRender(
+                                        <Table.TableCell key={cell.id}>
+                                            {TanstackTable.flexRender(
                                                 cell.column.columnDef.cell,
                                                 cell.getContext()
                                             )}
-                                        </TableCell>
+                                        </Table.TableCell>
                                     ))}
-                                </TableRow>
+                                </Table.TableRow>
                                 {row.getCanExpand() &&
                                 typeof options.subComponent != "undefined"
                                     ? row.getIsExpanded() && (
-                                          <TableRow className="hover:bg-transparent dark:hover:bg-transparent">
-                                              <TableCell
+                                          <Table.TableRow className="hover:bg-transparent dark:hover:bg-transparent">
+                                              <Table.TableCell
                                                   colSpan={
                                                       row.getVisibleCells()
                                                           .length
@@ -79,41 +65,44 @@ export default function DataTable({ options }: { options: DataTableOptions }) {
                                                   {options.subComponent({
                                                       row,
                                                   })}
-                                              </TableCell>
-                                          </TableRow>
+                                              </Table.TableCell>
+                                          </Table.TableRow>
                                       )
                                     : null}
                             </React.Fragment>
                         ))
                     ) : (
-                        <TableRow>
-                            <TableCell
+                        <Table.TableRow>
+                            <Table.TableCell
                                 colSpan={options.table.getAllColumns().length}
-                                className="h-24 text-center"
                             >
-                                {options.noDataPlaceholder
-                                    ? options.noDataPlaceholder()
-                                    : "Aucun résultat."}
-                            </TableCell>
-                        </TableRow>
+                                {options.noDataPlaceholder ? (
+                                    options.noDataPlaceholder
+                                ) : (
+                                    <div className="text-lg text-center">
+                                        no data found
+                                    </div>
+                                )}
+                            </Table.TableCell>
+                        </Table.TableRow>
                     )}
-                </TableBody>
-            </Table>
-            <div className="bg-white dark:bg-gray-700 py-2">
-                {options.pagination &&
-                    options.pagination.meta.per_page <
-                        options.pagination.meta.total && (
+                </Table.TableBody>
+            </Table.Table>
+            {options.pagination &&
+                options.pagination.meta.per_page <
+                    options.pagination.meta.total && (
+                    <div className="bg-white dark:bg-gray-700 py-2">
                         <Pagination
                             links={options.pagination.links}
                             meta={options.pagination.meta}
                         />
-                    )}
-            </div>
+                    </div>
+                )}
         </>
     );
 }
 
-function HeaderSelecter({ table }: HeaderContext<any, any>) {
+function HeaderSelecter({ table }: TanstackTable.HeaderContext<any, any>) {
     return (
         <Checkbox
             checked={
@@ -127,7 +116,7 @@ function HeaderSelecter({ table }: HeaderContext<any, any>) {
     );
 }
 
-function RowSelecter({ row }: CellContext<any, any>) {
+function RowSelecter({ row }: TanstackTable.CellContext<any, any>) {
     return (
         <Checkbox
             checked={row.getIsSelected()}
@@ -137,7 +126,7 @@ function RowSelecter({ row }: CellContext<any, any>) {
     );
 }
 
-function RowExpander({ row }: CellContext<any, any>) {
+function RowExpander({ row }: TanstackTable.CellContext<any, any>) {
     return row.getCanExpand() ? (
         <Button variant="ghost" onClick={row.getToggleExpandedHandler()}>
             {row.getIsExpanded() ? (

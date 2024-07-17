@@ -1,9 +1,9 @@
 import React from "react";
 import { Head, Link } from "@inertiajs/react";
-import { route } from "@/Utils/helper";
+
 import AuthLayout from "@/Layouts/AuthLayout";
 import { MdHome } from "react-icons/md";
-import Breadcrumb from "@/Features/Breadcrumb/Breadcrumb";
+import Breadcrumb from "@/Components/Breadcrumb";
 import { Heading } from "@/Components/ui/heading";
 import { Text } from "@/Components/ui/paragraph";
 import { Button } from "@/Components/ui/button";

@@ -3,7 +3,7 @@ import { Head } from "@inertiajs/react";
 import CreateForm from "@/Features/Manage/Unit/CreateForm";
 import AuthLayout from "@/Layouts/AuthLayout";
 import { MdHome } from "react-icons/md";
-import Breadcrumb from "@/Features/Breadcrumb/Breadcrumb";
+import Breadcrumb from "@/Components/Breadcrumb";
 import { Heading } from "@/Components/ui/heading";
 import { Text } from "@/Components/ui/paragraph";
 

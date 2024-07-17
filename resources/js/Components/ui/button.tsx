@@ -3,9 +3,9 @@ import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/Utils/utils";
-
+// ring-offset-white focus:ring-1 focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500
 const buttonVariants = cva(
-    "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-white transition-colors focus:ring-1 focus:outline-none focus:ring-primary-600 focus:border-primary-600 disabled:pointer-events-none disabled:opacity-50 dark:focus:ring-primary-500 dark:focus:border-primary-500",
+    "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus:outline-none disabled:pointer-events-none disabled:opacity-50",
     {
         variants: {
             variant: {
@@ -14,7 +14,7 @@ const buttonVariants = cva(
                 destructive:
                     "bg-red-500 text-gray-50 hover:bg-red-500/90 dark:bg-red-900 dark:text-gray-50 dark:hover:bg-red-900/90",
                 outline:
-                    "border border-gray-300 bg-white hover:text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:hover:text-gray-50 cursor-default",
+                    "border border-gray-300 bg-white hover:text-gray-900 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:hover:text-gray-50 ",
                 secondary:
                     "bg-gray-100 text-gray-900 hover:bg-gray-100/50 dark:bg-gray-800 dark:text-gray-50 dark:hover:bg-gray-800/50",
                 ghost: "hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800 dark:hover:text-gray-50",
@@ -54,6 +54,21 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         );
     }
 );
+
 Button.displayName = "Button";
 
-export { Button, buttonVariants };
+interface ButtonGroupProps extends React.HTMLAttributes<HTMLDivElement> {}
+
+const ButtonGroup = ({ className, ...props }: ButtonGroupProps) => {
+    return (
+        <div
+            className={cn(
+                "flex items-center *:rounded-none divide-gray-400 divide-x rounded-md overflow-hidden",
+                className
+            )}
+            {...props}
+        />
+    );
+};
+
+export { Button, buttonVariants, ButtonGroup };

@@ -1,11 +1,5 @@
 import React from "react";
-import { route } from "@/Utils/helper";
-import {
-    useForm,
-    setDataByObject,
-    setDataByMethod,
-    setDataByKeyValuePair,
-} from "@/Libs/useForm";
+import { useForm } from "@inertiajs/react";
 import { Step, Stepper, useStepper } from "@/Components/Stepper";
 import { Button } from "@/Components/ui/button";
 import { FormWrapper } from "@/Components/ui/form";
@@ -46,11 +40,7 @@ export const CreateUnitContext = React.createContext<{
     data: UnitForm;
     errors: Partial<Record<keyof UnitForm | string, string>>;
     processing: boolean;
-    validating: boolean;
-    setData: setDataByObject<UnitForm> &
-        setDataByMethod<UnitForm> &
-        setDataByKeyValuePair<UnitForm>;
-    validate: (...fields: (keyof UnitForm | string)[]) => void;
+    setData: any;
     clearErrors: (...fields: (keyof UnitForm)[]) => void;
 }>({
     data: {
@@ -62,9 +52,7 @@ export const CreateUnitContext = React.createContext<{
     },
     errors: {},
     setData: () => {},
-    validate: () => {},
     clearErrors: () => {},
-    validating: false,
     processing: false,
 });
 
@@ -74,11 +62,9 @@ const CreateForm = () => {
         setData,
         errors,
         processing,
-        validate,
         post,
-        validating,
         clearErrors,
-    } = useForm<UnitForm>(route("manage.unit.store"), "post", {
+    } = useForm<UnitForm>({
         name: "",
         abbr: "",
         description: "",
@@ -135,13 +121,15 @@ const CreateForm = () => {
                     data,
                     setData,
                     errors,
-                    validate,
                     clearErrors,
                     processing,
-                    validating,
                 }}
             >
                 <Stepper stepper={stepper} />
+
+                <pre>
+                    {JSON.stringify(data, null, 2)}
+                </pre>
 
                 <div className="mx-auto max-w-lg flex items-center gap-4">
                     {stepper.canGoPrev && (

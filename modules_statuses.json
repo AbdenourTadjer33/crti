@@ -2,7 +2,5 @@
     "Permission": true,
     "Authentification": true,
     "Project": true,
-    "Unit": true,
-    "ManageApp": true,
-    "Team": true
+    "Versioning": true
 }

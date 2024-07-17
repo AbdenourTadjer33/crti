@@ -3,75 +3,58 @@
 namespace Modules\Project\Http\Controllers;
 
 use App\Models\User;
-use App\Actions\History;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Http\JsonResponse;
+use Inertia\Inertia;
+use Nette\Utils\Random;
 use Illuminate\Support\Facades\DB;
 use Modules\Project\Models\Project;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Cache;
-use Inertia\Inertia;
-use Modules\Project\Http\Requests\StoreRequest;
-use Modules\Project\Http\Requests\UpdateRequest;
+
+use Illuminate\Database\Eloquent\Builder;
+use Modules\Project\Enums\ProjectStatus;
+use Modules\Project\Http\Requests\Project\StoreRequest;
 
 class ProjectController extends Controller
 {
-    /** @var User */
-    protected $user;
+    private User $user;
 
-    public function test()
+    public function __construct()
     {
-        /** @var Project */
-        $project = Project::first();
-
-        $this->user;
-
-        $project->updateStatus('en examen');
-
-        // action + utilisateur + instance + attribute + now
-
-
-
-    }
-
-    public function __construct(Request $request)
-    {
-        $this->user = $request->user();
+        $this->user = request()->user();
     }
 
     /**
-     * Display a listing of the resource.
+     * This endpoint return all project that user has access to.
+     * - user projects under creation.
+     * - 
+     * 
      */
     public function index()
     {
+        /**
+         * This will hold all project id's that are fetched from the database.
+         */
+        $fetchedProjectIds = [];
 
-        return Inertia::render('Project/Index');
-        return $this->success([
-            'projects' => Project::get()
+        return Inertia::render('Project/Index', [
+            'myProjects' => fn () => $this->user->projects()->get(),
+            'onProjects' => fn () => $this->user->onProjects()->whereDoesntHave('user', fn (Builder $query) => $query->where('id', $this->user->id))->get(),
+            'divisionProjects' => fn () => [],
         ]);
     }
 
-    public function create()
+    public function store(StoreRequest $request)
     {
-        return Inertia::render('Project/Create');
-    }
-
-    public function store(StoreRequest $request): JsonResponse
-    {
+        /** @var Project */
         $project = DB::transaction(function () use ($request) {
-            /** @var Project */
-            $project = Project::create($request->only([]));
-            $version = $project->versions()->create([
-                'user_id' => $this->user->id
+            return Project::create([
+                'code' => Random::generate(),
+                'status' => ProjectStatus::creation->name,
+                'user_id' => $request->user()->id,
+                'division_id' => $request->input('division'),
             ]);
-            return $project->setRelation('versions', collect($version));
         });
 
-        return $this->success([
-            'project' => $project
-        ]);
+        return $project->only('code');
     }
 
     public function show(Project $project)
@@ -79,25 +62,5 @@ class ProjectController extends Controller
         return $this->success([
             'project' => $project
         ]);
-    }
-
-    public function update(UpdateRequest $request, Project $project): JsonResponse
-    {
-        DB::transaction(function () use ($project) {
-            $project->versions()->create([]);
-        });
-
-        return $this->success([
-            'project' => $project
-        ]);
-
-    }
-
-    public function destroy(Project $project)
-    {
-        DB::transaction(
-            fn () => $project->delete()
-        );
-
     }
 }

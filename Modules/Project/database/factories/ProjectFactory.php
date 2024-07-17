@@ -3,6 +3,7 @@
 namespace Modules\Project\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Nette\Utils\Random;
 
 class ProjectFactory extends Factory
 {
@@ -16,7 +17,18 @@ class ProjectFactory extends Factory
      */
     public function definition(): array
     {
-        return [];
+        return [
+            'code' => Random::generate(),
+            'status' => "creation",
+
+            'name' => implode(' ', fake()->words()),
+            'nature' => 'str',
+            'domains' => [],
+            'date_begin' => now()->addWeek(),
+            'date_end' => now()->addYears(3),
+            'description' => fake()->text(),
+            'goals' => fake()->text(),
+            'methodology' => fake()->text(),
+        ];
     }
 }
-

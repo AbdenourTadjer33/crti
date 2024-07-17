@@ -15,7 +15,7 @@ import { Head, Link } from "@inertiajs/react";
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { useMemo } from "react";
 import { MdAdd, MdKeyboardArrowDown, MdSearch } from "react-icons/md";
-import { route } from "@/Utils/helper";
+
 import { Input } from "@/Components/ui/input";
 
 const Index: React.FC<{ permissions: Permission[] }> = ({ permissions }) => {

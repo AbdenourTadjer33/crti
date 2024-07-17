@@ -12,7 +12,7 @@ return [
     'relation' => [
         'project' => [
             [
-                'table_name' => 'tests',
+                'table_name' => 'division',
                 'primary' => 'id'
             ]
         ],
