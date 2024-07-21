@@ -1,21 +1,20 @@
-import React, { useContext, useEffect } from "react";
-import Navbar from "@/Components/Block/Navbar";
-import { Sidebar } from "@/Components/Block/Sidebar";
+import React from "react";
 import {
-    AuthLayoutContext as AuthContext,
-    AuthLayoutProvider as AuthProvider,
+    AuthLayoutContext,
+    AuthLayoutProvider,
 } from "@/Contexts/AuthLayoutContext";
 import { UserContextProvider } from "@/Contexts/UserContext";
 import { usePage } from "@inertiajs/react";
-import { Toaster } from "@/Components/ui/toaster";
 import { Toaster as Sonner } from "@/Components/ui/sonner";
 import { useToast } from "@/Components/ui/use-toast";
+import Sidebar from "./Sidebar";
+import Navbar from "./Navbar";
 
 export default function AuthLayout({ children }: React.PropsWithChildren) {
     const { flash } = usePage().props;
     const { toast } = useToast();
 
-    useEffect(() => {
+    React.useEffect(() => {
         if ((flash as any).alert) {
             toast({ description: (flash as any).alert.message });
         }
@@ -23,27 +22,23 @@ export default function AuthLayout({ children }: React.PropsWithChildren) {
 
     return (
         <UserContextProvider>
-            <AuthProvider>
+            <AuthLayoutProvider>
                 <Navbar />
                 <Sidebar />
                 <Main>{children}</Main>
-                <Toaster />
                 <Sonner closeButton />
-            </AuthProvider>
+            </AuthLayoutProvider>
         </UserContextProvider>
     );
 }
 
 function Main({ children }: React.PropsWithChildren) {
-    const { sidebarState } = useContext(AuthContext);
+    const { sidebarState } = React.useContext(AuthLayoutContext);
 
     return (
         <main
-            className={`p-2 sm:p-4 ${
-                sidebarState === "hidden"
-                    ? ""
-                    : `${sidebarState === "opened" ? "ml-64" : "ml-20"}`
-            } h-auto `}
+            className="p-2 sm:p-4 mt-16 data-[sidebar=open]:ml-64 data-[sidebar=open]:animate-in data-[sidebar=open]:slide-in-from-left-0 data-[sidebar=close]:ml-16 data-[sidebar=close]:animate-out data-[sidebar=close]:slide-out-to-right-0 duration-200"
+            data-sidebar={sidebarState}
         >
             {children}
         </main>

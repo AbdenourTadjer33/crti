@@ -132,6 +132,21 @@ class User extends Authenticatable
     }
 
     /**
+     * Get all divisions associated with the user
+     * 
+     * This method defines a many to many relationship, indicating 
+     * that a user can belongs to many divisions.
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function divisions(): BelongsToMany
+    {
+        return $this->belongsToMany(Division::class, 'division_user', 'user_id', 'division_id')
+            ->withTimestamps()
+            ->withPivot(['grade']);
+    }
+
+    /**
      * Get all projects associated with the user (creator)
      * 
      * This method defines a one-to-many relationship, indicating 

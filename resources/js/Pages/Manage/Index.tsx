@@ -32,13 +32,13 @@ const apps = [
 
 const breadcrumbs = [
     { href: route("app"), label: <MdHome className="w-5 h-5" /> },
-    { label: "Centres d'administration" },
+    { label: "Centre d'administration" },
 ];
 
 export default function Manage() {
     return (
         <AuthLayout>
-            <Head title="Centres d'administration" />
+            <Head title="Centre d'administration" />
 
             <div className="space-y-4">
                 <Breadcrumb items={breadcrumbs} MAX_ITEMS={2} />
@@ -46,7 +46,7 @@ export default function Manage() {
                 <div className="flex sm:flex-row flex-col justify-between sm:items-center gap-4">
                     <div className="space-y-2">
                         <Heading level={3} className="font-medium">
-                            Centres d'administration
+                            Centre d'administration
                         </Heading>
 
                         <Text className={"max-w-7xl"}>

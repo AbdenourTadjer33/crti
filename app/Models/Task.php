@@ -7,38 +7,36 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class Division extends Model
+class Task extends Model
 {
     use HasFactory;
 
     protected $guarded = [];
 
     /**
-     * Get the unit that own the division
+     * Get the project that own this task.
      * 
-     * This method establishes an inverse one-to-many relationship 
-     * where a division belongs to a single unit.
+     * this method establishes an invert one-to-many relationship
+     * where a task belongs to a single project.
      * 
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function unit(): BelongsTo
+    public function project(): BelongsTo
     {
-        return $this->belongsTo(Unit::class);
+        return $this->belongsTo(Project::class, 'project_id', 'id');
     }
 
     /**
-     * Get all users associated with a division
+     * Get all users associated with the task (the assigned members).
      * 
      * This method defines a many-to-many relationship, indicating 
-     * that a division can have multiple users, and a user 
-     * can be associated with multiple divisions.
+     * that a task can be assigned to multiple users, and a user 
+     * can have multiple tasks assigned to them.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'division_user', 'division_id', 'user_id')
-            ->withTimestamps()
-            ->withPivot('grade');
+        return $this->belongsToMany(User::class, 'task_user', 'task_id', 'user_id');
     }
 }
