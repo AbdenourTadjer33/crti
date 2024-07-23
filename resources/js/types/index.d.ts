@@ -1,3 +1,5 @@
+import { UUID } from "crypto";
+
 export type PageProps<
     T extends Record<string, unknown> = Record<string, unknown>
 > = T & {
@@ -29,7 +31,7 @@ export type Division = {
 };
 
 export type User = {
-    uuid: string;
+    uuid: UUID;
     name: string;
     email: string;
     isEmailVerified: boolean;
@@ -41,6 +43,7 @@ export type User = {
     deletedAt?: string;
     permissions?: Permission[];
     roles?: Role[];
+    divisions?: [];
 };
 
 export type Permission = {

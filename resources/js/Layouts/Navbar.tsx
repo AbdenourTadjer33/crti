@@ -4,7 +4,6 @@ import { Moon, Search } from "lucide-react";
 import { FaBell, FaEye } from "react-icons/fa";
 import { useUser } from "@/Hooks/use-user";
 import * as DropdownMenu from "@/Components/ui/dropdown-menu";
-import * as Select from "@/Components/ui/select";
 import Avatar from "@/Components/Avatar";
 
 const Navbar: React.FC = () => {
@@ -12,19 +11,12 @@ const Navbar: React.FC = () => {
         <nav className="fixed top-0 left-0 right-0 py-2 px-2.5 bg-gray-100 z-50 border-b border-gray-200">
             <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
-                    <Link href="/" className="shrink-0">
+                    <a href="/" className="shrink-0">
                         <img
                             src="/assets/favicon.png"
                             className="shrink-0 h-11"
                         />
-                    </Link>
-
-                    <Select.Select>
-                        <Select.SelectTrigger className="shrink-0 max-w-sm">
-                            <Select.SelectValue placeholder="choose division" />
-                        </Select.SelectTrigger>
-                        <Select.SelectContent></Select.SelectContent>
-                    </Select.Select>
+                    </a>
                 </div>
 
                 <div className="flex items-center gap-4">

@@ -1,6 +1,5 @@
 {
     "Permission": true,
     "Authentification": true,
-    "Project": true,
     "Versioning": true
 }

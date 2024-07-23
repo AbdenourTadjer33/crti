@@ -46,32 +46,30 @@ class UnitController extends Controller
                 'abbr' => $request->input('abbr'),
                 'description' => $request->input('description'),
                 'address' => $request->input('address'),
-                'city' => $request->input('city'),
-                'country' => $request->input('country'),
             ]);
 
-            foreach ($request->input('divisions', []) as $division) {
-                /** @var Division */
-                $divisionModel = $unit->divisions()->create(
-                    collect($division)
-                        ->only('name', 'abbr', 'description')
-                        ->toArray()
-                );
+            //     foreach ($request->input('divisions', []) as $division) {
+            //         /** @var Division */
+            //         $divisionModel = $unit->divisions()->create(
+            //             collect($division)
+            //                 ->only('name', 'abbr', 'description')
+            //                 ->toArray()
+            //         );
 
-                $members = collect($division['members'])->map(function ($member) {
-                    return [
-                        'user_id' => User::withoutTrashed()->where('uuid', $member['uuid'])->select('id')->first()?->id,
-                        'grade' => $member['grade'],
-                    ];
-                });
+            //         $members = collect($division['members'])->map(function ($member) {
+            //             return [
+            //                 'user_id' => User::withoutTrashed()->where('uuid', $member['uuid'])->select('id')->first()?->id,
+            //                 'grade' => $member['grade'],
+            //             ];
+            //         });
 
-                if ($members->count()) {
-                    $divisionModel->users()->attach($members);
-                }
-            }
+            //         if ($members->count()) {
+            //             $divisionModel->users()->attach($members);
+            //         }
+            //     }
 
-            foreach ($request->input('infrastructures', []) as $material) {
-            }
+            //     foreach ($request->input('infrastructures', []) as $material) {
+            //     }
         });
 
         return redirect(route('manage.unit.index'))->with('alert', [

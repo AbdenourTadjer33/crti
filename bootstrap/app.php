@@ -22,6 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
             return session('url.intended', '/app');
         });
 
+
         $middleware->web([
             HandleInertiaRequests::class
         ]);

@@ -20,7 +20,6 @@ class ProjectFactory extends Factory
         return [
             'code' => Random::generate(),
             'status' => "creation",
-
             'name' => implode(' ', fake()->words()),
             'nature' => 'str',
             'domains' => [],

@@ -2,21 +2,22 @@ import React from "react";
 import {
     AuthLayoutContext,
     AuthLayoutProvider,
-} from "@/Contexts/AuthLayoutContext";
-import { UserContextProvider } from "@/Contexts/UserContext";
+} from "@/Contexts/auth-layout-context";
+import { UserContextProvider } from "@/Contexts/user-context";
 import { usePage } from "@inertiajs/react";
-import { Toaster as Sonner } from "@/Components/ui/sonner";
-import { useToast } from "@/Components/ui/use-toast";
+import { Toaster } from "@/Components/ui/sonner";
+import { toast } from "sonner";
+
+// import { useToast } from "@/Components/ui/use-toast";
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
 
 export default function AuthLayout({ children }: React.PropsWithChildren) {
     const { flash } = usePage().props;
-    const { toast } = useToast();
 
     React.useEffect(() => {
         if ((flash as any).alert) {
-            toast({ description: (flash as any).alert.message });
+            toast((flash as any).alert.message);
         }
     }, [(flash as any).alert]);
 
@@ -26,7 +27,7 @@ export default function AuthLayout({ children }: React.PropsWithChildren) {
                 <Navbar />
                 <Sidebar />
                 <Main>{children}</Main>
-                <Sonner closeButton />
+                <Toaster closeButton />
             </AuthLayoutProvider>
         </UserContextProvider>
     );

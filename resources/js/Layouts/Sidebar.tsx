@@ -6,7 +6,7 @@ import {
     MonitorCog,
     SquareGanttChart,
 } from "lucide-react";
-import { AuthLayoutContext } from "@/Contexts/AuthLayoutContext";
+import { AuthLayoutContext } from "@/Contexts/auth-layout-context";
 import { addAttributesToChildren } from "@/Utils/utils";
 
 const Sidebar: React.FC = () => {
@@ -14,6 +14,8 @@ const Sidebar: React.FC = () => {
         React.useContext(AuthLayoutContext);
 
     const hideSidebarFn = () => setSidebarState("hidden");
+
+
 
     return (
         <>
@@ -106,6 +108,7 @@ const SidebarItem: React.FC<SidebarItemProps> = (props) => {
                 className="flex items-center data-[state=close]:justify-center p-2 text-base font-medium text-gray-600 rounded-lg dark:text-white hover:bg-gray-200/75 dark:hover:bg-gray-700 duration-100 group cursor-pointer"
                 // @ts-ignore
                 data-state={rest["data-state"]}
+                data-active={route().current(href)}
             >
                 <div
                     className="group-hover:text-primary-600 dark:group-hover:text-primary-50 duration-100"

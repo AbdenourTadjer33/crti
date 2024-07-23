@@ -10,9 +10,9 @@ use App\Enums\ProjectStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Version\StoreRequest;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Routing\Controllers\HasMiddleware;
-use Modules\Project\Http\Requests\Version\StoreRequest;
 use Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests;
 
 class ProjectVersionController extends Controller implements HasMiddleware
