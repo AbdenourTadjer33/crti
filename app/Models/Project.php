@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Modules\Versioning\Traits\Versionable;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -23,6 +24,7 @@ class Project extends Model
     // protected $versionableRelations = ['tasks', 'users'];
 
     protected $autoVersioning = false;
+
     protected function casts(): array
     {
         return [
@@ -30,9 +32,39 @@ class Project extends Model
         ];
     }
 
+    /**
+     * Interact with the project's name.
+     */
+    protected function name(): Attribute
+    {
+        return Attribute::make(
+            get: fn (?string $value) => ucfirst($value),
+        );
+    }
+
+    protected function nature(): Attribute
+    {
+        return Attribute::make(
+            get: fn (?string $value) => ucfirst($value),
+        );
+    }
+
     public function getRouteKeyName()
     {
         return "code";
+    }
+
+    /**
+     * Get the division that have the project.
+     * 
+     * This method establishes an inverse one-to-many relationship
+     * where a project belongs to a single division
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function division(): BelongsTo
+    {
+        return $this->belongsTo(Division::class, 'division_id', 'id');
     }
 
     /**
@@ -77,6 +109,6 @@ class Project extends Model
 
     // public function resources(): HasMany
     // {
-        // return $this->hasMany(Resource::class);
+    // return $this->hasMany(Resource::class);
     // }
 }

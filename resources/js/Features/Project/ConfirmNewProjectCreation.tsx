@@ -12,27 +12,32 @@ import { Progress } from "@/Components/ui/infinate-progress";
 import { Text } from "@/Components/ui/paragraph";
 import { Label } from "@/Components/ui/label";
 import { cn } from "@/Utils/utils";
+import { Skeleton } from "@/Components/ui/skeleton";
+import { InputError } from "@/Components/ui/input";
 
-
-const ConfirmNewProjectCreation: React.FC<any> = () => {
+const ConfirmNewProjectCreation: React.FC<{
+    onTriggerPressed: () => void;
+    divisions?: [];
+}> = ({ onTriggerPressed, divisions }) => {
     const [open, setOpen] = React.useState(false);
     const isDesktop = useMediaQuery("(min-width: 768px)");
+    const [division, setDivision] = React.useState<string>("");
     const { mutate, reset, isPending, isError, isSuccess, error, data } =
-        useMutation<{
-            code: string;
-        }>({
-            mutationFn: async (data) => createProject(data),
-            onSuccess: () => router.reload({ only: ["myProjects"] }),
+        useMutation({
+            mutationFn: async (data) => {
+                return createProject(data);
+            },
+            onSuccess: () => router.reload({ only: ["data"] }),
         });
 
     if (isDesktop) {
         return (
             <Dialog.Dialog open={open} onOpenChange={setOpen} modal={true}>
-                <Dialog.DialogTrigger asChild>
-                    <Button>
-                        <Plus className="h-4 w-4 mr-2" />
-                        Créer un nouveau projet
-                    </Button>
+                <Dialog.DialogTrigger onClick={onTriggerPressed} asChild>
+                    <div className="select-none cursor-pointer duration-150 hover:border-primary-700 hover:border-solid hover:bg-white hover:text-primary-700 group w-full h-full flex flex-col items-center justify-center rounded-md border-2 border-dashed border-slate-300 text-sm leading-6 font-medium">
+                        <Plus className="h-10 w-10 group-hover:text-primary-700" />
+                        Ajouter un nouveau projet
+                    </div>
                 </Dialog.DialogTrigger>
                 <Dialog.DialogContent
                     className="mx-auto max-w-xl grid gap-4 rounded relative overflow-hidden"
@@ -58,6 +63,9 @@ const ConfirmNewProjectCreation: React.FC<any> = () => {
                     <div className="space-y-4">
                         <CreateNewProject
                             {...{
+                                divisions,
+                                division,
+                                setDivision,
                                 isPending,
                                 isError,
                                 isSuccess,
@@ -65,7 +73,7 @@ const ConfirmNewProjectCreation: React.FC<any> = () => {
                                 error,
                                 reset,
                                 onCancel: () => setOpen(false),
-                                onCreate: () => mutate(),
+                                onCreate: () => mutate({ division }),
                             }}
                         />
                     </div>
@@ -76,11 +84,13 @@ const ConfirmNewProjectCreation: React.FC<any> = () => {
 
     return (
         <Drawer.Drawer open={open} onOpenChange={setOpen}>
-            <Drawer.DrawerTrigger asChild>
-                <Button>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Créer un nouveau projet
-                </Button>
+            <Drawer.DrawerTrigger onClick={onTriggerPressed} asChild>
+                <div className="relative group select-none bg-white rounded shadow hover:bg-gray-50 border hover:border-gray-300 h-full flex flex-col items-center justify-center cursor-pointer">
+                    <Plus className="h-10 w-10 text-primary-700" />
+                    <span className="absolute bottom-2 text-primary-700 invisible group-hover:visible group-hover:animate-in group-hover:fade-in animate-out fade-out duration-200">
+                        Ajouter un nouveau projet
+                    </span>
+                </div>
             </Drawer.DrawerTrigger>
             <Drawer.DrawerContent
                 onOpenAutoFocus={(e) => e.preventDefault()}
@@ -102,6 +112,9 @@ const ConfirmNewProjectCreation: React.FC<any> = () => {
                 <div className="px-4 mb-4 space-y-4">
                     <CreateNewProject
                         {...{
+                            divisions,
+                            division,
+                            setDivision,
                             isPending,
                             isError,
                             isSuccess,
@@ -109,7 +122,7 @@ const ConfirmNewProjectCreation: React.FC<any> = () => {
                             error,
                             reset,
                             onCancel: () => setOpen(false),
-                            onCreate: () => mutate(),
+                            onCreate: () => mutate({ division }),
                         }}
                     />
                 </div>
@@ -119,6 +132,9 @@ const ConfirmNewProjectCreation: React.FC<any> = () => {
 };
 
 interface CreateNewProjectProps {
+    divisions?: [];
+    division?: string;
+    setDivision: React.Dispatch<React.SetStateAction<string>>;
     isPending: boolean;
     isError: boolean;
     isSuccess: boolean;
@@ -130,6 +146,9 @@ interface CreateNewProjectProps {
 }
 
 const CreateNewProject: React.FC<CreateNewProjectProps> = ({
+    divisions,
+    division,
+    setDivision,
     isPending,
     isError,
     isSuccess,
@@ -139,16 +158,26 @@ const CreateNewProject: React.FC<CreateNewProjectProps> = ({
     onCancel,
     reset,
 }) => {
-    if (isError) {
+    const closeAndResetFn = () => {
+        onCancel();
+        setTimeout(() => {
+            reset();
+        }, 200);
+    };
+
+    if (isError && error?.response.status !== 422) {
         return (
             <>
-                <Text className="text-gray-800">
+                <Text className="text-red-500">
                     Une erreur est sourvenu lors de création de projet.
-                    {error.message}
                 </Text>
 
-                <Button variant="destructive" className="w-full">
-                    Annuler
+                <Button
+                    // variant="outline"
+                    className="w-full"
+                    onClick={closeAndResetFn}
+                >
+                    Try later
                 </Button>
             </>
         );
@@ -165,12 +194,7 @@ const CreateNewProject: React.FC<CreateNewProjectProps> = ({
                     <Button
                         variant="outline"
                         className="w-full"
-                        onClick={() => {
-                            onCancel();
-                            setTimeout(() => {
-                                reset();
-                            }, 250);
-                        }}
+                        onClick={closeAndResetFn}
                     >
                         Fermer
                     </Button>
@@ -195,19 +219,34 @@ const CreateNewProject: React.FC<CreateNewProjectProps> = ({
             </div>
             <div className="grid">
                 <div className="space-y-1">
-                    <Label className="text-gray-800">
-                        Sélectionner la division du projet
-                    </Label>
-                    <Select.Select disabled={isPending}>
-                        <Select.SelectTrigger>
-                            <Select.SelectValue placeholder="select divsion" />
-                        </Select.SelectTrigger>
-                        <Select.SelectContent>
-                            <Select.SelectItem value="1">
-                                division 1
-                            </Select.SelectItem>
-                        </Select.SelectContent>
-                    </Select.Select>
+                    {divisions ? (
+                        <>
+                            <Select.Select
+                                disabled={isPending}
+                                value={division}
+                                onValueChange={(value) => setDivision(value)}
+                            >
+                                <Select.SelectTrigger>
+                                    <Select.SelectValue placeholder="Sélectionner une division" />
+                                </Select.SelectTrigger>
+                                <Select.SelectContent>
+                                    {divisions.map((division, idx) => (
+                                        <Select.SelectItem
+                                            key={idx}
+                                            value={division.id}
+                                        >
+                                            {division.name}
+                                        </Select.SelectItem>
+                                    ))}
+                                </Select.SelectContent>
+                            </Select.Select>
+                            <InputError
+                                message={error?.response.data.message}
+                            />
+                        </>
+                    ) : (
+                        <Skeleton className="w-full h-10 bg-gray-200" />
+                    )}
                 </div>
             </div>
 
@@ -215,7 +254,7 @@ const CreateNewProject: React.FC<CreateNewProjectProps> = ({
                 <Button
                     variant="destructive"
                     className="w-full"
-                    onClick={onCancel}
+                    onClick={closeAndResetFn}
                     disabled={isPending}
                 >
                     Annuler

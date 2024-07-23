@@ -19,7 +19,7 @@ class UserDivisionsResource extends JsonResource
             'name' => $this->name,
             'abbr' => $this->abbr,
             'addedAt' => $this->pivot->created_at,
-            'grade' => '',
+            'grade' => $this->pivot->grade,
         ];
     }
 }

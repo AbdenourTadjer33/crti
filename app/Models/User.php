@@ -7,7 +7,6 @@ namespace App\Models;
 use Ramsey\Uuid\Uuid;
 use Laravel\Scout\Searchable;
 use Laravel\Sanctum\HasApiTokens;
-use Modules\Project\Models\Project;
 use Modules\Permission\Traits\HasRole;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Builder;

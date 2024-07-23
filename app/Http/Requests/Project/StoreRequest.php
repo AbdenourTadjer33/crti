@@ -21,6 +21,15 @@ class StoreRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [];
+        return [
+            'division' => ['required'],
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'division' => "Veuillez sélectionnez une division"
+        ];
     }
 }

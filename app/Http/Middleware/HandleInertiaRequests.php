@@ -7,6 +7,7 @@ use Closure;
 use Inertia\Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -56,6 +57,7 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => fn () => $request->user() ? new UserResource($request->user()) : null,
             ],
+            // 'divisions' => fn () => $request->user()->divisions,
             'flash' => [
                 'alert' => fn () => $request->session()->get('alert'),
             ],

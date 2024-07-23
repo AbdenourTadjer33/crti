@@ -6,12 +6,18 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Division extends Model
 {
     use HasFactory;
 
     protected $guarded = [];
+
+    public static function getDivisions()
+    {
+        return static::get();
+    }
 
     /**
      * Get the unit that own the division
@@ -40,5 +46,18 @@ class Division extends Model
         return $this->belongsToMany(User::class, 'division_user', 'division_id', 'user_id')
             ->withTimestamps()
             ->withPivot('grade');
+    }
+
+    /**
+     * Get all projects associated with a division.
+     * 
+     * This method defines a one-to-many relationship, indicating 
+     * that a division can have multiple projects, and a project belongs to one division.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany 
+     */
+    public function projects(): HasMany
+    {
+        return $this->hasMany(Project::class, 'division_id', 'id');
     }
 }

@@ -2,9 +2,9 @@ import React, { createContext, ReactNode } from "react";
 import { User } from "@/types";
 import { usePage } from "@inertiajs/react";
 
-export const UserContext = createContext<User | null>(null);
+const UserContext = createContext<User | null>(null);
 
-export const UserContextProvider: React.FC<{ children: ReactNode }> = ({
+const UserContextProvider: React.FC<{ children: ReactNode }> = ({
     children,
 }) => {
     const pageProps: any = usePage().props;
@@ -12,3 +12,5 @@ export const UserContextProvider: React.FC<{ children: ReactNode }> = ({
 
     return <UserContext.Provider value={user}>{children}</UserContext.Provider>;
 };
+
+export { UserContext, UserContextProvider };
