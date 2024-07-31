@@ -21,7 +21,7 @@ Route::get('/', function () {
 Route::prefix('/app')->middleware(['auth'])->group(function () {
     Route::get('/', fn () => Inertia::render('Welcome'))->name('app');
 
-    Route::get('app/search/users', function (Request $request)  {
+    Route::get('app/search/users', function (Request $request) {
         if (app()->isProduction() && !$request->isXmlHttpRequest()) {
             abort(401);
         }
@@ -59,8 +59,5 @@ Route::prefix('/app')->middleware(['auth'])->group(function () {
 
     Route::resource('projects', ProjectController::class)->only(["index", "store", "show"])->names('project');
     Route::post('projects/{project}/versions/sync', [ProjectVersionController::class, 'sync'])->name('project.version.sync');
-    Route::resource('projects.versions', ProjectVersionController::class)->names('project.version');
-
-
-
+    Route::resource('projects.versions', ProjectVersionController::class)->only(["create", "store"])->names('project.version');
 });
