@@ -14,7 +14,7 @@ const breadcrubms = [
     { label: "Modifier unité" },
 ];
 
-const Edit: React.FC<{}> = () => (
+const Edit: React.FC<{unit: any}> = ({unit}) => (
     <AuthLayout>
         <Head title="Modifier unité" />
         <div className="space-y-4">
@@ -28,7 +28,8 @@ const Edit: React.FC<{}> = () => (
                     Votre modèle de tableau de bord de gestion d'accées.
                 </Text>
             </div>
-            <EditForm />
+
+            <EditForm unit={unit} />
         </div>
     </AuthLayout>
 );

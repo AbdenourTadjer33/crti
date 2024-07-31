@@ -16,8 +16,8 @@ class UpdateRequest extends FormRequest
             'abbr' => ['nullable', 'string'],
             'description' => ['nullable', 'string'],
             'address' => ['required', 'string'],
-            'city' => ['required', 'string'],
-            'country' => ['required', 'string'],
+            // 'city' => ['required', 'string'],
+            // 'country' => ['required', 'string'],
         ];
     }
 

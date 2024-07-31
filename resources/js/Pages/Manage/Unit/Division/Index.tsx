@@ -1,35 +1,44 @@
 import React from "react";
 import { Head, Link } from "@inertiajs/react";
-
 import AuthLayout from "@/Layouts/AuthLayout";
 import { MdHome } from "react-icons/md";
 import Breadcrumb from "@/Components/Breadcrumb";
 import { Heading } from "@/Components/ui/heading";
 import { Text } from "@/Components/ui/paragraph";
+import Table from "@/Features/Manage/Unit/Division/Table";
 import { Button } from "@/Components/ui/button";
-import { MdAdd } from "react-icons/md";
-import Table from "@/Features/Manage/Unit/Table";
-import { Pagination, Unit } from "@/types";
 import { Plus } from "lucide-react";
 
-const breadcrumbs = [
-    { href: route("app"), label: <MdHome className="w-6 h-6" /> },
-    { href: route("manage.index"), label: "Centres d'administration" },
-    { label: "Gestion d'unité" },
-];
+const Create: React.FC<any> = ({ divisions, unit }) => {
+    const breadcrubms = React.useMemo(
+        () => [
+            { href: route("app"), label: <MdHome className="w-6 h-6" /> },
+            { href: route("manage.index"), label: "Centres d'administration" },
+            {
+                href: route("manage.unit.index", route().params.unit as string),
+                label: "Gestion d'unité",
+            },
+            {
+                href: route("manage.unit.show", route().params.unit as string),
+                label: unit.name,
+            },
 
-const Index: React.FC<{ units: Pagination<Unit> }> = ({ units }) => {
+            { label: "Gerer les divisions" },
+        ],
+        []
+    );
+
     return (
         <AuthLayout>
-            <Head title="Gestion d'unité" />
+            <Head title="gerer devision" />
 
             <div className="space-y-4">
-                <Breadcrumb items={breadcrumbs} />
+                <Breadcrumb items={breadcrubms} />
 
                 <div className="flex sm:flex-row flex-col justify-between sm:items-end gap-4">
                     <div className="space-y-2">
                         <Heading level={3} className="font-medium">
-                            Gestion d'unité
+                            Les divisions de {unit.name}{" "}
                         </Heading>
 
                         <Text className={"max-w-7xl"}>
@@ -38,17 +47,22 @@ const Index: React.FC<{ units: Pagination<Unit> }> = ({ units }) => {
                     </div>
 
                     <Button asChild>
-                        <Link href={route("manage.unit.create")}>
+                        <Link
+                            href={route(
+                                "manage.unit.division.create",
+                                route().params.unit as string
+                            )}
+                        >
                             <Plus className="w-4 h-4 mr-2" />
                             Ajouter
                         </Link>
                     </Button>
                 </div>
 
-                <Table units={units} />
+                <Table divisions={divisions} />
             </div>
         </AuthLayout>
     );
 };
 
-export default Index;
+export default Create;

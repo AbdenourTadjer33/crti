@@ -57,7 +57,6 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => fn () => $request->user() ? new UserResource($request->user()) : null,
             ],
-            // 'divisions' => fn () => $request->user()->divisions,
             'flash' => [
                 'alert' => fn () => $request->session()->get('alert'),
             ],

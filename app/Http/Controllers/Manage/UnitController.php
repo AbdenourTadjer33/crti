@@ -55,7 +55,7 @@ class UnitController extends Controller
      */
     public function show(string $id)
     {
-        //
+        dd("show unit with $id");
     }
 
     /**

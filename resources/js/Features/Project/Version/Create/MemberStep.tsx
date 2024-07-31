@@ -88,7 +88,7 @@ const MemberForm = ({ prev, next }: FormProps) => {
     return (
         <div className="space-y-8">
             <Heading level={6}>Ajouter les membres du projet</Heading>
-            
+
             <SearchMembers addMember={addMember} removeMember={removeMember} />
             <InputError message={errors.members} />
 
@@ -236,7 +236,7 @@ const SearchMembers = ({ addMember, removeMember }: SearchMemberProps) => {
                                         <Button
                                             variant="destructive"
                                             className="justify-between items-center"
-                                            onClick={() => removeMember(member)}
+                                            onClick={() => removeMember(membe)}
                                             disabled={uuid === member.uuid}
                                         >
                                             Supprimer

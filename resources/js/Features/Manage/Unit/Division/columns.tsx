@@ -1,29 +1,11 @@
 import * as React from "react";
-import { createColumnHelper } from "@tanstack/react-table";
-import { Unit } from "@/types";
 import {
     HeaderSelecter,
     RowExpander,
     RowSelecter,
 } from "@/Components/DataTable";
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from "@/Components/ui/tooltip";
-import dayjs from "dayjs";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/Components/ui/dropdown-menu";
+import { AlertDialogHeader } from "@/Components/ui/alert-dialog";
 import { Button } from "@/Components/ui/button";
-import { MoreHorizontal } from "lucide-react";
-import { Link, router } from "@inertiajs/react";
-import { MdDelete, MdEdit } from "react-icons/md";
 import {
     Dialog,
     DialogContent,
@@ -31,12 +13,31 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/Components/ui/dialog";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/Components/ui/dropdown-menu";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/Components/ui/tooltip";
+import { Division } from "@/types/division";
+import { router } from "@inertiajs/react";
+import { createColumnHelper } from "@tanstack/react-table";
+import dayjs from "dayjs";
+import { MoreHorizontal } from "lucide-react";
 import { FaInfoCircle } from "react-icons/fa";
+import { MdDelete, MdEdit } from "react-icons/md";
+import { Link } from "@inertiajs/react";
 
-const columnHelper = createColumnHelper<Unit>();
+const columnHelper = createColumnHelper<Division>();
 
 export const columnDef = [
-
     columnHelper.display({
         id: "selecter",
         header: ({ table }) => <HeaderSelecter table={table} />,
@@ -57,8 +58,8 @@ export const columnDef = [
     }),
 
     columnHelper.display({
-        id: "unit",
-        header: "unité",
+        id: "division",
+        header: "division",
         cell: ({ row }) => (
             <>
                 {row.original.name}{" "}
@@ -85,8 +86,9 @@ export const columnDef = [
 
     columnHelper.accessor("updatedAt", {
         header: "modifier le",
-        cell: ({ getValue }) => (
-            <TooltipProvider>
+        cell: ({ getValue }) => {
+
+            return <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger>
                         {dayjs(getValue()).fromNow()}
@@ -95,10 +97,9 @@ export const columnDef = [
                         <p>{dayjs(getValue()).format("DD-MM-YYYY HH:mm:ss")}</p>
                     </TooltipContent>
                 </Tooltip>
-            </TooltipProvider>
-        ),
+            </TooltipProvider>;
+        },
     }),
-
     columnHelper.display({
         id: "actions",
         cell: ({ row }) => <Actions id={row.id} />,
@@ -111,12 +112,15 @@ const Actions = ({ id }: { id: string }) => {
         React.useState<boolean>(false);
 
     const deleteHandler = () => {
-        router.delete(route("manage.unit.destroy", { unit: id }), {
-            preserveScroll: true,
-            preserveState: true,
-            only: ["flash", "units"],
-            onSuccess: () => setBeforeDeleteModal(false),
-        });
+        router.delete(
+            route("manage.unit.division.destroy", { unit: id, division: id }),
+            {
+                preserveScroll: true,
+                preserveState: true,
+                only: ["flash", "divisions"],
+                onSuccess: () => setBeforeDeleteModal(false),
+            }
+        );
     };
 
     return (
@@ -134,16 +138,14 @@ const Actions = ({ id }: { id: string }) => {
                     loop
                 >
                     <DropdownMenuItem asChild>
-                        <Link href={route("manage.unit.division.index", { unit: id })}>
+                        <Link
+                            href={route("manage.unit.division.edit", {
+                                unit: route().params.unit as string,
+                                division: id,
+                            })}
+                        >
                             <MdEdit className="w-4 h-4 mr-2" />
-                            Gerer les division
-                        </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                        <Link href={route("manage.unit.edit", { unit: id })}>
-                            <MdEdit className="w-4 h-4 mr-2" />
-                            Modifier
+                            modifier
                         </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />

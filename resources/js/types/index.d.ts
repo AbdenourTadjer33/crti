@@ -17,8 +17,6 @@ export type Unit = {
     abbr?: string;
     description?: string;
     address?: string;
-    city?: string;
-    country?: string;
     createdAt?: string;
     updatedAt?: string;
     divisions?: Division[];
@@ -27,6 +25,7 @@ export type Unit = {
 export type Division = {
     id?: string;
     name: string;
+    abbr: string
     description?: string;
 };
 

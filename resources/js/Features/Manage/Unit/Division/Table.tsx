@@ -1,6 +1,6 @@
 import React from "react";
 import { Pagination as PaginationType, Unit } from "@/types";
-import { columnDef } from "@/Features/Manage/Unit/columns";
+import { columnDef } from "@/Features/Manage/Unit/Division/columns";
 import {
     getCoreRowModel,
     getExpandedRowModel,
@@ -25,9 +25,12 @@ import {
 } from "@/Components/ui/tooltip";
 import { Button } from "@/Components/ui/button";
 import { IoMdOptions } from "react-icons/io";
+import { Division } from "@/types/division";
 
-const Table: React.FC<{ units: PaginationType<Unit> }> = ({ units }) => {
-    const finalData = React.useMemo(() => units.data, [units.data]);
+const Table: React.FC<{ divisions: PaginationType<Division> }> = ({
+    divisions,
+}) => {
+    const finalData = React.useMemo(() => divisions.data, [divisions.data]);
     const finalColumnDef = React.useMemo(() => columnDef, []);
 
     const table = useReactTable({
@@ -40,12 +43,10 @@ const Table: React.FC<{ units: PaginationType<Unit> }> = ({ units }) => {
         manualPagination: true,
     });
 
-    const subComponent = ({ row }: { row: Row<Unit> }) => {
+    const subComponent = ({ row }: { row: Row<Division> }) => {
         return (
             <div className="flex flex-wrap gap-2">
-                <ul>
-
-                </ul>
+                <ul></ul>
                 <pre>{JSON.stringify(row, null, 2)}</pre>
             </div>
         );
@@ -111,7 +112,10 @@ const Table: React.FC<{ units: PaginationType<Unit> }> = ({ units }) => {
                 options={{
                     table,
                     subComponent,
-                    pagination: { links: units.links, meta: units.meta },
+                    pagination: {
+                        links: divisions.links,
+                        meta: divisions.meta,
+                    },
                 }}
             />
         </TableWraper>

@@ -6,18 +6,18 @@ import { Label } from "@/Components/ui/label";
 import { Input, InputError } from "@/Components/ui/input";
 import { Textarea } from "@/Components/ui/textarea";
 
-const EditForm: React.FC<any> = ({ unit }) => {
+const EditForm: React.FC<any> = ({ unit, division }) => {
     const { data, setData, errors, processing, put } = useForm({
-        name: unit.name || "",
-        abbr: unit.abbr || "",
-        description: unit.description || "",
-        address: unit.address || "",
+        name: division.name || "",
+        abbr: division.abbr || "",
+        description: division.description || "",
+        // address: unit.address || "",
     });
 
     const submitHandler = (e: React.FormEvent) => {
         e.preventDefault();
 
-        put(route("manage.unit.update", { unit: unit.id }), {
+        put(route("manage.unit.division.update", { unit: unit.id, division: division.id}), {
             preserveScroll: true,
         });
     };
@@ -28,8 +28,8 @@ const EditForm: React.FC<any> = ({ unit }) => {
             onSubmit={submitHandler}
         >
             <div className="grid grid-cols-3 gap-4">
-                <div className="space-y-1 col-span-1">
-                    <Label>Nom de l'unité</Label>
+                <div className="space-y-1 col-span-2">
+                    <Label>Nom de la division</Label>
                     <Input
                         value={data.name}
                         onChange={(e) => setData("name", e.target.value)}
@@ -46,14 +46,14 @@ const EditForm: React.FC<any> = ({ unit }) => {
                     <InputError message={errors.abbr} />
                 </div>
 
-                <div className="space-y-1">
+                {/* <div className="space-y-1">
                     <Label>Adresse</Label>
                     <Input
                         value={data.address}
                         onChange={(e) => setData("address", e.target.value)}
                     />
                     <InputError message={errors.address} />
-                </div>
+                </div> */}
 
                 <div className="space-y-1 col-span-3">
                     <Label>Description</Label>
@@ -66,11 +66,13 @@ const EditForm: React.FC<any> = ({ unit }) => {
             </div>
 
             <div className="mx-auto max-w-lg flex items-center gap-4">
-                <Link href={route("manage.unit.index")}>Annuler</Link>
+                {/* <Link href={route("manage.unit.division.index", {unit: unit})}>Annuler</Link> */}
                 <Button className="w-full">
                     Modifier
                 </Button>
             </div>
+            <pre>{JSON.stringify(data, null, 2)}</pre>
+
         </FormWrapper>
     );
 };

@@ -14,7 +14,7 @@ const breadcrubms = [
     { label: "Créer unité" },
 ];
 
-const Create: React.FC<{}> = () => (
+const Create: React.FC = () => (
     <AuthLayout>
         <Head title="Créer unité" />
         <div className="space-y-4">

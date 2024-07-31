@@ -44,13 +44,15 @@ declare module 'ziggy-js' {
     "manage.unit.division.create": [
         {
             "name": "unit",
-            "required": true
+            "required": true,
+            "binding": "id"
         }
     ],
     "manage.unit.division.store": [
         {
             "name": "unit",
-            "required": true
+            "required": true,
+            "binding": "id"
         }
     ],
     "manage.unit.division.show": [
