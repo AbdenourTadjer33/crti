@@ -50,12 +50,20 @@ class UnitDivisionController extends Controller
             'abbr' => $request->input('abbr'),
             'description' => $request->input('description'),
         ]);
+        // $members = User::withTrashed()->whereIn('uuid', collect($request->members)->map(fn ($member) => $member['uuid']))->get(['id', 'uuid']);
+        // $division->users()->attach();
 
-        $members = User::withTrashed()->whereIn('uuid', collect($request->members)->map(fn ($member) => $member['uuid']))->get(['id', 'uuid']);
+            $members = collect($request->members)->mapWithKeys(function ($member) {
+                return [$member['uuid'] => $member['grade'] ?? null];
+            });
 
-        $division->users()->attach($members->pluck('id'));
+            $users = User::withTrashed()->whereIn('uuid', $members->keys())->get(['id', 'uuid']);
 
+            $pivotData = $users->mapWithKeys(function ($user) use ($members) {
+                return [$user->id => ['grade' => $members[$user->uuid]]];
+            });
 
+            $division->users()->attach($pivotData);
 
         return redirect()->route('manage.unit.index', $unit)->with('success', 'Division créée avec succès.');
     }
