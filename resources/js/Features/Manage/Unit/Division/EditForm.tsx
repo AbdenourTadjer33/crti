@@ -5,21 +5,188 @@ import { Button } from "@/Components/ui/button";
 import { Label } from "@/Components/ui/label";
 import { Input, InputError } from "@/Components/ui/input";
 import { Textarea } from "@/Components/ui/textarea";
+import { User } from "@/types";
+import { useDebounce } from "@/Hooks/use-debounce";
+import { useEventListener } from "@/Hooks/use-event-listener";
+import { searchUsers } from "@/Services/api/users";
+import { skipToken, useQuery } from "@tanstack/react-query";
+import { LoaderCircle, Plus, X } from "lucide-react";
+import {
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandHeader,
+    CommandInput,
+    CommandItem,
+    CommandList,
+    CommandShortcut,
+} from "@/Components/ui/command";
+import Avatar from "@/Components/Avatar";
+import { Skeleton } from "@/Components/ui/skeleton";
+import { Kbd } from "@/Components/ui/kbd";
+import { Division } from "@/types/division";
+import { Member } from "@/types/member";
+
 
 const EditForm: React.FC<any> = ({ unit, division }) => {
-    const { data, setData, errors, processing, put } = useForm({
+    const { data, setData, errors, processing, put, clearErrors } = useForm({
         name: division.name || "",
         abbr: division.abbr || "",
         description: division.description || "",
-        // address: unit.address || "",
+        members: division.users.map((user: any) => ({
+            uuid: user.uuid,
+            name: `${user.first_name} ${user.last_name}`,
+            grade: user.pivot.grade
+        })) || [],
     });
 
     const submitHandler = (e: React.FormEvent) => {
         e.preventDefault();
 
-        put(route("manage.unit.division.update", { unit: unit.id, division: division.id}), {
-            preserveScroll: true,
+        put(
+            route("manage.unit.division.update", {
+                unit: unit.id,
+                division: division.id,
+            }),
+            {
+                preserveScroll: true,
+            }
+        );
+    };
+
+
+    const addMember = (user: Member) => {
+        if (!data.members.some((member: Member) => member.uuid == user.uuid)) {
+            setData((data) => {
+                data.members.push({ ...user, grade: "" });
+                return { ...data };
+            });
+        }
+    };
+
+    const removeMember = (uuid: string) => {
+        setData((data) => {
+            const members = data.members;
+            const idx = members.findIndex(
+                (member: any) => member.uuid === uuid
+            );
+            members.splice(idx, 1);
+            return { ...data, members };
         });
+    };
+
+    interface SearchMemberProps {
+        members: User[];
+        addMember: (user: User) => void;
+        removeMember: (uuid: string) => void;
+    }
+
+    const SearchMembers = ({ addMember, members, removeMember }: SearchMemberProps) => {
+        const [search, setSearch] = React.useState("");
+        const debouncedValue = useDebounce(search, 300);
+        const commandInputRef = React.useRef<HTMLInputElement>(null);
+
+        useEventListener("keydown", (e) => {
+            if (e.code === "KeyK" && e.ctrlKey) {
+                e.preventDefault();
+                commandInputRef.current && commandInputRef.current.focus();
+            }
+        });
+
+        const { data, isFetching, isLoading, isError, isSuccess } = useQuery({
+            queryKey: ["search-users", debouncedValue],
+            queryFn: debouncedValue
+                ? async ({ signal }) => searchUsers(debouncedValue, { signal })
+                : skipToken,
+        });
+
+        return (
+            <div className="rounded-lg border dark:border-gray-500">
+                <Command loop shouldFilter={false} className="outline-none">
+                    <CommandHeader>
+                        <CommandInput
+                            ref={commandInputRef}
+                            value={search}
+                            onValueChange={setSearch}
+                            placeholder="Rechercher..."
+                        />
+                        {isFetching && (
+                            <LoaderCircle className="animate-spin mr-2" />
+                        )}
+                        <CommandShortcut>
+                            <Kbd>ctrl+K</Kbd>
+                        </CommandShortcut>
+                    </CommandHeader>
+                    <CommandList>
+                        <CommandEmpty className="py-4">
+                            {!search ? (
+                                <div className="text-gray-800 font-medium text-lg">
+                                    Commencez à taper pour rechercher des
+                                    membres de l'équipe...
+                                </div>
+                            ) : isLoading ? (
+                                <div className="px-2.5 space-y-4">
+                                    {Array.from(
+                                        { length: 3 },
+                                        (_, idx) => idx
+                                    ).map((_, idx) => (
+                                        <div
+                                            key={idx}
+                                            className="flex items-center gap-4"
+                                        >
+                                            <Skeleton className="h-12 w-12 rounded-full" />
+                                            <Skeleton className="h-12 w-full rounded" />
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : isError ? (
+                                <>erreur</>
+                            ) : (
+                                <>Aucun resultat trouvé.</>
+                            )}
+                        </CommandEmpty>
+                        {isSuccess && (
+                            <CommandGroup className="p-0">
+                                {data.map((user) =>
+                                    members.some(
+                                        (member) => member.uuid == user.uuid
+                                    ) ? null : (
+                                        <CommandItem
+                                            key={user.uuid}
+                                            value={user.uuid}
+                                            className="py-2.5 grid sm:grid-cols-3 grid-cols-2 gap-4"
+                                        >
+                                            <div className="inline-flex items-center space-x-2">
+                                                <Avatar
+                                                    size="sm"
+                                                    name={user.name}
+                                                />
+                                                <div>{user.name}</div>
+                                            </div>
+                                            <div className="hidden sm:block">
+                                                {user.email}
+                                            </div>
+                                            <div className="flex justify-end">
+                                                <Button
+                                                    type="button"
+                                                    className="justify-between items-center"
+                                                    onClick={() =>
+                                                        addMember(user)
+                                                    }
+                                                >
+                                                    Ajouter
+                                                    <Plus className="h-4 w-4 ml-2" />
+                                                </Button>
+                                            </div>
+                                        </CommandItem>
+                                    )
+                                )}
+                            </CommandGroup>
+                        )}
+                    </CommandList>
+                </Command>
+            </div>
+        );
     };
 
     return (
@@ -46,15 +213,6 @@ const EditForm: React.FC<any> = ({ unit, division }) => {
                     <InputError message={errors.abbr} />
                 </div>
 
-                {/* <div className="space-y-1">
-                    <Label>Adresse</Label>
-                    <Input
-                        value={data.address}
-                        onChange={(e) => setData("address", e.target.value)}
-                    />
-                    <InputError message={errors.address} />
-                </div> */}
-
                 <div className="space-y-1 col-span-3">
                     <Label>Description</Label>
                     <Textarea
@@ -63,16 +221,63 @@ const EditForm: React.FC<any> = ({ unit, division }) => {
                     />
                     <InputError message={errors.description} />
                 </div>
+                <div className="space-y-1 col-span-3">
+                    <SearchMembers
+                        members={data.members}
+                        addMember={addMember}
+                        removeMember={removeMember}
+                    />
+                </div>
+
+                <div className="space-y-2.5 col-span-3">
+                    {data.members.map((member: Member, idx: number) => (
+                        <div key={member.uuid} className="flex items-center gap-4">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                className="justify-start basis-2/5"
+                            >
+                                {member.name}
+                            </Button>
+
+                            <div>
+                                <Input
+                                    placeholder="grade"
+                                    value={member.grade}
+                                    onChange={(e) => {
+                                        setData((data) => {
+                                            data.members[idx].grade =
+                                                e.target.value;
+                                            return { ...data };
+                                        });
+                                        clearErrors(`members.${idx}.grade`);
+                                    }}
+                                />
+                                <InputError
+                                    message={errors[`members.${idx}.grade`]}
+                                />
+                            </div>
+
+                            <Button
+                                variant="destructive"
+                                className="items-center"
+                                onClick={() => removeMember(member.uuid)}
+                            >
+                                <X className="h-4 w-4 sm:mr-2" />
+                                <span className="hidden sm:block">
+                                    Supprimer
+                                </span>
+                            </Button>
+                        </div>
+                    ))}
+                </div>
             </div>
 
             <div className="mx-auto max-w-lg flex items-center gap-4">
-                {/* <Link href={route("manage.unit.division.index", {unit: unit})}>Annuler</Link> */}
-                <Button className="w-full">
-                    Modifier
-                </Button>
+                <Link href={route("manage.unit.division.index", {unit: unit})}>Annuler</Link>
+                <Button className="w-full">Modifier</Button>
             </div>
             <pre>{JSON.stringify(data, null, 2)}</pre>
-
         </FormWrapper>
     );
 };

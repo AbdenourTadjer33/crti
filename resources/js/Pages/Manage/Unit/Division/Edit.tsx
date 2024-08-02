@@ -7,7 +7,7 @@ import { Heading } from "@/Components/ui/heading";
 import { Text } from "@/Components/ui/paragraph";
 import EditForm from "@/Features/Manage/Unit/Division/EditForm";
 
-const Edit: React.FC<any> = ({ division, unit }) => {
+const Edit: React.FC<any> = ({ division, unit}) => {
     const breadcrubms = React.useMemo(
         () => [
             { href: route("app"), label: <MdHome className="w-6 h-6" /> },
@@ -18,7 +18,7 @@ const Edit: React.FC<any> = ({ division, unit }) => {
                 label: unit.name,
             },
             { href: route("manage.unit.division.index", { unit: unit.id }), label: "Gestion des divisions" },
-            { label: "Créer division" },
+            { label: "modifier division" },
         ],
         []
     );
@@ -37,9 +37,9 @@ const Edit: React.FC<any> = ({ division, unit }) => {
                         Votre modèle de tableau de bord de gestion d'accées.
                     </Text>
                 </div>
-                <EditForm unit = {unit} division = {division}/>
+                <EditForm unit={unit} division={division} />
                 <pre>
-                    {JSON.stringify({unit, division}, null, 2)}
+                    {JSON.stringify({unit, division, }, null, 2)}
                 </pre>
 
             </div>

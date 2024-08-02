@@ -1,8 +1,8 @@
 <?php
 
 namespace App\Http\Requests\Manage\Division;
-
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateDivisionRequest extends FormRequest
 {
@@ -22,9 +22,13 @@ class UpdateDivisionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string'],
+            'name' => ['required', 'string',],
             'abbr' => ['required', 'string'],
-            'description' => ['required', 'string']
+            'description' => ['required', 'string'],
+            'members' => ['nullable', 'array'],
+            'members.*' => ['nullable', 'array'],
+            'members.*.uuid' => ['sometimes', 'string', Rule::exists('users', 'uuid')],
+            'members.*.grade' => ['sometimes', 'string'],
         ];
     }
 }

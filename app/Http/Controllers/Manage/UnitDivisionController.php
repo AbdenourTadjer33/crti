@@ -65,7 +65,10 @@ class UnitDivisionController extends Controller
 
             $division->users()->attach($pivotData);
 
-        return redirect()->route('manage.unit.index', $unit)->with('success', 'Division créée avec succès.');
+        return redirect()->route('manage.unit.index', $unit)->with('alert', [
+            'status' => 'succes',
+            'message' => 'Division mise a jour avec succes'
+        ]);
     }
 
     /**
@@ -81,6 +84,7 @@ class UnitDivisionController extends Controller
      */
     public function edit(Unit $unit, Division $division)
     {
+        $division->load('users');
         return Inertia::render('Manage/Unit/Division/Edit', [
             'unit' => $unit,
             'division' => $division,
@@ -98,6 +102,18 @@ class UnitDivisionController extends Controller
                 'abbr' => $request->input('abbr'),
                 'description' => $request->input('description')
             ]);
+
+            $members = collect($request->input('members', []))->mapWithKeys(function ($member) {
+                return [$member['uuid'] => $member['grade'] ?? null];
+            });
+
+            $users = User::withTrashed()->whereIn('uuid', $members->keys())->get(['id', 'uuid']);
+
+            $pivotData = $users->mapWithKeys(function ($user) use ($members) {
+                return [$user->id => ['grade' => $members[$user->uuid]]];
+            });
+
+            $division->users()->sync($pivotData);
         });
         return redirect()->route('manage.unit.division.index', [
             'unit' => $unit->id,
@@ -110,8 +126,19 @@ class UnitDivisionController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Unit $unit, Division $division)
     {
-        //
+        DB::transaction(function () use ($division) {
+            $division->users()->detach();
+
+            $division->delete();
+        });
+
+        return redirect()->route('manage.unit.division.index', [
+            'unit' => $unit,
+        ])->with('alert', [
+            'status' => 'success',
+            'message' => 'Division supprimée avec succès.'
+        ]);
     }
 }
