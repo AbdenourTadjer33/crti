@@ -111,4 +111,45 @@ class Project extends Model
     // {
     // return $this->hasMany(Resource::class);
     // }
+
+    public function loadRelationsToVersion(array $relations): self
+    {
+        $userInstance = new \App\Models\User;
+        $user = $userInstance->newInstance([], true)
+            ->setRawAttributes($relations['user'], true);
+
+        $usersFn = function ($param) {
+            $userInstance = new \App\Models\User;
+            return Collection::make(
+                array_map(
+                    fn ($user) => $userInstance->newInstance([], true)
+                        ->setRawAttributes(
+                            Arr::except($user, 'pivot'),
+                            true
+                        ),
+                    $param
+                )
+            );
+        };
+
+        $divisionInstance = new \App\Models\Division;
+        $division = $divisionInstance->newInstance([], true)
+            ->setRawAttributes($relations['division'], true);
+
+        $taskInstance = new \App\Models\Task;
+        $tasks = Collection::make(array_map(
+            fn ($task) =>
+            $taskInstance->newInstance([], true)
+                ->setRawAttributes(Arr::except($task, 'users'), true)
+                ->setRelation('users', $usersFn($task['users'])),
+            $relations['tasks']
+        ));
+
+        $this->setRelation('division', $division);
+        $this->setRelation('user', $user);
+        $this->setRelation('users', $usersFn($relations['users']));
+        $this->setRelation('tasks', $tasks);
+
+        return $this;
+    }
 }
