@@ -55,6 +55,27 @@ class Project extends Model
     }
 
     /**
+     * Determine if the project is on his first version
+     * 
+     * @return bool
+     */
+    public function isFirstVersion(): bool
+    {
+        return ($this->status === "creation") && ($this->loadCount('versions')->versions_count <= 1);
+    }
+
+    /**
+     * Determine if the project can have new versions
+     * This method is for checking if we can create more version for a project.
+     * 
+     * @return bool
+     */
+    public function canHaveNewVersions(): bool
+    {
+        return in_array($this->status, ['new', 'rejected']);
+    }
+
+    /**
      * Get the division that have the project.
      * 
      * This method establishes an inverse one-to-many relationship
