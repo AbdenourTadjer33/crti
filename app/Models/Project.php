@@ -152,4 +152,10 @@ class Project extends Model
 
         return $this;
     }
+
+    public function lastConfirmedVersion($getRelatedModel = true)
+    {
+        $model = $this->versions()->getQuery()->where('id', $this->last_confirmed_version_id)->first();
+        return $getRelatedModel ? $model?->getModel() : $model;
+    }
 }
