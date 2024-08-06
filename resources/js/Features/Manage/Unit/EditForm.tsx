@@ -27,8 +27,8 @@ const EditForm: React.FC<any> = ({ unit }) => {
             className="space-y-4 md:space-y-8"
             onSubmit={submitHandler}
         >
-            <div className="grid grid-cols-3 gap-4">
-                <div className="space-y-1 col-span-1">
+            <div className="grid sm:grid-cols-3 gap-4">
+                <div className="space-y-1 sm:col-span-2 col-span-3">
                     <Label>Nom de l'unité</Label>
                     <Input
                         value={data.name}
@@ -37,7 +37,7 @@ const EditForm: React.FC<any> = ({ unit }) => {
                     <InputError message={errors.name} />
                 </div>
 
-                <div className="space-y-1">
+                <div className="space-y-1 sm:col-span-1 col-span-3">
                     <Label>Abréviation</Label>
                     <Input
                         value={data.abbr}
@@ -46,7 +46,7 @@ const EditForm: React.FC<any> = ({ unit }) => {
                     <InputError message={errors.abbr} />
                 </div>
 
-                <div className="space-y-1">
+                <div className="space-y-1 col-span-3">
                     <Label>Adresse</Label>
                     <Input
                         value={data.address}
@@ -65,11 +65,14 @@ const EditForm: React.FC<any> = ({ unit }) => {
                 </div>
             </div>
 
-            <div className="mx-auto max-w-lg flex items-center gap-4">
-                <Link href={route("manage.unit.index")}>Annuler</Link>
-                <Button className="w-full">
-                    Modifier
+            <div className="mx-auto max-w-lg flex flex-col-reverse sm:flex-row items-center sm:gap-4 gap-2">
+                <Button variant="destructive" className="w-full" asChild>
+                    <Link href={route("manage.unit.show", unit.id)}>
+                        Annuler
+                    </Link>
                 </Button>
+
+                <Button className="w-full">Sauvegarder</Button>
             </div>
         </FormWrapper>
     );
