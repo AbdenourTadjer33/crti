@@ -1,6 +1,6 @@
 import * as React from "react";
 import { FormWrapper } from "@/Components/ui/form";
-import { Link, useForm, usePage } from "@inertiajs/react";
+import { Link, useForm } from "@inertiajs/react";
 import { Button } from "@/Components/ui/button";
 import { Label } from "@/Components/ui/label";
 import { Input, InputError } from "@/Components/ui/input";
@@ -66,13 +66,15 @@ const EditForm: React.FC<any> = ({ unit }) => {
             </div>
 
             <div className="mx-auto max-w-lg flex flex-col-reverse sm:flex-row items-center sm:gap-4 gap-2">
-                <Button variant="destructive" className="w-full" asChild>
+                <Button variant="destructive" disabled={processing} className="w-full" asChild>
                     <Link href={route("manage.unit.show", unit.id)}>
                         Annuler
                     </Link>
                 </Button>
 
-                <Button className="w-full">Sauvegarder</Button>
+                <Button className="w-full" disabled={processing}>
+                    Sauvegarder
+                </Button>
             </div>
         </FormWrapper>
     );

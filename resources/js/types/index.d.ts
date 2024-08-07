@@ -20,6 +20,7 @@ export type Unit = {
     createdAt?: string;
     updatedAt?: string;
     divisions?: Division[];
+    divisionCount?: number;
 };
 
 export type Division = {
@@ -42,7 +43,12 @@ export type User = {
     deletedAt?: string;
     permissions?: Permission[];
     roles?: Role[];
-    divisions?: [];
+    division?:
+    {
+        grade: string;
+        addedAt: string;
+    }
+    ;
 };
 
 export type Permission = {

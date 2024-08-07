@@ -1,19 +1,16 @@
 import React from "react";
 import { Head, Link } from "@inertiajs/react";
-
 import AuthLayout from "@/Layouts/AuthLayout";
-import { MdHome } from "react-icons/md";
 import Breadcrumb from "@/Components/Breadcrumb";
 import { Heading } from "@/Components/ui/heading";
 import { Text } from "@/Components/ui/paragraph";
 import { Button } from "@/Components/ui/button";
-import { MdAdd } from "react-icons/md";
 import Table from "@/Features/Manage/Unit/Table";
 import { Pagination, Unit } from "@/types";
-import { Plus } from "lucide-react";
+import { Plus, House } from "lucide-react";
 
 const breadcrumbs = [
-    { href: route("app"), label: <MdHome className="w-6 h-6" /> },
+    { href: route("app"), label: <House className="w-5 h-5" /> },
     { href: route("manage.index"), label: "Centres d'administration" },
     { label: "Gestion d'unité" },
 ];
@@ -33,14 +30,16 @@ const Index: React.FC<{ units: Pagination<Unit> }> = ({ units }) => {
                         </Heading>
 
                         <Text className={"max-w-7xl"}>
-                            Votre modèle de tableau de bord de gestion d'accées.
+                            Voici la liste de toutes les unités enregistrées .
+                            Vous pouvez visualiser les détails de chaque unité,
+                            et accéder aux options pour modifier ou supprimer les unités existantes.
                         </Text>
                     </div>
 
                     <Button asChild>
                         <Link href={route("manage.unit.create")}>
                             <Plus className="w-4 h-4 mr-2" />
-                            Ajouter
+                            Ajouter Unité
                         </Link>
                     </Button>
                 </div>

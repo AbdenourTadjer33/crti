@@ -1,6 +1,4 @@
 import React from "react";
-import { Pagination as PaginationType, Unit } from "@/types";
-import { columnDef } from "@/Features/Manage/Unit/Division/columns";
 import {
     getCoreRowModel,
     getExpandedRowModel,
@@ -25,38 +23,22 @@ import {
 } from "@/Components/ui/tooltip";
 import { Button, buttonVariants } from "@/Components/ui/button";
 import { IoMdOptions } from "react-icons/io";
-import { Division } from "@/types/division";
-import { Link } from "@inertiajs/react";
-import { Plus } from "lucide-react";
-import { cn } from "@/Utils/utils";
+import { columnDef } from "./Columns";
+import { User } from "@/types";
 
-const Table: React.FC<{ divisions: Division[] }> = ({ divisions }) => {
-    // const finalData = React.useMemo(() => divisions.data, [divisions.data]);
-    const finalData = React.useMemo(() => divisions, [divisions]);
+const Table: React.FC<{ users: User[] }> = ({ users }) => {
+    const finalData = React.useMemo(() => users, [users]);
     const finalColumnDef = React.useMemo(() => columnDef, []);
 
     const table = useReactTable({
         columns: finalColumnDef,
         data: finalData ?? [],
         getCoreRowModel: getCoreRowModel(),
-        getRowId: (row) => row.id,
+        // getRowId: (row) => row.id,
         getExpandedRowModel: getExpandedRowModel(),
     });
 
     return (
-        <>
-            <div className="flex justify-end">
-                <Link
-                    href={route(
-                        "manage.unit.division.create",
-                        route().params.unit as string
-                    )}
-                    className={cn(buttonVariants(), "sm:hidden justify-between gap-2")}
-                >
-                    <Plus className="w-4 h-4" />
-                    Ajouter divisions
-                </Link>
-            </div>
             <TableWraper>
                 <div className="p-4 flex justify-between gap-2">
                     <div className="relative sm:w-80">
@@ -66,16 +48,6 @@ const Table: React.FC<{ divisions: Division[] }> = ({ divisions }) => {
                         <Input placeholder="Search" className="pl-10" />
                     </div>
                     <div className="flex items-center gap-2">
-                        <Link
-                            href={route(
-                                "manage.unit.division.create",
-                                route().params.unit as string
-                            )}
-                            className={cn(buttonVariants(), "sm:flex hidden justify-between gap-2")}
-                        >
-                            <Plus className="w-4 h-4" />
-                            Ajouter divisions
-                        </Link>
 
                         <DropdownMenu>
                             <TooltipProvider>
@@ -135,7 +107,7 @@ const Table: React.FC<{ divisions: Division[] }> = ({ divisions }) => {
                     }}
                 />
             </TableWraper>
-        </>
+
     );
 };
 

@@ -1,10 +1,8 @@
 import * as React from "react";
 import {
     HeaderSelecter,
-    RowExpander,
     RowSelecter,
 } from "@/Components/DataTable";
-import { AlertDialogHeader } from "@/Components/ui/alert-dialog";
 import { Button } from "@/Components/ui/button";
 import {
     Dialog,
@@ -30,7 +28,7 @@ import { Division } from "@/types/division";
 import { router } from "@inertiajs/react";
 import { createColumnHelper } from "@tanstack/react-table";
 import dayjs from "dayjs";
-import { MoreHorizontal } from "lucide-react";
+import { ArrowRightCircle, MoreHorizontal } from "lucide-react";
 import { FaInfoCircle } from "react-icons/fa";
 import { MdDelete, MdEdit } from "react-icons/md";
 import { Link } from "@inertiajs/react";
@@ -42,13 +40,6 @@ export const columnDef = [
         id: "selecter",
         header: ({ table }) => <HeaderSelecter table={table} />,
         cell: ({ row }) => <RowSelecter row={row} />,
-        enableHiding: false,
-        enableSorting: false,
-    }),
-
-    columnHelper.display({
-        id: "expander",
-        cell: ({ row }) => <RowExpander row={row} />,
         enableHiding: false,
         enableSorting: false,
     }),
@@ -69,7 +60,7 @@ export const columnDef = [
     }),
 
     columnHelper.accessor("createdAt", {
-        header: "créer le",
+        header: "créer",
         cell: ({ getValue }) => (
             <TooltipProvider>
                 <Tooltip>
@@ -85,10 +76,9 @@ export const columnDef = [
     }),
 
     columnHelper.accessor("updatedAt", {
-        header: "modifier le",
-        cell: ({ getValue }) => {
-
-            return <TooltipProvider>
+        header: "modifier",
+        cell: ({ getValue }) => (
+            <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger>
                         {dayjs(getValue()).fromNow()}
@@ -97,8 +87,8 @@ export const columnDef = [
                         <p>{dayjs(getValue()).format("DD-MM-YYYY HH:mm:ss")}</p>
                     </TooltipContent>
                 </Tooltip>
-            </TooltipProvider>;
-        },
+            </TooltipProvider>
+        ),
     }),
     columnHelper.display({
         id: "actions",
@@ -137,6 +127,18 @@ const Actions = ({ id }: { id: string }) => {
                     onCloseAutoFocus={(e) => e.preventDefault()}
                     loop
                 >
+                    <DropdownMenuItem asChild>
+                        <Link
+                            href={route("manage.unit.division.show", {
+                                unit: route().params.unit as string,
+                                division: id,
+                            })}
+                        >
+                            <ArrowRightCircle className="w-4 h-4 mr-2" />
+                            voir
+                        </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
                         <Link
                             href={route("manage.unit.division.edit", {

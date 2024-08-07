@@ -12,20 +12,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Manage\DivisionResource;
 use App\Http\Requests\Manage\Division\StoreDivisionRequest;
 use App\Http\Requests\Manage\Division\UpdateDivisionRequest;
+use App\Http\Resources\Manage\UnitResource;
+use App\Http\Resources\UserDivisionsResource;
 
 class UnitDivisionController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(Unit $unit)
-    {
-        return Inertia::render('Manage/Unit/Division/Index', [
-            "unit" => fn () => $unit,
-            'divisions' => fn () => DivisionResource::collection($unit->divisions()->paginate()),
-        ]);
-    }
-
     /**
      * Show the form for creating a new resource.
      */
@@ -41,31 +32,28 @@ class UnitDivisionController extends Controller
      */
     public function store(StoreDivisionRequest $request, Unit $unit)
     {
-
-        // dd($request->all());
-
         /** @var Division */
         $division = $unit->divisions()->create([
             'name' => $request->input('name'),
             'abbr' => $request->input('abbr'),
             'description' => $request->input('description'),
         ]);
-        // $members = User::withTrashed()->whereIn('uuid', collect($request->members)->map(fn ($member) => $member['uuid']))->get(['id', 'uuid']);
-        // $division->users()->attach();
 
-            $members = collect($request->members)->mapWithKeys(function ($member) {
-                return [$member['uuid'] => $member['grade'] ?? null];
-            });
+        $members = collect($request->members)->mapWithKeys(function ($member) {
+            return [$member['uuid'] => $member['grade'] ?? null];
+        });
 
-            $users = User::withTrashed()->whereIn('uuid', $members->keys())->get(['id', 'uuid']);
+        $users = User::withTrashed()->whereIn('uuid', $members->keys())->get(['id', 'uuid']);
 
-            $pivotData = $users->mapWithKeys(function ($user) use ($members) {
-                return [$user->id => ['grade' => $members[$user->uuid]]];
-            });
+        $pivotData = $users->mapWithKeys(function ($user) use ($members) {
+            return [$user->id => ['grade' => $members[$user->uuid]]];
+        });
 
-            $division->users()->attach($pivotData);
+        $division->users()->attach($pivotData);
 
-        return redirect()->route('manage.unit.index', $unit)->with('alert', [
+        return redirect()->route('manage.unit.division.show', [
+            'unit' => $unit->id,
+            'division' => $division->id])->with('alert', [
             'status' => 'succes',
             'message' => 'Division mise a jour avec succes'
         ]);
@@ -74,10 +62,14 @@ class UnitDivisionController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Unit $unit, Division $division)
     {
-        //
+        return Inertia::render('Manage/Unit/Division/Show', [
+            'unit' => new UnitResource($unit->load('divisions')),
+            'division' => new DivisionResource($division->load('users')),
+        ]);
     }
+
 
     /**
      * Show the form for editing the specified resource.
@@ -115,9 +107,9 @@ class UnitDivisionController extends Controller
 
             $division->users()->sync($pivotData);
         });
-        return redirect()->route('manage.unit.division.index', [
+        return redirect()->route('manage.unit.division.show', [
             'unit' => $unit->id,
-        ])->with('alert', [
+            'division' => $division->id])->with('alert', [
             'status' => 'succes',
             'message' => 'Division mise a jour avec succes'
         ]);

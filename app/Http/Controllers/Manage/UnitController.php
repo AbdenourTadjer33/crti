@@ -17,8 +17,9 @@ class UnitController extends Controller
      */
     public function index()
     {
+
         return Inertia::render('Manage/Unit/Index', [
-            'units' => fn () => UnitResource::collection(Unit::with('divisions')->paginate(15)),
+            'units' => fn () => UnitResource::collection(Unit::withCount('divisions')->paginate(15)),
         ]);
     }
 
@@ -53,9 +54,11 @@ class UnitController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Unit $unit)
     {
-        dd("show unit with $id");
+        return Inertia::render('Manage/Unit/Show', [
+            'unit' => new UnitResource($unit->load('divisions')),
+        ]);
     }
 
     /**

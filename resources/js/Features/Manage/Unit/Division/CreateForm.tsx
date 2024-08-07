@@ -1,14 +1,12 @@
 import React from "react";
-import { useForm, usePage } from "@inertiajs/react";
+import { Link, useForm, usePage } from "@inertiajs/react";
 import { Button } from "@/Components/ui/button";
 import { FormWrapper } from "@/Components/ui/form";
 import { Label } from "@/Components/ui/label";
 import { Input, InputError } from "@/Components/ui/input";
 import { Textarea } from "@/Components/ui/textarea";
-import { useUser } from "@/Hooks/use-user";
 import { useDebounce } from "@/Hooks/use-debounce";
 import { User } from "@/types";
-import { CreateProjectContext } from "@/Contexts/Project/create-project-context";
 import { useEventListener } from "@/Hooks/use-event-listener";
 import { skipToken, useQuery } from "@tanstack/react-query";
 import { searchUsers } from "@/Services/api/users";
@@ -26,55 +24,8 @@ import { LoaderCircle, Plus, X } from "lucide-react";
 import { Kbd } from "@/Components/ui/kbd";
 import { Skeleton } from "@/Components/ui/skeleton";
 import Avatar from "@/Components/Avatar";
+import { isAnyKeyBeginWith } from "@/Libs/Validation/utils";
 
-// export interface UnitForm {
-//     name: string;
-//     abbr: string;
-//     description: string;
-//     address: string;
-//     divisions: DivisionForm[];
-//     infrastructures: InfrastructureForm[];
-// }
-
-// export interface DivisionForm {
-//     name: string;
-//     abbr: string;
-//     description: string;
-//     // members: MemberForm[];
-//     // valid?: true;
-// }
-
-// export interface MemberForm extends User {
-//     grade: string;
-// }
-
-// export interface InfrastructureForm {
-//     name: string;
-//     state: string;
-//     description: string;
-//     valid?: boolean;
-// }
-
-// export const CreateUnitContext = React.createContext<{
-//     data: DivisionForm;
-//     errors: Partial<Record<keyof DivisionForm | string, string>>;
-//     processing: boolean;
-//     setData: any;
-//     clearErrors: (...fields: (keyof DivisionForm)[]) => void;
-// }>({
-//     data: {
-//         name: "",
-//         description: "",
-//         abbr: "",
-//         // address: "",
-//         // divisions: [],
-//         // infrastructures: [],
-//     },
-//     errors: {},
-//     setData: () => {},
-//     clearErrors: () => {},
-//     processing: false,
-// });
 interface CreateFormProps {
     unit: any;
 }
@@ -123,8 +74,8 @@ const CreateForm: React.FC<CreateFormProps> = ({ unit }) => {
             className="space-y-4 md:space-y-8"
             onSubmit={submitHandler}
         >
-            <div className="grid grid-cols-3 gap-4">
-                <div className="space-y-1 col-span-2">
+            <div className="grid sm:grid-cols-3 gap-4">
+                <div className="space-y-1 sm:col-span-2 col-span-3">
                     <Label>Nom de la division</Label>
                     <Input
                         value={data.name}
@@ -136,7 +87,7 @@ const CreateForm: React.FC<CreateFormProps> = ({ unit }) => {
                     <InputError message={errors.name} />
                 </div>
 
-                <div className="space-y-1 col-span-1">
+                <div className="space-y-1 sm:col-span-1 col-span-3">
                     <Label>Abréviation</Label>
                     <Input
                         value={data.abbr}
@@ -167,18 +118,24 @@ const CreateForm: React.FC<CreateFormProps> = ({ unit }) => {
                     />
                 </div>
 
-                <div className="space-y-2.5 col-span-3">
-                    {data.members.map((member, idx) => (
-                        <div key={idx} className="flex items-center gap-4">
-                            <Button
-                                type="button"
-                                variant="outline"
-                                className="justify-start basis-2/5"
-                            >
-                                {member.name}
-                            </Button>
+                {!!data.members.length && (
+                    <div className="bg-gray-100 rounded p-2 space-y-2.5 col-span-3">
+                        {isAnyKeyBeginWith(errors, "members") && (
+                            <div className="text-red-500">
+                                Vous devez remplire tous les chames grades*
+                            </div>
+                        )}
 
-                            <div>
+                        {data.members.map((member, idx) => (
+                            <div key={idx} className="flex items-center gap-4">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    className="justify-start basis-2/5 sm:text-base text-xs"
+                                >
+                                    {member.name}
+                                </Button>
+
                                 <Input
                                     placeholder="grade"
                                     value={member.grade}
@@ -191,29 +148,37 @@ const CreateForm: React.FC<CreateFormProps> = ({ unit }) => {
                                         clearErrors(`members.${idx}.grade`);
                                     }}
                                 />
-                                <InputError
-                                    message={errors[`members.${idx}.grade`]}
-                                />
-                            </div>
 
-                            <Button
-                                variant="destructive"
-                                className="items-center"
-                                onClick={() => removeMember(member.uuid)}
-                            >
-                                <X className="h-4 w-4 sm:mr-2" />
-                                <span className="hidden sm:block">
-                                    Supprimer
-                                </span>
-                            </Button>
-                        </div>
-                    ))}
-                </div>
+                                <Button
+                                    variant="destructive"
+                                    className="items-center"
+                                    size="sm"
+                                    onClick={() => removeMember(member.uuid)}
+                                >
+                                    <X className="h-4 w-4 sm:mr-2" />
+                                    <span className="hidden sm:block">
+                                        Supprimer
+                                    </span>
+                                </Button>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
-            <Button disabled={processing} className="w-full">
-                Créer
-            </Button>
-            <pre>{JSON.stringify({ errors, data }, null, 2)}</pre>
+
+            <div className="mx-auto max-w-lg flex flex-col-reverse sm:flex-row items-center sm:gap-4 gap-2">
+                <Button
+                    variant="destructive"
+                    disabled={processing}
+                    className="w-full"
+                    asChild
+                >
+                    <Link href={route("manage.unit.show", unit)}>Annuler</Link>
+                </Button>
+                <Button disabled={processing} className="w-full">
+                    Créer
+                </Button>
+            </div>
         </FormWrapper>
     );
 };
@@ -289,31 +254,6 @@ const SearchMembers = ({ addMember, members }: SearchMemberProps) => {
                     </CommandEmpty>
                     {isSuccess && (
                         <CommandGroup className="p-0">
-                            {/* {data.map((user) => (
-                                <CommandItem
-                                    key={user.uuid}
-                                    value={user.uuid}
-                                    className="py-2.5 grid sm:grid-cols-3 grid-cols-2 gap-4"
-                                >
-                                    <div className="inline-flex items-center space-x-2">
-                                        <Avatar size="sm" name={user.name} />
-                                        <div>{user.name}</div>
-                                    </div>
-                                    <div className="hidden sm:block">
-                                        {user.email}
-                                    </div>
-                                    <div className="flex justify-end">
-                                        <Button
-                                            type="button"
-                                            className="justify-between items-center"
-                                            onClick={() => addMember(user)}
-                                        >
-                                            Ajouter
-                                            <Plus className="h-4 w-4 ml-2" />
-                                        </Button>
-                                    </div>
-                                </CommandItem>
-                            ))} */}
                             {data.map((user) =>
                                 members.some(
                                     (member) => member.uuid == user.uuid
@@ -348,37 +288,6 @@ const SearchMembers = ({ addMember, members }: SearchMemberProps) => {
                             )}
                         </CommandGroup>
                     )}
-                    {/* {!!members.length && (
-                        <CommandGroup className="p-0">
-                            {members.map((member, idx) => (
-                                <CommandItem
-                                    key={idx}
-                                    value={member.uuid}
-                                    className="py-2.5 grid sm:grid-cols-3 grid-cols-2 gap-4"
-                                >
-                                    <div className="inline-flex items-center space-x-2">
-                                        <Avatar size="sm" name={member.name} />
-                                        <div className="">{member.name}</div>
-                                    </div>
-                                    <div className="hidden sm:block">
-                                        {member.email}
-                                    </div>
-                                    <div className="flex justify-end">
-                                        <Button
-                                            variant="destructive"
-                                            className="justify-between items-center"
-                                            // @ts-ignore
-                                            onClick={() => removeMember(member)}
-                                            disabled={uuid === member.uuid}
-                                        >
-                                            Supprimer
-                                            <X className="h-4 w-4 ml-2" />
-                                        </Button>
-                                    </div>
-                                </CommandItem>
-                            ))}
-                        </CommandGroup>
-                    )} */}
                 </CommandList>
             </Command>
         </div>

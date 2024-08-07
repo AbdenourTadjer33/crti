@@ -1,70 +1,20 @@
 import React from "react";
-import { useForm } from "@inertiajs/react";
+import { Link, useForm } from "@inertiajs/react";
 import { Button } from "@/Components/ui/button";
 import { FormWrapper } from "@/Components/ui/form";
 import { Label } from "@/Components/ui/label";
 import { Input, InputError } from "@/Components/ui/input";
 import { Textarea } from "@/Components/ui/textarea";
 
-// export interface UnitForm {
-//     name: string;
-//     abbr: string;
-//     description: string;
-//     address: string;
-//     divisions: DivisionForm[];
-//     infrastructures: InfrastructureForm[];
-// }
-
-// export interface DivisionForm {
-//     name: string;
-//     abbr: string;
-//     description: string;
-//     members: MemberForm[];
-//     valid?: true;
-// }
-
-// export interface MemberForm extends User {
-//     grade: string;
-// }
-
-// export interface InfrastructureForm {
-//     name: string;
-//     state: string;
-//     description: string;
-//     valid?: boolean;
-// }
-
-// export const CreateUnitContext = React.createContext<{
-//     data: UnitForm;
-//     errors: Partial<Record<keyof UnitForm | string, string>>;
-//     processing: boolean;
-//     setData: any;
-//     clearErrors: (...fields: (keyof UnitForm)[]) => void;
-// }>({
-//     data: {
-//         name: "",
-//         description: "",
-//         abbr: "",
-//         address: "",
-//         divisions: [],
-//         infrastructures: [],
-//     },
-//     errors: {},
-//     setData: () => {},
-//     clearErrors: () => {},
-//     processing: false,
-// });
-
 const CreateForm = () => {
-    const { data, setData, errors, processing, post, clearErrors } =
-        useForm({
-            name: "",
-            abbr: "",
-            description: "",
-            address: "",
-            divisions: [],
-            infrastructures: [],
-        });
+    const { data, setData, errors, processing, post, clearErrors } = useForm({
+        name: "",
+        abbr: "",
+        description: "",
+        address: "",
+        divisions: [],
+        infrastructures: [],
+    });
 
     const submitHandler = (e: React.FormEvent) => {
         e.preventDefault();
@@ -75,9 +25,12 @@ const CreateForm = () => {
     };
 
     return (
-        <FormWrapper className="space-y-4 md:space-y-8" onSubmit={submitHandler}>
+        <FormWrapper
+            className="space-y-4 md:space-y-8"
+            onSubmit={submitHandler}
+        >
             <div className="grid grid-cols-3 gap-4">
-                <div className="space-y-1 col-span-2">
+                <div className="space-y-1 sm:col-span-2 col-span-3">
                     <Label>Nom de l'unité</Label>
                     <Input
                         onChange={(e) => {
@@ -89,7 +42,7 @@ const CreateForm = () => {
                     <InputError message={errors.name} />
                 </div>
 
-                <div className="space-y-1 col-span-1">
+                <div className="space-y-1 sm:col-span-1 col-span-3">
                     <Label>Abréviation</Label>
                     <Input
                         value={data.abbr}
@@ -125,9 +78,15 @@ const CreateForm = () => {
                     <InputError message={errors.description} />
                 </div>
             </div>
-            <Button className="w-full">
-                Créer
-            </Button>
+
+            <div className="mx-auto max-w-lg flex flex-col-reverse sm:flex-row items-center sm:gap-4 gap-2">
+                <Button variant="destructive" className="w-full" asChild>
+                    <Link href={route("manage.unit.index")}>
+                        Annuler
+                    </Link>
+                </Button>
+                <Button className="w-full">Créer</Button>
+            </div>
         </FormWrapper>
     );
 };

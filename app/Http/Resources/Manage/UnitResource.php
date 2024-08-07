@@ -22,7 +22,8 @@ class UnitResource extends JsonResource
             'address' => $this->address,
             'createdAt' => $this->created_at,
             'updatedAt' => $this->updated_at,
-            'divisions' => $this->divisions,
+            'divisions' => DivisionResource::collection($this->whenLoaded('divisions')),
+            'divisionCount' => $this->when($this->divisions_count !== null, $this->divisions_count),
         ];
     }
 }

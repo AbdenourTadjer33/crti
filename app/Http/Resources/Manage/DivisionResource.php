@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Manage;
 
+use App\Http\Resources\UserDivisionsResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -21,7 +22,7 @@ class DivisionResource extends JsonResource
             'description' => $this->description,
             'createdAt' => $this->created_at,
             'updatedAt' => $this->updated_at,
-
+            'users' => UserResource::collection($this->whenLoaded('users')),
         ];
     }
 }

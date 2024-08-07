@@ -1,11 +1,7 @@
 import * as React from "react";
 import { createColumnHelper } from "@tanstack/react-table";
 import { Unit } from "@/types";
-import {
-    HeaderSelecter,
-    RowExpander,
-    RowSelecter,
-} from "@/Components/DataTable";
+import { HeaderSelecter, RowSelecter } from "@/Components/DataTable";
 import {
     Tooltip,
     TooltipContent,
@@ -21,9 +17,15 @@ import {
     DropdownMenuTrigger,
 } from "@/Components/ui/dropdown-menu";
 import { Button } from "@/Components/ui/button";
-import { MoreHorizontal } from "lucide-react";
+import {
+    ArrowRightCircle,
+    Info,
+    MoreHorizontal,
+    Pencil,
+    SquareArrowOutUpRight,
+    Trash,
+} from "lucide-react";
 import { Link, router } from "@inertiajs/react";
-import { MdDelete, MdEdit } from "react-icons/md";
 import {
     Dialog,
     DialogContent,
@@ -31,23 +33,14 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/Components/ui/dialog";
-import { FaInfoCircle } from "react-icons/fa";
 
 const columnHelper = createColumnHelper<Unit>();
 
 export const columnDef = [
-
     columnHelper.display({
         id: "selecter",
         header: ({ table }) => <HeaderSelecter table={table} />,
         cell: ({ row }) => <RowSelecter row={row} />,
-        enableHiding: false,
-        enableSorting: false,
-    }),
-
-    columnHelper.display({
-        id: "expander",
-        cell: ({ row }) => <RowExpander row={row} />,
         enableHiding: false,
         enableSorting: false,
     }),
@@ -60,15 +53,27 @@ export const columnDef = [
         id: "unit",
         header: "unité",
         cell: ({ row }) => (
-            <>
+            <Link
+                href={route("manage.unit.show", row.id)}
+                className="inline-flex items-center hover:text-blue-600 duration-100"
+            >
                 {row.original.name}{" "}
                 {row.original.abbr ? `- ${row.original.abbr} -` : null}
-            </>
+                <SquareArrowOutUpRight className="h-4 w-4 ml-1.5" />
+            </Link>
         ),
     }),
 
+    columnHelper.accessor("address", {
+        header: "Adresse",
+    }),
+
+    columnHelper.accessor("divisionCount", {
+        header: "nombre de divisions",
+    }),
+
     columnHelper.accessor("createdAt", {
-        header: "créer le",
+        header: "créer",
         cell: ({ getValue }) => (
             <TooltipProvider>
                 <Tooltip>
@@ -84,7 +89,7 @@ export const columnDef = [
     }),
 
     columnHelper.accessor("updatedAt", {
-        header: "modifier le",
+        header: "modifier",
         cell: ({ getValue }) => (
             <TooltipProvider>
                 <Tooltip>
@@ -134,15 +139,15 @@ const Actions = ({ id }: { id: string }) => {
                     loop
                 >
                     <DropdownMenuItem asChild>
-                        <Link href={route("manage.unit.division.index", { unit: id })}>
-                            <MdEdit className="w-4 h-4 mr-2" />
-                            Gerer les division
+                        <Link href={route("manage.unit.show", id)}>
+                            <ArrowRightCircle className="w-4 h-4 mr-2" />
+                            Voir
                         </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
                         <Link href={route("manage.unit.edit", { unit: id })}>
-                            <MdEdit className="w-4 h-4 mr-2" />
+                            <Pencil className="w-4 h-4 mr-2" />
                             Modifier
                         </Link>
                     </DropdownMenuItem>
@@ -150,7 +155,7 @@ const Actions = ({ id }: { id: string }) => {
                     <DropdownMenuItem
                         onClick={() => setBeforeDeleteModal(true)}
                     >
-                        <MdDelete className="w-4 h-4 mr-2 text-red-500 dark:text-red-600" />
+                        <Trash className="w-4 h-4 mr-2 text-red-500 dark:text-red-600" />
                         Supprimer
                     </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -163,7 +168,7 @@ const Actions = ({ id }: { id: string }) => {
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle className="inline-flex items-center gap-2">
-                            <FaInfoCircle className="w-6 h-6 text-red-500 dark:text-red-600" />
+                            <Info className="w-6 h-6 text-red-500 dark:text-red-600" />
                             Etes-vous absolument sùr?
                         </DialogTitle>
                     </DialogHeader>

@@ -236,7 +236,7 @@ const SearchMembers = ({ addMember, removeMember }: SearchMemberProps) => {
                                         <Button
                                             variant="destructive"
                                             className="justify-between items-center"
-                                            onClick={() => removeMember(membe)}
+                                            onClick={() => removeMember(member)}
                                             disabled={uuid === member.uuid}
                                         >
                                             Supprimer
