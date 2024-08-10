@@ -58,7 +58,10 @@ class ProjectVersionController extends Controller implements HasMiddleware
     }
 
     /**
-     * This controller method is for saving project form data as the first version.
+     * Update all the project state by the coming data.
+     * Update the project current version by the project & project relations data.
+     * Finnaly reference this current version as the main project version.
+     * Send success response to the user
      */
     public function sync(Request $request)
     {
@@ -120,6 +123,23 @@ class ProjectVersionController extends Controller implements HasMiddleware
 
                 $task->users()->attach($members->whereIn('uuid', $request->input('tasks.{$i}.users')));
             }
+
+            $currentVersion = $project->currentVersion();
+
+            $currentVersion->update([
+                'model_data' => serialize($project->load([
+                    'division:id,unit_id,name,abbr',
+                    'division.unit:id,name,abbr',
+                    'user:id,uuid,first_name,last_name,email',
+                    'users:id,uuid,first_name,last_name,email',
+                    'tasks',
+                    'tasks.users:id,uuid,first_name,last_name,email'
+                ])->toArray()),
+                'reason' => "this represent the project confirmed first version",
+                'user_id' => $this->user->id,
+            ]);
+
+            $project->refVersionAsMain($currentVersion->id);
         });
 
         return redirect(route('project.index'))->with('alert', [
