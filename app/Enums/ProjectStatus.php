@@ -18,7 +18,7 @@ enum ProjectStatus
             throw new \InvalidArgumentException("Invalid project status key.");
         }
 
-        return trans("project::status.$key");
+        return trans("status.$key");
     }
 
     private static function isValidKey(string $key): bool
