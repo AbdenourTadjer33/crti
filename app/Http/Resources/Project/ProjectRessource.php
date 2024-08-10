@@ -21,18 +21,20 @@ class ProjectRessource extends JsonResource
                 'name' => $this->name,
                 'nature' => $this->nature,
                 'domains' => $this->domains,
-                'members' => $this->users->map(fn ($user) => [
-                    'uuid' => $user->uuid,
-                    'name' => $user->first_name . ' ' . $user->last_name,
-                    'isCreator' => $user->id === $this->user_id,
-                ])
+                'timeline' => [
+                    'from' => $this->date_begin,
+                    'to' => $this->date_end,
+                ],
+                'creator' => $this->when(!!$this->user, new ProjectMembersResource($this->user)),
+                'members' => ProjectMembersResource::collection($this->whenLoaded('users')),
+                'tasks' => ProjectTasksResource::collection($this->whenLoaded('tasks')),
+            ]),
+            'division' => $this->when(!!$this->division, [
+                'id' => $this->division?->id,
+                'name' => $this->division?->name,
             ]),
             'createdAt' => $this->created_at,
             'updatedAt' => $this->updated_at,
-            'division' => [
-                'id' => $this->division?->id,
-                'name' => $this->division?->name,
-            ],
         ];
     }
 }

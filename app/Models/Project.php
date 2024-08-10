@@ -2,14 +2,18 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Support\Arr;
 use Illuminate\Database\Eloquent\Model;
 use Modules\Versioning\Traits\Versionable;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Modules\Versioning\Models\Version;
+use phpDocumentor\Reflection\Types\Null_;
 
 class Project extends Model
 {
@@ -17,19 +21,41 @@ class Project extends Model
 
     protected $guarded = [];
 
+    protected $autoVersioning = false;
+
+    public $versionableRelations = ['division', 'user', 'users', 'tasks', 'tasks.users'];
+
     // protected $dontVersionFields = ['status'];
 
     // protected $keepOldVersions = 10;
 
-    // protected $versionableRelations = ['tasks', 'users'];
-
-    protected $autoVersioning = false;
-
     protected function casts(): array
     {
         return [
-            'domains' => 'array'
+            'domains' => 'array',
+            'version_info' => 'array',
         ];
+    }
+
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<int, string>
+     */
+    protected $hidden = [
+        'version_info',
+    ];
+
+    protected static function booted(): void
+    {
+        // init the project version_info attribute
+        static::creating(function (Project $project) {
+            $project->version_info = [
+                'main' => null,
+                'creation' => [],
+                'created' => [],
+            ];
+        });
     }
 
     /**
@@ -38,14 +64,14 @@ class Project extends Model
     protected function name(): Attribute
     {
         return Attribute::make(
-            get: fn (?string $value) => ucfirst($value),
+            get: fn(?string $value) => ucfirst($value),
         );
     }
 
     protected function nature(): Attribute
     {
         return Attribute::make(
-            get: fn (?string $value) => ucfirst($value),
+            get: fn(?string $value) => ucfirst($value),
         );
     }
 
@@ -143,7 +169,7 @@ class Project extends Model
             $userInstance = new \App\Models\User;
             return Collection::make(
                 array_map(
-                    fn ($user) => $userInstance->newInstance([], true)
+                    fn($user) => $userInstance->newInstance([], true)
                         ->setRawAttributes(
                             Arr::except($user, 'pivot'),
                             true
@@ -159,7 +185,7 @@ class Project extends Model
 
         $taskInstance = new \App\Models\Task;
         $tasks = Collection::make(array_map(
-            fn ($task) =>
+            fn($task) =>
             $taskInstance->newInstance([], true)
                 ->setRawAttributes(Arr::except($task, 'users'), true)
                 ->setRelation('users', $usersFn($task['users'])),
@@ -178,5 +204,99 @@ class Project extends Model
     {
         $model = $this->versions()->getQuery()->where('id', $this->last_confirmed_version_id)->first();
         return $getRelatedModel ? $model?->getModel() : $model;
+    }
+
+    public function getMainVersion($getRelatedModel = true)
+    {
+        $mainVersionId = $this->version_info['main'];
+
+        $version = $this->versions()->getQuery()->where('id', $mainVersionId)->first();
+
+        return $getRelatedModel ? $version?->getModel() : $version;
+    }
+
+    public function refVersionAsMain(int $version): bool
+    {
+        $this->unrefVersion($version);
+        $this->setAttribute('version_info->main', $version);
+        return $this->save();
+    }
+
+    public function refVersionAsCreation(int $version): bool
+    {
+        $this->unrefVersion($version);
+        $creation = $this->version_info['creation'] ?? [];
+        $creation[] = $version;
+        $this->setAttribute('version_info->creation', $creation);
+        return $this->save();
+    }
+
+    public function refVersionAsCreated(int $version): bool
+    {
+        $this->unrefVersion($version);
+        $created = $this->version_info['created'] ?? [];
+        $created[] = $version;
+        $this->setAttribute('version_info->created', $created);
+        return $this->save();
+    }
+
+    public function unrefVersion(int $version)
+    {
+        $versionInfo = $this->version_info;
+
+        if (isset($versionInfo['created']) && in_array($version, $versionInfo['created'])) {
+            $versionInfo['created'] = array_values(array_diff($versionInfo['created'], [$version]));
+        }
+
+        if (isset($versionInfo['creation']) && in_array($version, $versionInfo['creation'])) {
+            $versionInfo['creation'] = array_values(array_diff($versionInfo['creation'], [$version]));
+        }
+
+        $this->version_info = $versionInfo;
+    }
+
+    public function unrefVersionWithSaving(int $version): bool
+    {
+        $this->unrefVersion($version);
+        return $this->save();
+    }
+
+    /**
+     * WITHOUT SAVING
+     */
+    public function syncVersion(?int $main = null, ?array $onCreation = null, ?array $onCreated = null)
+    {
+        if ($main !== null) {
+            $this->version_info['main'] = $main;
+        }
+
+        if ($onCreation !== null) {
+            $this->version_info['creation'] = array_filter($onCreation);
+        }
+
+        if ($onCreated !== null) {
+            $this->version_info['created'] = array_filter($onCreated);
+        }
+    }
+
+    public function clearMainVersion()
+    {
+        $this->version_info['main'] = null;
+    }
+
+    /**
+     * WITHOUT SAVING
+     */
+    public function clearCreatedVersion()
+    {
+        $this->syncVersion(onCreated: []);
+    }
+
+    /**
+     * WITHOUT SAVING
+     */
+    public function clearCreatingVersion()
+    {
+        $this->syncVersion(onCreation: []);
     }
 }

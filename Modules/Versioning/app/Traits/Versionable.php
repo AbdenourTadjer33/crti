@@ -2,6 +2,7 @@
 
 namespace Modules\Versioning\Traits;
 
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Modules\Versioning\Models\Version;
 use Illuminate\Support\Facades\Auth;
 
@@ -93,7 +94,7 @@ trait Versionable
      * Return all versions of the model.
      * @return MorphMany
      */
-    public function versions()
+    public function versions(): MorphMany
     {
         return $this->morphMany($this->getVersionClass(), 'versionable');
     }

@@ -5,12 +5,14 @@ namespace Modules\Versioning\Models;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Version extends Model
 {
-    protected $table = "versions";
+    use HasFactory;
 
     protected $guarded = [];
+    protected $table = "versions";
 
     /**
      * Sets up the relation
@@ -32,7 +34,7 @@ class Version extends Model
 
     /**
      * Return the user responsible for this version
-     * @return mixed
+     * @return \App\Models\User|null
      */
     public function getResponsibleUserAttribute()
     {
@@ -42,7 +44,7 @@ class Version extends Model
     }
 
     /**
-     * Return the versioned  model
+     * Return the versioned model
      * @return Model
      */
     public function getModel()
@@ -51,13 +53,27 @@ class Version extends Model
             ? stream_get_contents($this->model_data, -1, 0)
             : $this->model_data;
 
+        $modelData = unserialize($modelData);
+
         $className = self::getActualClassNameForMorph($this->versionable_type);
-        $model = new $className();
-        $model->unguard();
-        $model->fill(unserialize($modelData));
-        // $model->setTable($model->getTable());
-        $model->exists = true;
+
+        /** @var \Illuminate\Database\Eloquent\Model $modelInstance */
+        $modelInstance = new $className();
+
+        $relations = $modelInstance->versionableRelations ?? [];
+
+        $attributes = collect($modelData)->except($relations)->toArray();
+
+        $modelInstance->unguard();
+
+        $model = $modelInstance->newInstance($attributes, true);
+
         $model->reguard();
+
+        if (count($relations) && method_exists($className, 'loadRelationsToVersion')) {
+            return $model->loadRelationsToVersion(collect($modelData)->only($relations)->toArray());
+        }
+
         return $model;
     }
 

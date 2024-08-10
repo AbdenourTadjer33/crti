@@ -17,7 +17,6 @@ return new class extends Migration
             $table->foreignId('division_id')->nullable()->constrained('divisions', 'id')->nullOnDelete();
             $table->foreignId('user_id')->nullable()->constrained('users', 'id')->nullOnDelete();
             $table->string('status');
-
             $table->string('name')->nullable();
             $table->string('nature')->nullable();
             $table->json('domains')->nullable();
@@ -26,7 +25,7 @@ return new class extends Migration
             $table->longText('description')->nullable();
             $table->longText('goals')->nullable();
             $table->longText('methodology')->nullable();
-
+            $table->json('version_info')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
@@ -40,14 +39,14 @@ return new class extends Migration
         });
 
         Schema::create('project_existing_resource', function (Blueprint $table) {
-            $table->foreignId('project_id')->constrained('projects', 'id');
-            $table->foreignId('resource_id')->constrained('resources', 'id');
+            $table->foreignId('project_id')->constrained('projects', 'id')->cascadeOnDelete();
+            $table->foreignId('resource_id')->constrained('resources', 'id')->cascadeOnDelete();
             $table->primary(['project_id', 'resource_id']);
         });
 
         Schema::create('members', function (Blueprint $table) {
-            $table->foreignId('project_id')->constrained('projects', 'id');
-            $table->foreignId('user_id')->constrained('users', 'id');
+            $table->foreignId('project_id')->constrained('projects', 'id')->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained('users', 'id')->cascadeOnDelete();
             $table->primary(['project_id', 'user_id']);
         });
 
@@ -64,8 +63,8 @@ return new class extends Migration
         });
 
         Schema::create('task_user', function (Blueprint $table) {
-            $table->foreignId('task_id')->constrained('tasks', 'id');
-            $table->foreignId('user_id')->constrained('users', 'id');
+            $table->foreignId('task_id')->constrained('tasks', 'id')->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained('users', 'id')->cascadeOnDelete();
             $table->primary(['task_id', 'user_id']);
         });
 

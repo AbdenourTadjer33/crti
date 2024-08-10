@@ -17,13 +17,14 @@ return new class extends Migration
             $table->string('first_name', 64);
             $table->string('last_name', 64);
             $table->date('dob')->nullable();
-            $table->string('sex', )->nullable();
+            $table->string('sex',)->nullable();
             $table->string('email', 128)->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->boolean('status')->default(false);
             $table->rememberToken();
             $table->foreignId('unit_id')->nullable()->constrained('units', 'id')->nullOnDelete();
+            $table->timestamp('last_activity')->nullable()->index();
             $table->timestamps();
             $table->softDeletes();
         });

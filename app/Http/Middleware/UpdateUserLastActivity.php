@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
 class UpdateUserLastActivity
@@ -23,6 +24,10 @@ class UpdateUserLastActivity
      */
     public function terminate(Request $request, Response $response): void
     {
-        dd("test terminate middleware");
+        if (!auth()->check()) return;
+
+        $user = $request->user();
+        $user->last_activity = now();
+        $user->save();
     }
 }

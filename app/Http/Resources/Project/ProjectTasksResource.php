@@ -23,7 +23,7 @@ class ProjectTasksResource extends JsonResource
             'description' => $this->description,
             'result' => $this->result,
             'priority' => $this->priority,
-            'assigned' => ProjectMembersResource::collection($this->whenLoaded('users')),
+            'users' => ProjectMembersResource::collection($this->whenLoaded('users')),
         ];
     }
 }

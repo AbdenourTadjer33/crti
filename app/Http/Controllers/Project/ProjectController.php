@@ -6,15 +6,13 @@ use App\Models\User;
 use Inertia\Inertia;
 use App\Models\Project;
 use Nette\Utils\Random;
-use App\Models\Division;
 use App\Enums\ProjectStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Cache;
 use App\Http\Resources\Project\ProjectRessource;
-use Illuminate\Database\Eloquent\Builder;
 use App\Http\Requests\Project\StoreRequest;
+use Modules\Versioning\Models\Version;
 
 class ProjectController extends Controller
 {
@@ -34,7 +32,7 @@ class ProjectController extends Controller
             });
 
             /** @var \Illuminate\Database\Eloquent\Collection|\App\Models\Project[] */
-            $projects = $creatorProjects->union($memberProjects)->with(['division:id,name,abbr'])->latest()->get();
+            $projects = $creatorProjects->union($memberProjects)->with(['division:id,name'])->latest()->get();
 
             $projectInCreation =  $projects->where('user_id', $this->user->id)->where('status', ProjectStatus::creation->name);
             $rest = $projects->whereNotIn('id', $projectInCreation->pluck('id'))->load('users:id,uuid,first_name,last_name');
@@ -45,12 +43,10 @@ class ProjectController extends Controller
             ];
         };
 
-        // return $projectsFn();
-
         return Inertia::render('Project/Index', [
             'data' => $projectsFn,
             'userDivisions' => Inertia::lazy(fn () => $this->user->divisions()->get()),
-        ]);
+        ]); 
     }
 
     public function store(StoreRequest $request)
@@ -59,8 +55,8 @@ class ProjectController extends Controller
         $project = DB::transaction(function () use ($request) {
             return Project::create([
                 'code' => Random::generate(),
-                'status' => ProjectStatus::creation->name,
-                'user_id' => $request->user()->id,
+                'status' => 'creation',
+                'user_id' => $this->user->id,
                 'division_id' => $request->input('division'),
             ]);
         });
@@ -70,6 +66,7 @@ class ProjectController extends Controller
 
     public function show(Request $request)
     {
+        /** @var Project */
         $project = Project::query()
             ->where('code', $request->route('project'))
             ->whereNot('status', ProjectStatus::creation->name)
@@ -77,8 +74,12 @@ class ProjectController extends Controller
 
         if (!$project) return abort(404, 'Sorry, the page you are looking for could not be found.');
 
+        // return ProjectRessource::collection($project->versions->map(fn (Version $version) => $version->getModel()));
+
         return Inertia::render('Project/Show', [
+            'canEditProject' => fn () => $project->canHaveNewVersions(),
             'project' => $project,
+            'versions' => ProjectRessource::collection($project->versions->map(fn (Version $version) => $version->getModel())),
         ]);
     }
 }
