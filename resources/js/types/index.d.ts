@@ -17,16 +17,16 @@ export type Unit = {
     abbr?: string;
     description?: string;
     address?: string;
-    city?: string;
-    country?: string;
     createdAt?: string;
     updatedAt?: string;
     divisions?: Division[];
+    divisionCount?: number;
 };
 
 export type Division = {
     id?: string;
     name: string;
+    abbr: string
     description?: string;
 };
 
@@ -43,7 +43,12 @@ export type User = {
     deletedAt?: string;
     permissions?: Permission[];
     roles?: Role[];
-    divisions?: [];
+    division?:
+    {
+        grade: string;
+        addedAt: string;
+    }
+    ;
 };
 
 export type Permission = {

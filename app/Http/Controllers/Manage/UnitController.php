@@ -3,14 +3,12 @@
 namespace App\Http\Controllers\Manage;
 
 use App\Models\Unit;
-use App\Models\User;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Manage\UnitResource;
 use App\Http\Requests\Manage\Unit\StoreRequest;
 use App\Http\Requests\Manage\Unit\UpdateRequest;
-use App\Http\Resources\Manage\UnitResource;
-use App\Http\Resources\Manage\UserResource as ManageUserResource;
 
 class UnitController extends Controller
 {
@@ -19,8 +17,9 @@ class UnitController extends Controller
      */
     public function index()
     {
+
         return Inertia::render('Manage/Unit/Index', [
-            'units' => UnitResource::collection(Unit::with('divisions')->paginate(15)),
+            'units' => fn () => UnitResource::collection(Unit::withCount('divisions')->paginate(15)),
         ]);
     }
 
@@ -29,9 +28,7 @@ class UnitController extends Controller
      */
     public function create()
     {
-        return Inertia::render('Manage/Unit/Create', [
-            'users' => ManageUserResource::collection(User::paginate(10))
-        ]);
+        return Inertia::render('Manage/Unit/Create');
     }
 
     /**
@@ -40,36 +37,12 @@ class UnitController extends Controller
     public function store(StoreRequest $request)
     {
         DB::transaction(function () use ($request) {
-            /** @var Unit */
-            $unit = Unit::create([
+            return Unit::create([
                 'name' => $request->input('name'),
                 'abbr' => $request->input('abbr'),
                 'description' => $request->input('description'),
                 'address' => $request->input('address'),
             ]);
-
-            //     foreach ($request->input('divisions', []) as $division) {
-            //         /** @var Division */
-            //         $divisionModel = $unit->divisions()->create(
-            //             collect($division)
-            //                 ->only('name', 'abbr', 'description')
-            //                 ->toArray()
-            //         );
-
-            //         $members = collect($division['members'])->map(function ($member) {
-            //             return [
-            //                 'user_id' => User::withoutTrashed()->where('uuid', $member['uuid'])->select('id')->first()?->id,
-            //                 'grade' => $member['grade'],
-            //             ];
-            //         });
-
-            //         if ($members->count()) {
-            //             $divisionModel->users()->attach($members);
-            //         }
-            //     }
-
-            //     foreach ($request->input('infrastructures', []) as $material) {
-            //     }
         });
 
         return redirect(route('manage.unit.index'))->with('alert', [
@@ -81,9 +54,11 @@ class UnitController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Unit $unit)
     {
-        //
+        return Inertia::render('Manage/Unit/Show', [
+            'unit' => new UnitResource($unit->load('divisions')),
+        ]);
     }
 
     /**
@@ -107,8 +82,6 @@ class UnitController extends Controller
                 'abbr' => $request->input('abbr'),
                 'description' => $request->input('description'),
                 'address' => $request->input('address'),
-                'city' => $request->input('city'),
-                'country' => $request->input('country'),
             ]);
         });
 

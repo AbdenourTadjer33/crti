@@ -2,10 +2,11 @@
 
 namespace App\Http\Resources\Manage;
 
+use App\Http\Resources\UserDivisionsResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class UnitResource extends JsonResource
+class DivisionResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -19,11 +20,9 @@ class UnitResource extends JsonResource
             'name' => $this->name,
             'abbr' => $this->abbr,
             'description' => $this->description,
-            'address' => $this->address,
             'createdAt' => $this->created_at,
             'updatedAt' => $this->updated_at,
-            'divisions' => DivisionResource::collection($this->whenLoaded('divisions')),
-            'divisionCount' => $this->when($this->divisions_count !== null, $this->divisions_count),
+            'users' => UserResource::collection($this->whenLoaded('users')),
         ];
     }
 }

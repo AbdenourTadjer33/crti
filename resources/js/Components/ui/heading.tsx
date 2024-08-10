@@ -8,7 +8,7 @@ interface HeadingLevels {
 const HeadingLevels: HeadingLevels = {
     1: "text-5xl font-extrabold dark:text-white",
     2: "text-4xl font-bold dark:text-white",
-    3: "text-3xl font-bold dark:text-white",
+    3: "md:text-3xl sm:text-2xl text-xl font-bold dark:text-white",
     4: "text-2xl font-medium dark:text-white",
     5: "text-xl font-medium dark:text-white",
     6: "text-lg font-medium dark:text-white",

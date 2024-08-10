@@ -1,21 +1,17 @@
 import * as React from "react";
 import { FormWrapper } from "@/Components/ui/form";
-import { Link, useForm, usePage } from "@inertiajs/react";
+import { Link, useForm } from "@inertiajs/react";
 import { Button } from "@/Components/ui/button";
 import { Label } from "@/Components/ui/label";
 import { Input, InputError } from "@/Components/ui/input";
 import { Textarea } from "@/Components/ui/textarea";
 
-const EditForm = () => {
-    const { unit } = usePage().props;
-
+const EditForm: React.FC<any> = ({ unit }) => {
     const { data, setData, errors, processing, put } = useForm({
         name: unit.name || "",
         abbr: unit.abbr || "",
         description: unit.description || "",
         address: unit.address || "",
-        city: unit.city || "",
-        country: unit.country || "",
     });
 
     const submitHandler = (e: React.FormEvent) => {
@@ -31,8 +27,8 @@ const EditForm = () => {
             className="space-y-4 md:space-y-8"
             onSubmit={submitHandler}
         >
-            <div className="grid grid-cols-3 gap-4">
-                <div className="space-y-1 col-span-2">
+            <div className="grid sm:grid-cols-3 gap-4">
+                <div className="space-y-1 sm:col-span-2 col-span-3">
                     <Label>Nom de l'unité</Label>
                     <Input
                         value={data.name}
@@ -41,13 +37,22 @@ const EditForm = () => {
                     <InputError message={errors.name} />
                 </div>
 
-                <div className="space-y-1">
+                <div className="space-y-1 sm:col-span-1 col-span-3">
                     <Label>Abréviation</Label>
                     <Input
                         value={data.abbr}
                         onChange={(e) => setData("abbr", e.target.value)}
                     />
                     <InputError message={errors.abbr} />
+                </div>
+
+                <div className="space-y-1 col-span-3">
+                    <Label>Adresse</Label>
+                    <Input
+                        value={data.address}
+                        onChange={(e) => setData("address", e.target.value)}
+                    />
+                    <InputError message={errors.address} />
                 </div>
 
                 <div className="space-y-1 col-span-3">
@@ -58,46 +63,17 @@ const EditForm = () => {
                     />
                     <InputError message={errors.description} />
                 </div>
-
-                <div className="space-y-1">
-                    <Label>Adresse</Label>
-                    <Input
-                        value={data.address}
-                        onChange={(e) => setData("address", e.target.value)}
-                    />
-                    <InputError message={errors.address} />
-                </div>
-
-                <div className="space-y-1">
-                    <Label>Wilaya</Label>
-                    <Input
-                        value={data.city}
-                        onChange={(e) => setData("city", e.target.value)}
-                    />
-                    <InputError message={errors.city} />
-                </div>
-
-                <div className="space-y-1">
-                    <Label>Pays</Label>
-                    <Input
-                        value={data.country}
-                        onChange={(e) => setData("country", e.target.value)}
-                    />
-                    <InputError message={errors.country} />
-                </div>
             </div>
 
-            <div className="mx-auto max-w-lg flex items-center gap-4">
-                <Button
-                    type="button"
-                    variant="destructive"
-                    className="w-full"
-                    asChild
-                >
-                    <Link href={route("manage.unit.index")}>Annuler</Link>
+            <div className="mx-auto max-w-lg flex flex-col-reverse sm:flex-row items-center sm:gap-4 gap-2">
+                <Button variant="destructive" disabled={processing} className="w-full" asChild>
+                    <Link href={route("manage.unit.show", unit.id)}>
+                        Annuler
+                    </Link>
                 </Button>
-                <Button variant="primary" className="w-full">
-                    Modifier
+
+                <Button className="w-full" disabled={processing}>
+                    Sauvegarder
                 </Button>
             </div>
         </FormWrapper>

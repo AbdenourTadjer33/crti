@@ -1,31 +1,9 @@
 import * as React from "react";
-import { createColumnHelper } from "@tanstack/react-table";
-import { Unit } from "@/types";
-import { HeaderSelecter, RowSelecter } from "@/Components/DataTable";
 import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from "@/Components/ui/tooltip";
-import dayjs from "dayjs";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/Components/ui/dropdown-menu";
+    HeaderSelecter,
+    RowSelecter,
+} from "@/Components/DataTable";
 import { Button } from "@/Components/ui/button";
-import {
-    ArrowRightCircle,
-    Info,
-    MoreHorizontal,
-    Pencil,
-    SquareArrowOutUpRight,
-    Trash,
-} from "lucide-react";
-import { Link, router } from "@inertiajs/react";
 import {
     Dialog,
     DialogContent,
@@ -33,8 +11,29 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/Components/ui/dialog";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/Components/ui/dropdown-menu";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/Components/ui/tooltip";
+import { Division } from "@/types/division";
+import { router } from "@inertiajs/react";
+import { createColumnHelper } from "@tanstack/react-table";
+import dayjs from "dayjs";
+import { ArrowRightCircle, MoreHorizontal } from "lucide-react";
+import { FaInfoCircle } from "react-icons/fa";
+import { MdDelete, MdEdit } from "react-icons/md";
+import { Link } from "@inertiajs/react";
 
-const columnHelper = createColumnHelper<Unit>();
+const columnHelper = createColumnHelper<Division>();
 
 export const columnDef = [
     columnHelper.display({
@@ -50,26 +49,14 @@ export const columnDef = [
     }),
 
     columnHelper.display({
-        id: "unit",
-        header: "unité",
+        id: "division",
+        header: "division",
         cell: ({ row }) => (
-            <Link
-                href={route("manage.unit.show", row.id)}
-                className="inline-flex items-center hover:text-blue-600 duration-100"
-            >
+            <>
                 {row.original.name}{" "}
                 {row.original.abbr ? `- ${row.original.abbr} -` : null}
-                <SquareArrowOutUpRight className="h-4 w-4 ml-1.5" />
-            </Link>
+            </>
         ),
-    }),
-
-    columnHelper.accessor("address", {
-        header: "Adresse",
-    }),
-
-    columnHelper.accessor("divisionCount", {
-        header: "nombre de divisions",
     }),
 
     columnHelper.accessor("createdAt", {
@@ -103,7 +90,6 @@ export const columnDef = [
             </TooltipProvider>
         ),
     }),
-
     columnHelper.display({
         id: "actions",
         cell: ({ row }) => <Actions id={row.id} />,
@@ -116,12 +102,15 @@ const Actions = ({ id }: { id: string }) => {
         React.useState<boolean>(false);
 
     const deleteHandler = () => {
-        router.delete(route("manage.unit.destroy", { unit: id }), {
-            preserveScroll: true,
-            preserveState: true,
-            only: ["flash", "units"],
-            onSuccess: () => setBeforeDeleteModal(false),
-        });
+        router.delete(
+            route("manage.unit.division.destroy", { unit: id, division: id }),
+            {
+                preserveScroll: true,
+                preserveState: true,
+                only: ["flash", "divisions"],
+                onSuccess: () => setBeforeDeleteModal(false),
+            }
+        );
     };
 
     return (
@@ -139,23 +128,33 @@ const Actions = ({ id }: { id: string }) => {
                     loop
                 >
                     <DropdownMenuItem asChild>
-                        <Link href={route("manage.unit.show", id)}>
+                        <Link
+                            href={route("manage.unit.division.show", {
+                                unit: route().params.unit as string,
+                                division: id,
+                            })}
+                        >
                             <ArrowRightCircle className="w-4 h-4 mr-2" />
-                            Voir
+                            voir
                         </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
-                        <Link href={route("manage.unit.edit", { unit: id })}>
-                            <Pencil className="w-4 h-4 mr-2" />
-                            Modifier
+                        <Link
+                            href={route("manage.unit.division.edit", {
+                                unit: route().params.unit as string,
+                                division: id,
+                            })}
+                        >
+                            <MdEdit className="w-4 h-4 mr-2" />
+                            modifier
                         </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                         onClick={() => setBeforeDeleteModal(true)}
                     >
-                        <Trash className="w-4 h-4 mr-2 text-red-500 dark:text-red-600" />
+                        <MdDelete className="w-4 h-4 mr-2 text-red-500 dark:text-red-600" />
                         Supprimer
                     </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -168,7 +167,7 @@ const Actions = ({ id }: { id: string }) => {
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle className="inline-flex items-center gap-2">
-                            <Info className="w-6 h-6 text-red-500 dark:text-red-600" />
+                            <FaInfoCircle className="w-6 h-6 text-red-500 dark:text-red-600" />
                             Etes-vous absolument sùr?
                         </DialogTitle>
                     </DialogHeader>

@@ -4,11 +4,9 @@ import { columnDef } from "@/Features/Manage/Unit/columns";
 import {
     getCoreRowModel,
     getExpandedRowModel,
-    Row,
     useReactTable,
 } from "@tanstack/react-table";
 import { TableWraper } from "@/Components/ui/table";
-import { MdSearch } from "react-icons/md";
 import { Input } from "@/Components/ui/input";
 import DataTable from "@/Components/DataTable";
 import {
@@ -24,7 +22,7 @@ import {
     TooltipTrigger,
 } from "@/Components/ui/tooltip";
 import { Button } from "@/Components/ui/button";
-import { IoMdOptions } from "react-icons/io";
+import { Search, SlidersHorizontal } from "lucide-react";
 
 const Table: React.FC<{ units: PaginationType<Unit> }> = ({ units }) => {
     const finalData = React.useMemo(() => units.data, [units.data]);
@@ -40,23 +38,12 @@ const Table: React.FC<{ units: PaginationType<Unit> }> = ({ units }) => {
         manualPagination: true,
     });
 
-    const subComponent = ({ row }: { row: Row<Unit> }) => {
-        return (
-            <div className="flex flex-wrap gap-2">
-                <ul>
-                    
-                </ul>
-                <pre>{JSON.stringify(row, null, 2)}</pre>
-            </div>
-        );
-    };
-
     return (
         <TableWraper>
             <div className="p-4 flex justify-between gap-2">
                 <div className="relative sm:w-80">
                     <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
-                        <MdSearch className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                        <Search className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                     </div>
                     <Input placeholder="Search" className="pl-10" />
                 </div>
@@ -67,7 +54,7 @@ const Table: React.FC<{ units: PaginationType<Unit> }> = ({ units }) => {
                             <TooltipTrigger asChild>
                                 <DropdownMenuTrigger asChild>
                                     <Button variant="ghost">
-                                        <IoMdOptions className="ww-5 h-5" />
+                                        <SlidersHorizontal className="w-5 h-5" />
                                     </Button>
                                 </DropdownMenuTrigger>
                             </TooltipTrigger>
@@ -110,7 +97,6 @@ const Table: React.FC<{ units: PaginationType<Unit> }> = ({ units }) => {
             <DataTable
                 options={{
                     table,
-                    subComponent,
                     pagination: { links: units.links, meta: units.meta },
                 }}
             />

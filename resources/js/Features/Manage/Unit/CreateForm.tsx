@@ -1,110 +1,20 @@
 import React from "react";
-import { useForm } from "@inertiajs/react";
-import { Step, Stepper, useStepper } from "@/Components/Stepper";
+import { Link, useForm } from "@inertiajs/react";
 import { Button } from "@/Components/ui/button";
 import { FormWrapper } from "@/Components/ui/form";
-import { UnitInformationForm } from "@/Features/Manage/Unit/UnitInformationForm";
-import { UnitDivisionsForm } from "@/Features/Manage/Unit/UnitDivisionsForm";
-import UnitInfrastructureForm from "./UnitInfrastructureForm";
-import { Heading } from "@/Components/ui/heading";
-import { User } from "@/types";
-
-export interface UnitForm {
-    name: string;
-    abbr: string;
-    description: string;
-    divisions: DivisionForm[];
-    infrastructures: InfrastructureForm[];
-}
-
-export interface DivisionForm {
-    name: string;
-    abbr: string;
-    description: string;
-    members: MemberForm[];
-    valid?: true;
-}
-
-export interface MemberForm extends User {
-    grade: string;
-}
-
-export interface InfrastructureForm {
-    name: string;
-    state: string;
-    description: string;
-    valid?: boolean;
-}
-
-export const CreateUnitContext = React.createContext<{
-    data: UnitForm;
-    errors: Partial<Record<keyof UnitForm | string, string>>;
-    processing: boolean;
-    setData: any;
-    clearErrors: (...fields: (keyof UnitForm)[]) => void;
-}>({
-    data: {
-        name: "",
-        description: "",
-        abbr: "",
-        divisions: [],
-        infrastructures: [],
-    },
-    errors: {},
-    setData: () => {},
-    clearErrors: () => {},
-    processing: false,
-});
+import { Label } from "@/Components/ui/label";
+import { Input, InputError } from "@/Components/ui/input";
+import { Textarea } from "@/Components/ui/textarea";
 
 const CreateForm = () => {
-    const {
-        data,
-        setData,
-        errors,
-        processing,
-        post,
-        clearErrors,
-    } = useForm<UnitForm>({
+    const { data, setData, errors, processing, post, clearErrors } = useForm({
         name: "",
         abbr: "",
         description: "",
+        address: "",
         divisions: [],
         infrastructures: [],
     });
-
-    const steps: Step[] = [
-        {
-            label: "Informations de l'unité",
-            form: <UnitInformationForm />,
-            isError: !!(errors.name || errors.description || errors.abbr),
-        },
-        {
-            label: "Informations des divisions",
-            form: <UnitDivisionsForm />,
-            isError: Object.keys(errors).some((key) =>
-                key.startsWith("divisions")
-            ),
-        },
-        {
-            label: "Infrastructure de l'unité",
-            form: <UnitInfrastructureForm />,
-            isError: Object.keys(errors).some((key) =>
-                key.startsWith("infrastructures")
-            ),
-        },
-        {
-            label: "Confirmation",
-            form: ({ isError }) => (
-                <div>
-                    <Heading level={4}>Confirmation step</Heading>
-                    <pre>{JSON.stringify({ data, errors }, null, 2)}</pre>
-                </div>
-            ),
-            isError: !!Object.keys(errors).length,
-        },
-    ];
-
-    const stepper = useStepper({ steps });
 
     const submitHandler = (e: React.FormEvent) => {
         e.preventDefault();
@@ -115,54 +25,68 @@ const CreateForm = () => {
     };
 
     return (
-        <FormWrapper className="space-y-4 md:space-y-8">
-            <CreateUnitContext.Provider
-                value={{
-                    data,
-                    setData,
-                    errors,
-                    clearErrors,
-                    processing,
-                }}
-            >
-                <Stepper stepper={stepper} />
-
-                <pre>
-                    {JSON.stringify(data, null, 2)}
-                </pre>
-
-                <div className="mx-auto max-w-lg flex items-center gap-4">
-                    {stepper.canGoPrev && (
-                        <Button
-                            type="button"
-                            variant="secondary"
-                            className="w-full"
-                            onClick={() => stepper.prev()}
-                        >
-                            Précendant
-                        </Button>
-                    )}
-                    {stepper.canGoNext ? (
-                        <Button
-                            type="button"
-                            variant="secondary"
-                            className="w-full"
-                            onClick={() => stepper.next()}
-                        >
-                            Suivant
-                        </Button>
-                    ) : (
-                        <Button
-                            type="submit"
-                            variant="primary"
-                            className="w-full"
-                            onClick={submitHandler}
-                        >
-                            Créer
-                        </Button>
-                    )}
+        <FormWrapper
+            className="space-y-4 md:space-y-8"
+            onSubmit={submitHandler}
+        >
+            <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-1 sm:col-span-2 col-span-3">
+                    <Label>Nom de l'unité</Label>
+                    <Input
+                        onChange={(e) => {
+                            clearErrors("name");
+                            setData("name", e.target.value);
+                        }}
+                        value={data.name}
+                    />
+                    <InputError message={errors.name} />
                 </div>
-            </CreateUnitContext.Provider>
+
+                <div className="space-y-1 sm:col-span-1 col-span-3">
+                    <Label>Abréviation</Label>
+                    <Input
+                        value={data.abbr}
+                        onChange={(e) => {
+                            clearErrors("abbr");
+                            setData("abbr", e.target.value);
+                        }}
+                    />
+                    <InputError message={errors.abbr} />
+                </div>
+
+                <div className="space-y-1 col-span-3">
+                    <Label>Adresse</Label>
+                    <Input
+                        value={data.address}
+                        onChange={(e) => {
+                            clearErrors("address");
+                            setData("address", e.target.value);
+                        }}
+                    />
+                    <InputError message={errors.address} />
+                </div>
+
+                <div className="space-y-1 col-span-3">
+                    <Label>Description</Label>
+                    <Textarea
+                        value={data.description}
+                        onChange={(e) => {
+                            clearErrors("description");
+                            setData("description", e.target.value);
+                        }}
+                    />
+                    <InputError message={errors.description} />
+                </div>
+            </div>
+
+            <div className="mx-auto max-w-lg flex flex-col-reverse sm:flex-row items-center sm:gap-4 gap-2">
+                <Button variant="destructive" className="w-full" asChild>
+                    <Link href={route("manage.unit.index")}>
+                        Annuler
+                    </Link>
+                </Button>
+                <Button className="w-full">Créer</Button>
+            </div>
         </FormWrapper>
     );
 };
