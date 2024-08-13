@@ -150,6 +150,17 @@ class ProjectVersionController extends Controller implements HasMiddleware
         /** @var Project */
         $project = Project::query()->where('code', $request->route('project'))->first();
 
+        // First, get the version IDs that are in creation mode
+        $versionIds = $project->getCreationVersions();
+
+        // Check if the user has any versions in creation mode
+        if ($versionIds && $project->versions()->whereIn('id', $versionIds)->where('user_id', $this->user->id)->count()) {
+            // Send an error back to the user
+            throw new HttpResponseException(
+                $this->error(code: 409, message: "You already have a version in creation mode. Please complete or discard it before creating a new one."),
+            );
+        }
+
         $version = DB::transaction(function () use ($project, $request) {
             /** @var Version */
             $version = $project->lastConfirmedVersion(false)->replicate(['reason', 'user_id']);
