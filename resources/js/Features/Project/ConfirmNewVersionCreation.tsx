@@ -12,14 +12,19 @@ import { Text } from "@/Components/ui/paragraph";
 import { Link } from "@inertiajs/react";
 import { cn } from "@/Utils/utils";
 
-const ConfirmNewVersionCreation: React.FC = () => {
-    const [open, setOpen] = React.useState(false);
+const MAX_REASON = 300;
+
+interface Props {
+    open: boolean;
+    setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const ConfirmNewVersionCreation: React.FC<Props> = ({ open, setOpen }) => {
     const isDesktop = useMediaQuery("(min-width: 768px)");
     const [reason, setReason] = React.useState<string>("");
     const { mutate, reset, isPending, isError, isSuccess, error, data } =
         useMutation({
             mutationFn: async (data) => {
-                console.log(data);
                 const projectId = route().params.project as string;
                 return duplicateProjectVersion(projectId, data);
             },
@@ -28,9 +33,6 @@ const ConfirmNewVersionCreation: React.FC = () => {
     if (isDesktop) {
         return (
             <Dialog.Dialog open={open} onOpenChange={setOpen}>
-                <Dialog.DialogTrigger asChild>
-                    <Button>Proposer une modification</Button>
-                </Dialog.DialogTrigger>
                 <Dialog.DialogContent
                     className="mx-auto max-w-xl grid gap-4 rounded relative overflow-hidden"
                     classNames={{
@@ -82,9 +84,6 @@ const ConfirmNewVersionCreation: React.FC = () => {
 
     return (
         <Drawer.Drawer open={open} onOpenChange={setOpen}>
-            <Drawer.DrawerTrigger asChild>
-                <Button>Proposer une modification</Button>
-            </Drawer.DrawerTrigger>
             <Drawer.DrawerContent
                 onOpenAutoFocus={(e) => e.preventDefault()}
                 onCloseAutoFocus={(e) => e.preventDefault()}
