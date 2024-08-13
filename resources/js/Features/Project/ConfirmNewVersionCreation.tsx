@@ -41,6 +41,12 @@ const ConfirmNewVersionCreation: React.FC = () => {
                     onEscapeKeyDown={(e) => e.preventDefault()}
                     onInteractOutside={(e) => e.preventDefault()}
                 >
+                    <div
+                        className="absolute top-0 left-0 right-0 h-0.5 bg-indigo-50 hidden data-[pending=true]:block"
+                        data-pending={isPending}
+                    >
+                        <Progress className="bg-indigo-600" />
+                    </div>
                     <Dialog.DialogHeader className="space-y-4">
                         <Dialog.DialogTitle className="text-xl font-medium">
                             Are you sure that you want edit this project
@@ -85,6 +91,12 @@ const ConfirmNewVersionCreation: React.FC = () => {
                 onPointerDownOutside={(e) => e.preventDefault()}
                 className="overflow-hidden"
             >
+                <div
+                    className="absolute top-0 left-0 right-0 h-1 bg-indigo-50 hidden data-[pending=true]:block"
+                    data-pending={isPending}
+                >
+                    <Progress className="bg-indigo-600" />
+                </div>
                 <Drawer.DrawerHeader className="text-left">
                     <Drawer.DrawerTitle>
                         Are you sure that you want edit this project
