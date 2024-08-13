@@ -141,12 +141,8 @@ class ProjectVersionController extends Controller implements HasMiddleware
      * Duplicate the version by editing some data like the reason & the creator of this version.
      * Reference this version as under creation. 
      */
-    public function duplicate(Request $request)
+    public function duplicate(DuplicateRequest $request)
     {
-        $request->validate([
-            'reason' => ['required', 'string'],
-        ]);
-
         /** @var Project */
         $project = Project::query()->where('code', $request->route('project'))->first();
 
@@ -163,25 +159,19 @@ class ProjectVersionController extends Controller implements HasMiddleware
 
         $version = DB::transaction(function () use ($project, $request) {
             /** @var Version */
-            $version = $project->lastConfirmedVersion(false)->replicate(['reason', 'user_id']);
+            $version = $project->getMainVersion(false)->replicate(['reason', 'user_id']);
 
             $version->user_id = $this->user->id;
-
             $version->reason = $request->input('reason');
+            $version->model_data = serialize(json_decode((new ProjectVersionResource($version->getModel()))->toJson(), true));
 
             $version->save();
-
             $project->refVersionAsCreation($version->id);
 
             return $version;
         });
 
-
-
-        return [
-            'project' =>  $project->code,
-            'version' => $version->id,
-        ];
+        return ['project' =>  $project->code, 'version' => $version->id];
     }
 
     public function sync(Request $request)
