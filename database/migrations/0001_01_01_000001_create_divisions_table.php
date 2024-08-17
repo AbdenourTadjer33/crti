@@ -44,5 +44,6 @@ return new class extends Migration
     {
         Schema::dropIfExists('divisions');
         Schema::dropIfExists('division_user');
+        schema::dropIfExists('division_grades');
     }
 };
