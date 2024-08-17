@@ -22,6 +22,18 @@ return new class extends Migration
             $table->string('domain');
             $table->timestamp('created_at')->useCurrent();
         });
+
+        Schema::create('universities', function (Blueprint $table) {
+            $table->id();
+            $table->string('university');
+            $table->timestamp('created_at')->useCurrent();
+        });
+
+        Schema::create('diplomas', function (Blueprint $table) {
+            $table->id();
+            $table->string('diploma');
+            $table->timestamp('created_at')->useCurrent();
+        });
     }
 
     /**
@@ -31,5 +43,7 @@ return new class extends Migration
     {
         Schema::dropIfExists('project_nature');
         Schema::dropIfExists('project_domains');
+        Schema::dropIfExists('universities');
+        Schema::dropIfExists('diplomas');
     }
 };
