@@ -46,15 +46,13 @@ Route::prefix('/app')->middleware(['auth'])->group(function () {
 
     Route::prefix('/manage')->as('manage.')->group(function () {
         Route::get('/', ManageController::class)->name('index');
-
         Route::resource('units', UnitController::class)->names('unit');
         Route::resource('units.divisions', UnitDivisionController::class)->except('index')->names('unit.division');
-
         Route::resource('permissions', PermissionController::class)->names('permission');
-
         Route::resource('roles', RoleController::class)->names('role');
         Route::resource('users', UserController::class)->names('user');
         Route::resource('boards', BoardController::class)->names('board');
+        Route::resource('resources', ResourceController::class)->names('resource');
     });
 
     Route::resource('projects', ProjectController::class)->only(["index", "store", "show"])->names('project');
