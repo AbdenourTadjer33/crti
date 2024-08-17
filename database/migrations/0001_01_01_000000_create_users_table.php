@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('first_name', 64);
             $table->string('last_name', 64);
             $table->date('dob')->nullable();
-            $table->string('sex',)->nullable();
+            $table->enum('sex', ['male', 'female'])->nullable();
             $table->string('email', 128)->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
