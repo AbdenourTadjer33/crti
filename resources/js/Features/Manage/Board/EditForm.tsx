@@ -3,7 +3,8 @@ import { FormWrapper } from "@/Components/ui/form";
 import { Link, useForm, usePage } from "@inertiajs/react";
 import { Button } from "@/Components/ui/button";
 import { Label } from "@/Components/ui/label";
-import { Input, InputError } from "@/Components/ui/input";
+import { Input } from "@/Components/ui/input";
+import { InputError } from "@/Components/ui/input-error";
 import { Textarea } from "@/Components/ui/textarea";
 import { User } from "@/types";
 import { useDebounce } from "@/Hooks/use-debounce";
@@ -54,7 +55,11 @@ const EditForm: React.FC<any> = ({ board }) => {
     };
 
     const addMember = (user: MemberBoard) => {
-        if (!data.members.some((member: MemberBoard) => member.uuid == user.uuid)) {
+        if (
+            !data.members.some(
+                (member: MemberBoard) => member.uuid == user.uuid
+            )
+        ) {
             setData((data) => {
                 data.members.push({ ...user, grade: "" });
                 return { ...data };
@@ -120,27 +125,28 @@ const EditForm: React.FC<any> = ({ board }) => {
                                 Vous devez remplire tous les chames grades*
                             </div>
                         )}
-                        {data.members.map((member: MemberBoard, idx: number) => (
-                            <div
-                                key={member.uuid}
-                                className="flex items-center gap-4"
-                            >
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    className="justify-start basis-2/5 sm:text-base text-xs"
+                        {data.members.map(
+                            (member: MemberBoard, idx: number) => (
+                                <div
+                                    key={member.uuid}
+                                    className="flex items-center gap-4"
                                 >
-                                    {member.name}
-                                </Button>
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    className="justify-start basis-3/5 sm:text-base text-xs"
-                                >
-                                    {member.email}
-                                </Button>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        className="justify-start basis-2/5 sm:text-base text-xs"
+                                    >
+                                        {member.name}
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        className="justify-start basis-3/5 sm:text-base text-xs"
+                                    >
+                                        {member.email}
+                                    </Button>
 
-                                {/* <Input
+                                    {/* <Input
                                     placeholder="grade"
                                     value={member.grade}
                                     onChange={(e) => {
@@ -153,26 +159,31 @@ const EditForm: React.FC<any> = ({ board }) => {
                                     }}
                                 /> */}
 
-                                <Button
-                                    variant="destructive"
-                                    className="items-center"
-                                    size="sm"
-                                    onClick={() => removeMember(member.uuid)}
-                                >
-                                    <X className="h-4 w-4 sm:mr-2" />
-                                    <span className="hidden sm:block">
-                                        Supprimer
-                                    </span>
-                                </Button>
-                            </div>
-                        ))}
+                                    <Button
+                                        variant="destructive"
+                                        className="items-center"
+                                        size="sm"
+                                        onClick={() =>
+                                            removeMember(member.uuid)
+                                        }
+                                    >
+                                        <X className="h-4 w-4 sm:mr-2" />
+                                        <span className="hidden sm:block">
+                                            Supprimer
+                                        </span>
+                                    </Button>
+                                </div>
+                            )
+                        )}
                     </div>
                 )}
             </div>
 
             <div className="mx-auto max-w-lg flex flex-col-reverse sm:flex-row items-center sm:gap-4 gap-2">
                 <Button variant="destructive" className="w-full" asChild>
-                    <Link href={route("manage.board.show", board.id)}>Annuler</Link>
+                    <Link href={route("manage.board.show", board.id)}>
+                        Annuler
+                    </Link>
                 </Button>
                 <Button disabled={processing} className="w-full">
                     Sauvegarder
