@@ -3,7 +3,8 @@ import { Link, useForm, usePage } from "@inertiajs/react";
 import { Button } from "@/Components/ui/button";
 import { FormWrapper } from "@/Components/ui/form";
 import { Label } from "@/Components/ui/label";
-import { Input, InputError } from "@/Components/ui/input";
+import { Input } from "@/Components/ui/input";
+import { InputError } from "@/Components/ui/input-error";
 import { Textarea } from "@/Components/ui/textarea";
 import { useDebounce } from "@/Hooks/use-debounce";
 import { User } from "@/types";
@@ -28,7 +29,6 @@ import { isAnyKeyBeginWith } from "@/Libs/Validation/utils";
 import Field from "@/Libs/FormBuilder/components/Field";
 import { DateRange } from "react-day-picker";
 import { format } from "date-fns";
-
 
 const CreateForm: React.FC<any> = ({ board }) => {
     const { data, setData, errors, processing, post, clearErrors } = useForm<{
@@ -88,36 +88,36 @@ const CreateForm: React.FC<any> = ({ board }) => {
                 </div>
                 <div className="space-y-1 sm:col-span-2 col-span-3">
                     <Label>Date début/fin</Label>
-                        <Field
-                            type="calendar"
-                            mode="range"
-                            showOutsideDays={false}
-                            value={data.jugement_period}
-                            onValueChange={(value: DateRange) => {
-                                clearErrors("jugement_period");
-                                setData("jugement_period", value);
-                            }}
-                            labels={{
-                                trigger: (value) => {
-                                    if (!value?.from && !value?.to) {
-                                        return "Date début/fin";
-                                    }
+                    <Field
+                        type="calendar"
+                        mode="range"
+                        showOutsideDays={false}
+                        value={data.jugement_period}
+                        onValueChange={(value: DateRange) => {
+                            clearErrors("jugement_period");
+                            setData("jugement_period", value);
+                        }}
+                        labels={{
+                            trigger: (value) => {
+                                if (!value?.from && !value?.to) {
+                                    return "Date début/fin";
+                                }
 
-                                    if (value?.from && !value?.to) {
-                                        return `De ${format(
-                                            value.from,
-                                            "dd/MM/yyy"
-                                        )}`;
-                                    }
-
+                                if (value?.from && !value?.to) {
                                     return `De ${format(
                                         value.from,
                                         "dd/MM/yyy"
-                                    )} à ${format(value.to, "dd/MM/yyy")}`;
-                                },
-                            }}
-                        />
-                        <InputError message={errors.jugement_period} />
+                                    )}`;
+                                }
+
+                                return `De ${format(
+                                    value.from,
+                                    "dd/MM/yyy"
+                                )} à ${format(value.to, "dd/MM/yyy")}`;
+                            },
+                        }}
+                    />
+                    <InputError message={errors.jugement_period} />
                 </div>
 
                 <div className="space-y-1 col-span-3">
@@ -138,8 +138,7 @@ const CreateForm: React.FC<any> = ({ board }) => {
                         addMember={addMember}
                     />
                 </div>
-                <div className="space-y-1 col-span-3">
-                </div>
+                <div className="space-y-1 col-span-3"></div>
 
                 {!!data.members.length && (
                     <div className="bg-gray-100 rounded p-2 space-y-2.5 col-span-3">
