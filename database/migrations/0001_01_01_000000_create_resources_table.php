@@ -20,7 +20,6 @@ return new class extends Migration
 
         Schema::create('existing_resources', function (Blueprint $table) {
             $table->foreignId('resource_id')->constrained('resources', 'id')->cascadeOnDelete();
-            $table->string('localisation');
             $table->string('state');
             $table->primary('resource_id');
         });

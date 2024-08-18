@@ -51,8 +51,6 @@ return [
 
         'except_models' => [
             \Modules\Permission\Models\RolePermission::class,
-            \Modules\Unit\Models\Division::class,
-            \Modules\Project\Models\Version::class
         ],
 
         'actions' => [

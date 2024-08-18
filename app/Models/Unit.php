@@ -33,4 +33,9 @@ class Unit extends Model
     {
         return $this->hasMany(Division::class);
     }
+
+    public function users(): HasMany
+    {
+        return $this->hasMany(User::class);
+    }
 }

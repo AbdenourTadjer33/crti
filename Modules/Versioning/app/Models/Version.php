@@ -77,7 +77,6 @@ class Version extends Model
         return $model;
     }
 
-
     /**
      * Revert to the stored model version make it the current version
      *

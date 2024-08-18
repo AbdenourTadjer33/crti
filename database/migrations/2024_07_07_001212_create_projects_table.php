@@ -57,7 +57,6 @@ return new class extends Migration
             $table->date('date_begin');
             $table->date('date_end');
             $table->longText('description');
-            $table->string('result')->nullable();
             $table->string('priority');
             $table->timestamps();
         });

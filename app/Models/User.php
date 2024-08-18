@@ -171,4 +171,9 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Project::class, 'members', 'user_id', 'project_id');
     }
+
+    public function unit()
+    {
+        return $this->belongsTo(Unit::class);
+    }
 }

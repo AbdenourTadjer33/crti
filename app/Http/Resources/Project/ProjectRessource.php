@@ -25,9 +25,9 @@ class ProjectRessource extends JsonResource
                     'from' => $this->date_begin,
                     'to' => $this->date_end,
                 ],
-                'creator' => $this->when(!!$this->user, new ProjectMembersResource($this->user)),
-                'members' => ProjectMembersResource::collection($this->whenLoaded('users')),
-                'tasks' => ProjectTasksResource::collection($this->whenLoaded('tasks')),
+                'creator' => $this->when(!!$this->user, new ProjectMemberResource($this->user)),
+                'members' => ProjectMemberResource::collection($this->whenLoaded('users')),
+                'tasks' => ProjectTaskResource::collection($this->whenLoaded('tasks')),
             ]),
             'division' => $this->when(!!$this->division, [
                 'id' => $this->division?->id,

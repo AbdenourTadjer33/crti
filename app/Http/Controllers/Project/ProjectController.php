@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Project\ProjectRessource;
 use App\Http\Requests\Project\StoreRequest;
+use App\Http\Resources\Project\ProjectDetailsResource;
 use Modules\Versioning\Models\Version;
 
 class ProjectController extends Controller
@@ -45,8 +46,8 @@ class ProjectController extends Controller
 
         return Inertia::render('Project/Index', [
             'data' => $projectsFn,
-            'userDivisions' => Inertia::lazy(fn () => $this->user->divisions()->get()),
-        ]); 
+            'userDivisions' => Inertia::lazy(fn() => $this->user->divisions()->get()),
+        ]);
     }
 
     public function store(StoreRequest $request)
@@ -70,16 +71,30 @@ class ProjectController extends Controller
         $project = Project::query()
             ->where('code', $request->route('project'))
             ->whereNot('status', ProjectStatus::creation->name)
-            ->first();
+            ->first(['id', 'code', 'status', 'version_info']);
 
         if (!$project) return abort(404, 'Sorry, the page you are looking for could not be found.');
 
-        // return ProjectRessource::collection($project->versions->map(fn (Version $version) => $version->getModel()));
+        $versionInCreationFn = function () use ($project) {
+            $versionIds = $project->getCreationVersions();
+            if (!$versionIds) return;
+
+            $version = $project->versions()
+                ->whereIn('id', $versionIds)
+                ->where('user_id', $this->user->id)
+                ->first(['id', 'reason', 'created_at']);
+
+            return $version ? [
+                'id' => $version->id,
+                'reason' => $version->reason,
+                'createdAt' => $version->created_at,
+            ] : null;
+        };
 
         return Inertia::render('Project/Show', [
-            'canEditProject' => fn () => $project->canHaveNewVersions(),
-            'project' => $project,
-            'versions' => ProjectRessource::collection($project->versions->map(fn (Version $version) => $version->getModel())),
+            'project' => fn() => new ProjectDetailsResource($project->getMainVersion()),
+            'canCreateNewVersion' => fn() => $project->canHaveNewVersions(),
+            'versionInCreation' => $versionInCreationFn,
         ]);
     }
 }

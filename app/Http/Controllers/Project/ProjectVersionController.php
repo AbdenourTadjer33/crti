@@ -8,15 +8,19 @@ use Inertia\Inertia;
 use App\Models\Project;
 use App\Enums\ProjectStatus;
 use Illuminate\Http\Request;
+use App\Services\AuxDataService;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Modules\Versioning\Models\Version;
+use App\Http\Requests\Version\EditRequest;
 use App\Http\Requests\Version\StoreRequest;
-use App\Http\Requests\Version\UpdateRequest;
 use App\Http\Requests\Version\CreateRequest;
-use App\Http\Resources\Project\ProjectVersionResource;
+use App\Http\Requests\Version\UpdateRequest;
 use Illuminate\Routing\Controllers\Middleware;
+use App\Http\Requests\Version\DuplicateRequest;
 use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use App\Http\Resources\Project\ProjectVersionResource;
 use Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests;
 
 class ProjectVersionController extends Controller implements HasMiddleware
@@ -35,7 +39,7 @@ class ProjectVersionController extends Controller implements HasMiddleware
         $this->user = request()->user();
     }
 
-    public function create(CreateRequest $request)
+    public function create(CreateRequest $request, AuxDataService $auxDataService)
     {
         /** @var Project */
         $project = $this->user->projects()->getQuery()
@@ -43,13 +47,17 @@ class ProjectVersionController extends Controller implements HasMiddleware
             ->where('code', $request->route('project'))
             ->first();
 
-        if (!$project || !$project->isFirstVersion()) return abort(404);
+        if (!$project || !$project->isFirstVersion($project->versions_count)) return abort(404);
 
-        return Inertia::render('Project/Version/Create', [
-            'version' => function () use ($project) {
-                $version = $project->currentVersion();
-                return $version ? unserialize($version->model_data) : null;
-            }
+        $versionFn = function () use ($project) {
+            $version = $project->currentVersion();
+            return $version ? unserialize($version->model_data) : null;
+        };
+
+        return Inertia::render('Project/Create', [
+            'version' => $versionFn,
+            'domains' => Inertia::lazy(fn() => collect($auxDataService->getProjectDomains())->map(fn($domain) => $domain->domain)),
+            'natures' => Inertia::lazy(fn() => collect($auxDataService->getProjectNatures())->map(fn($nature) => $nature->nature)),
         ]);
     }
 
@@ -62,7 +70,7 @@ class ProjectVersionController extends Controller implements HasMiddleware
     public function store(StoreRequest $request, Project $project)
     {
         DB::transaction(function () use ($request, $project) {
-            $members = User::withoutTrashed()->whereIn('uuid', collect($request->members)->map(fn ($member) => $member['uuid']))->get(['id', 'uuid']);
+            $members = User::withoutTrashed()->whereIn('uuid', collect($request->members)->map(fn($member) => $member['uuid']))->get(['id', 'uuid']);
 
             $project->update([
                 'status' => 'new',
@@ -102,7 +110,7 @@ class ProjectVersionController extends Controller implements HasMiddleware
                     'tasks',
                     'tasks.users:id,uuid,first_name,last_name,email'
                 ])->toArray()),
-                'reason' => "this represent the project confirmed first version",
+                'reason' => "This represent the project main version",
                 'user_id' => $this->user->id,
             ]);
 
@@ -115,24 +123,24 @@ class ProjectVersionController extends Controller implements HasMiddleware
         ]);
     }
 
-    public function edit(Request $request)
+    public function edit(EditRequest $request, AuxDataService $auxDataService)
     {
-        $versionFn = fn () => Version::query()->where('id', $request->route('version'))->first()->getModel();
+        $versionFn = function () use ($request) {
+            $version = Version::query()->where('id', $request->route('version'))->first();
+            return unserialize($version->model_data);
+        };
 
-        return Inertia::render('Project/Version/Edit', [
-            'version' => fn () => new ProjectVersionResource($versionFn()),
+        // return $versionFn();
 
+        return Inertia::render('Project/Edit', [
+            'version' => $versionFn,
+            'domains' => Inertia::lazy(fn() => collect($auxDataService->getProjectDomains())->map(fn($domain) => $domain->domain)),
+            'natures' => Inertia::lazy(fn() => collect($auxDataService->getProjectNatures())->map(fn($nature) => $nature->nature)),
         ]);
     }
 
     public function update(UpdateRequest $request)
     {
-
-        $previousVersion = Project::query()->where('code', $request->route('project'))->first()->lastConfirmedVersion();
-
-        $formData = $request->all();
-        // $previousVersion = 
-
         // dd($request->all(), (new ProjectVersionResource(Version::query()->where('id', $request->route('version'))->first()->getModel()))->toArray($request));
     }
 
@@ -163,7 +171,10 @@ class ProjectVersionController extends Controller implements HasMiddleware
 
             $version->user_id = $this->user->id;
             $version->reason = $request->input('reason');
-            $version->model_data = serialize(json_decode((new ProjectVersionResource($version->getModel()))->toJson(), true));
+            $version->model_data = serialize([
+                'data' => json_decode((new ProjectVersionResource($version->getModel()))->toJson(), true),
+                'params' => []
+            ]);
 
             $version->save();
             $project->refVersionAsCreation($version->id);

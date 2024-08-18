@@ -22,12 +22,24 @@ class ProjectDetailsResource extends JsonResource
             'domains' => $this->domains,
             'timeline' => [
                 'from' => $this->date_begin,
-                'to' => $this->to,
+                'to' => $this->date_end,
             ],
             'description' => $this->description,
             'goals' => $this->goals,
             'methodology' => $this->methodology,
-            'creator' => $this->when(!!$this->user, new ProjectMemberResource($this->user))
+            'creator' => $this->when(!!$this->user, new ProjectMemberResource($this->user)),
+            'members' => ProjectMemberResource::collection($this->whenLoaded('users')),
+            'tasks' => ProjectTaskResource::collection($this->whenLoaded('tasks')),
+            'division' => $this->when(!!$this->division, [
+                'id' => $this->division->id,
+                'name' => $this->division->name,
+            ]),
+            'unit' => $this->when($this->division?->unit, [
+                'id' => $this->division->unit->id,
+                'name' => $this->division->unit->name,
+                'abbr' => $this->division->unit->abbr,
+            ]),
+            'createdAt' => $this->created_at,
         ];
     }
 }

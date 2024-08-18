@@ -24,7 +24,7 @@ class UpdateDivisionRequest extends FormRequest
         return [
             'name' => ['required', 'string',],
             'abbr' => ['required', 'string'],
-            'description' => ['required', 'string'],
+            'description' => ['nullable', 'string'],
             'members' => ['nullable', 'array'],
             'members.*' => ['nullable', 'array'],
             'members.*.uuid' => ['sometimes', 'string', Rule::exists('users', 'uuid')],

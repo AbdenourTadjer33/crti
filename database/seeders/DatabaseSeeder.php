@@ -2,13 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Models\Post;
-use App\Models\Test;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Cache;
-use Modules\Permission\Models\Permission;
 
 class DatabaseSeeder extends Seeder
 {
@@ -17,12 +13,18 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::create([
-            'first_name' => 'reda',
-            'last_name' => 'ben',
-            'email' => 'reda@ben.com',
-            'password' => bcrypt('password'),
-            'status' => true,
+        if (!User::query()->where('email', 'tad.abdenour33@gmail.com')->count()) {
+            User::create([
+                'first_name' => 'Abdenour',
+                'last_name' => 'Tadjer',
+                'email' => 'tad.abdenour33@gmail.com',
+                'password' => bcrypt('password'),
+                'status' => true,
+            ]);
+        }
+
+        $this->call([
+            InitAppSeeder::class
         ]);
     }
 }

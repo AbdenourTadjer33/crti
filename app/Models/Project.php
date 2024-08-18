@@ -25,10 +25,6 @@ class Project extends Model
 
     public $versionableRelations = ['division', 'user', 'users', 'tasks', 'tasks.users'];
 
-    // protected $dontVersionFields = ['status'];
-
-    // protected $keepOldVersions = 10;
-
     protected function casts(): array
     {
         return [
@@ -48,7 +44,7 @@ class Project extends Model
 
     protected static function booted(): void
     {
-        // init the project version_info attribute
+        // init the project version_info attribute on creation.
         static::creating(function (Project $project) {
             $project->version_info = [
                 'main' => null,
@@ -85,9 +81,9 @@ class Project extends Model
      * 
      * @return bool
      */
-    public function isFirstVersion(): bool
+    public function isFirstVersion(int $versionCount): bool
     {
-        return ($this->status === "creation") && ($this->loadCount('versions')->versions_count <= 1);
+        return ($this->status === "creation") && ($versionCount <= 1);
     }
 
     /**
@@ -179,9 +175,15 @@ class Project extends Model
             );
         };
 
+        $unitInstance = new \App\Models\Unit;
+        $unit = $unitInstance->newInstance([], true)
+            ->setRawAttributes($relations['division']['unit'], true);
+
         $divisionInstance = new \App\Models\Division;
+        unset($relations['division']['unit']);
         $division = $divisionInstance->newInstance([], true)
-            ->setRawAttributes($relations['division'], true);
+            ->setRawAttributes($relations['division'], true)
+            ->setRelation('unit', $unit);
 
         $taskInstance = new \App\Models\Task;
         $tasks = Collection::make(array_map(
@@ -200,20 +202,37 @@ class Project extends Model
         return $this;
     }
 
-    public function lastConfirmedVersion($getRelatedModel = true)
-    {
-        $model = $this->versions()->getQuery()->where('id', $this->last_confirmed_version_id)->first();
-        return $getRelatedModel ? $model?->getModel() : $model;
-    }
-
     public function getMainVersion($getRelatedModel = true)
     {
-        $mainVersionId = $this->version_info['main'];
+        $mainVersionId = (int) $this->version_info['main'];
+
+        if (!$mainVersionId) return;
 
         $version = $this->versions()->getQuery()->where('id', $mainVersionId)->first();
 
         return $getRelatedModel ? $version?->getModel() : $version;
     }
+
+    /**
+     * This method return an array of version ids that are on creation
+     * @return array
+     */
+    public function getCreationVersions()
+    {
+        return $this->version_info['creation'];
+    }
+
+    /**
+     * This method return all versions that are under creation.
+     * 
+     * @param int $userId
+     */
+    // public function getCreationVersions(int $userId)
+    // {
+    // return $this->versions()->whereIn('id', $this->version_info['creation'])->where('user_id', $userId)->get();
+    // }
+
+    public function getCreatedVersions() {}
 
     public function refVersionAsMain(int $version): bool
     {
@@ -267,21 +286,21 @@ class Project extends Model
     public function syncVersion(?int $main = null, ?array $onCreation = null, ?array $onCreated = null)
     {
         if ($main !== null) {
-            $this->version_info['main'] = $main;
+            $this->setAttribute('version_info->main', $main);
         }
 
         if ($onCreation !== null) {
-            $this->version_info['creation'] = array_filter($onCreation);
+            $this->setAttribute('version_info->creation', $onCreation);
         }
 
         if ($onCreated !== null) {
-            $this->version_info['created'] = array_filter($onCreated);
+            $this->setAttribute('version_info->created', $onCreated);
         }
     }
 
     public function clearMainVersion()
     {
-        $this->version_info['main'] = null;
+        $this->setAttribute('version_info->main', null);
     }
 
     /**
@@ -295,7 +314,7 @@ class Project extends Model
     /**
      * WITHOUT SAVING
      */
-    public function clearCreatingVersion()
+    public function clearCreationVersion()
     {
         $this->syncVersion(onCreation: []);
     }

@@ -4,7 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class UpdateUserLastActivity
@@ -24,7 +24,7 @@ class UpdateUserLastActivity
      */
     public function terminate(Request $request, Response $response): void
     {
-        if (!auth()->check()) return;
+        if (!Auth::check()) return;
 
         $user = $request->user();
         $user->last_activity = now();

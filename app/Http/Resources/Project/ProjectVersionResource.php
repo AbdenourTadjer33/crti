@@ -15,6 +15,7 @@ class ProjectVersionResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'creator' => new ProjectMemberResource($this->user),
             'name' => $this->name,
             'nature' => $this->nature,
             'domains' => $this->domains,
@@ -31,8 +32,8 @@ class ProjectVersionResource extends JsonResource
                 'from' => $this->date_begin,
                 'to' => $this->date_end,
             ],
-            'members' => ProjectMembersResource::collection($this->users),
-            'tasks' => ProjectTasksResource::collection($this->tasks),
+            'members' => ProjectMemberResource::collection($this->users),
+            'tasks' => ProjectTaskResource::collection($this->tasks),
             'resources' => [],
             'resources_crti' => [],
             'resources_partner' => [],

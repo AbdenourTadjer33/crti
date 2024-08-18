@@ -16,7 +16,7 @@ return new class extends Migration
             $table->morphs('versionable');
             $table->foreignId('user_id')->nullable()->constrained('users', 'id')->nullOnDelete();
             $table->longText('model_data');
-            $table->string('reason', 100)->nullable();
+            $table->string('reason')->nullable();
             $table->timestamps();
         });
     }

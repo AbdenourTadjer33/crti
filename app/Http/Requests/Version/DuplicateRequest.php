@@ -11,9 +11,7 @@ class DuplicateRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        // we need first to check the permissions.
-        // secondly we must check if the user have not other version that are in creation.
-        return false;
+        return true;
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Version;
 
+use Carbon\Carbon;
 use Tiptap\Editor;
 use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -57,7 +58,7 @@ class StoreRequest extends FormRequest
             'goals' => ['required', 'string', 'min:50'],
             'methodology' => ['required', 'string', 'min:50'],
 
-            'domains' => ['required', 'array', 'min:3', 'max:5'],
+            'domains' => ['required', 'array', 'min:2', 'max:6'],
             'domains.*' => ['required', 'string'],
 
             'timeline' => ['required', 'array'],
@@ -77,8 +78,11 @@ class StoreRequest extends FormRequest
             // 'resources' => ['required', 'array'],
             // 'resources.*.name' => ['required', 'string'],
 
-            // 'resources_crti' => ['required', 'array'],
-            // 'resources_crti.*' => ['required', 'array'],
+            'resources_crti' => ['required', 'array'],
+            'resources_crti.*' => ['required', 'array'],
+            'resources_crti.*.name' => ['required', 'string'],
+            'resources_crti.*.description' => ['nullable', 'string'],
+            'resources_crti.*.price' => ['required', 'numeric'],
 
             // 'resource_partner' => ['exclude_if:is_partner,false', 'required', 'array'],
             // 'resource_partner.*' => ['exclude_if:is_partner,false', 'required', 'array'],

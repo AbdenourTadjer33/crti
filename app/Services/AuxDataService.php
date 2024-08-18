@@ -23,7 +23,7 @@ class AuxDataService
         );
     }
 
-    private function storeData(string $tableName, string $columnName, string $value)
+    private function storeData(string $tableName, string $columnName, string $value): bool
     {
         return DB::table($tableName)->insert([
             $columnName => $value

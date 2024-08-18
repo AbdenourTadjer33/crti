@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Manage\BoardController;
 use App\Models\User;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
@@ -8,9 +7,11 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Manage\RoleController;
 use App\Http\Controllers\Manage\UnitController;
 use App\Http\Controllers\Manage\UserController;
+use App\Http\Controllers\Manage\BoardController;
 use App\Http\Controllers\Manage\ManageController;
 use App\Http\Controllers\Project\ProjectController;
 use App\Http\Controllers\Manage\PermissionController;
+use App\Http\Controllers\Manage\ResourceController;
 use App\Http\Controllers\Manage\UnitDivisionController;
 use App\Http\Controllers\Project\ProjectVersionController;
 
@@ -19,9 +20,9 @@ Route::get('/', function () {
 });
 
 Route::prefix('/app')->middleware(['auth'])->group(function () {
-    Route::get('/', fn () => Inertia::render('Welcome'))->name('app');
+    Route::get('/', fn() => Inertia::render('Welcome'))->name('app');
 
-    Route::get('app/search/users', function (Request $request) {
+    Route::get('search/users', function (Request $request) {
         if (app()->isProduction() && !$request->isXmlHttpRequest()) {
             abort(401);
         }
@@ -57,5 +58,6 @@ Route::prefix('/app')->middleware(['auth'])->group(function () {
 
     Route::resource('projects', ProjectController::class)->only(["index", "store", "show"])->names('project');
     Route::post('projects/{project}/versions/sync', [ProjectVersionController::class, 'sync'])->name('project.version.sync');
-    Route::resource('projects.versions', ProjectVersionController::class)->only(["create", "store"])->names('project.version');
+    Route::post('projects/{project}/versions/duplicate-main-version', [ProjectVersionController::class, 'duplicate'])->name('project.version.duplicate');
+    Route::resource('projects.versions', ProjectVersionController::class)->only(['create', 'store', 'edit', 'update'])->names('project.version');
 });
