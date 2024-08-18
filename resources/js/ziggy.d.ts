@@ -201,24 +201,61 @@ declare module 'ziggy-js' {
     "manage.board.show": [
         {
             "name": "board",
-            "required": true
+            "required": true,
+            "binding": "id"
         }
     ],
     "manage.board.edit": [
         {
             "name": "board",
-            "required": true
+            "required": true,
+            "binding": "id"
         }
     ],
     "manage.board.update": [
         {
             "name": "board",
-            "required": true
+            "required": true,
+            "binding": "id"
         }
     ],
     "manage.board.destroy": [
         {
             "name": "board",
+            "required": true
+        }
+    ],
+    "manage.resource.index": [],
+    "manage.resource.create": [],
+    "manage.resource.store": [],
+    "manage.resource.show": [
+        {
+            "name": "resource",
+            "required": true
+        }
+    ],
+    "manage.resource.edit": [
+        {
+            "name": "resource",
+            "required": true
+        }
+    ],
+    "manage.resource.update": [
+        {
+            "name": "resource",
+            "required": true
+        }
+    ],
+    "manage.resource.destroy": [
+        {
+            "name": "resource",
+            "required": true
+        }
+    ],
+    "manage.project.index": [],
+    "manage.project.show": [
+        {
+            "name": "project",
             "required": true
         }
     ],

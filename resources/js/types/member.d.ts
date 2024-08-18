@@ -4,6 +4,12 @@ type Member = {
     grade: string;
 };
 
+type MemberBoard = {
+    uuid: string;
+    name: string;
+    email: string;
+};
+
 export {
-    Member
+    Member, MemberBoard
 };

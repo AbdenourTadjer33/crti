@@ -1,5 +1,5 @@
 import { Head, Link } from "@inertiajs/react";
-import { MdAdd, MdHome } from "react-icons/md";
+import { MdAdd } from "react-icons/md";
 import { Pagination, User } from "@/types";
 
 import AuthLayout from "@/Layouts/AuthLayout";
@@ -9,10 +9,11 @@ import { Heading } from "@/Components/ui/heading";
 import React from "react";
 import Table from "@/Features/Manage/User/Table";
 import { Text } from "@/Components/ui/paragraph";
+import { House } from "lucide-react";
 
 
 const breadcrumbs = [
-    { href: route("app"), label: <MdHome className="w-6 h-6" /> },
+    { href: route("app"), label: <House className="w-6 h-6" /> },
     { href: route("manage.index"), label: "Centres d'administration" },
     { label: "Gestion d'utilisateurs" },
 ];
@@ -45,6 +46,8 @@ const Index: React.FC<{ users: Pagination<User> }> = ({ users }) => {
                 </div>
 
                 <Table users={users} />
+            <pre>{JSON.stringify({ users }, null, 2)}</pre>
+
             </div>
         </AuthLayout>
     );

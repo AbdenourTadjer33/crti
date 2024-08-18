@@ -114,6 +114,7 @@ class UnitDivisionController extends Controller
             'message' => 'Division mise a jour avec succes'
         ]);
     }
+    
 
     /**
      * Remove the specified resource from storage.

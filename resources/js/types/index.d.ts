@@ -1,4 +1,5 @@
 import { UUID } from "crypto";
+import { MemberBoard } from "./member";
 
 export type PageProps<
     T extends Record<string, unknown> = Record<string, unknown>
@@ -31,6 +32,9 @@ export type Division = {
 };
 
 export type User = {
+    id: number;
+    unitId?: number;
+    divisionId?: number;
     uuid: UUID;
     name: string;
     email: string;
@@ -47,8 +51,11 @@ export type User = {
     {
         grade: string;
         addedAt: string;
-    }
-    ;
+    };
+    boards?:
+    {
+        addedAt: string;
+    }    ;
 };
 
 export type Permission = {
@@ -68,6 +75,17 @@ export type Role = {
     updatedAt?: string;
     permissions?: Permission[];
     permissionIds: number[];
+};
+
+export type Board = {
+    id?: string;
+    name: string;
+    abbr: string
+    description?: string;
+    user: User[];
+    userCount?: number;
+    createdAt?: string,
+    updatedAt?: string,
 };
 
 type PaginationLinks = {
@@ -99,3 +117,4 @@ export interface Pagination<TData> {
     meta: PaginationMeta;
     links: PaginationLinks;
 }
+

@@ -78,7 +78,7 @@ class Project extends Model
 
     /**
      * Determine if the project is on his first version
-     * 
+     *
      * @return bool
      */
     public function isFirstVersion(int $versionCount): bool
@@ -89,7 +89,7 @@ class Project extends Model
     /**
      * Determine if the project can have new versions
      * This method is for checking if we can create more version for a project.
-     * 
+     *
      * @return bool
      */
     public function canHaveNewVersions(): bool
@@ -99,10 +99,10 @@ class Project extends Model
 
     /**
      * Get the division that have the project.
-     * 
+     *
      * This method establishes an inverse one-to-many relationship
      * where a project belongs to a single division
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function division(): BelongsTo
@@ -112,8 +112,8 @@ class Project extends Model
 
     /**
      * Get the user that created the project.
-     * 
-     * This method establishes an inverse one-to-many relationship 
+     *
+     * This method establishes an inverse one-to-many relationship
      * where a project belongs to a single user (the creator).
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -125,9 +125,9 @@ class Project extends Model
 
     /**
      * Get all users associated with the project (members).
-     * 
-     * This method defines a many-to-many relationship, indicating 
-     * that a project can have multiple users (members), and a user 
+     *
+     * This method defines a many-to-many relationship, indicating
+     * that a project can have multiple users (members), and a user
      * can be associated with multiple projects.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
@@ -139,8 +139,8 @@ class Project extends Model
 
     /**
      * Get all tasks associated with the project.
-     * 
-     * This method defines a one-to-many relationship, indicating 
+     *
+     * This method defines a one-to-many relationship, indicating
      * that a project can have multiple tasks, and a task belongs to one project.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
@@ -154,6 +154,19 @@ class Project extends Model
     // {
     // return $this->hasMany(Resource::class);
     // }
+
+    /**
+     * Get the board that owns the project.
+     *
+     * This method defines a one-to-one relationship, indicating
+     * that a project belongs to one board, and board has one project.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function board(): BelongsTo
+    {
+        return $this->belongsTo(Board::class, 'board_id', 'id');
+    }
 
     public function loadRelationsToVersion(array $relations): self
     {
@@ -224,7 +237,7 @@ class Project extends Model
 
     /**
      * This method return all versions that are under creation.
-     * 
+     *
      * @param int $userId
      */
     // public function getCreationVersions(int $userId)

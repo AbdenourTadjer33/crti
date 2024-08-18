@@ -1,17 +1,15 @@
-import * as React from "react";
-import { FormWrapper } from "@/Components/ui/form";
+import React from "react";
 import { Link, useForm, usePage } from "@inertiajs/react";
 import { Button } from "@/Components/ui/button";
+import { FormWrapper } from "@/Components/ui/form";
 import { Label } from "@/Components/ui/label";
-import { Input } from "@/Components/ui/input";
-import { InputError } from "@/Components/ui/input-error";
+import { Input, InputError } from "@/Components/ui/input";
 import { Textarea } from "@/Components/ui/textarea";
-import { User } from "@/types";
 import { useDebounce } from "@/Hooks/use-debounce";
+import { User } from "@/types";
 import { useEventListener } from "@/Hooks/use-event-listener";
-import { searchUsers } from "@/Services/api/users";
 import { skipToken, useQuery } from "@tanstack/react-query";
-import { LoaderCircle, Plus, X } from "lucide-react";
+import { searchUsers } from "@/Services/api/users";
 import {
     Command,
     CommandEmpty,
@@ -22,43 +20,33 @@ import {
     CommandList,
     CommandShortcut,
 } from "@/Components/ui/command";
-import Avatar from "@/Components/Avatar";
-import { Skeleton } from "@/Components/ui/skeleton";
+import { LoaderCircle, Plus, X } from "lucide-react";
 import { Kbd } from "@/Components/ui/kbd";
-import { Division } from "@/types/division";
-import { Member } from "@/types/member";
+import { Skeleton } from "@/Components/ui/skeleton";
+import Avatar from "@/Components/Avatar";
 import { isAnyKeyBeginWith } from "@/Libs/Validation/utils";
+import Field from "@/Libs/FormBuilder/components/Field";
+import { DateRange } from "react-day-picker";
+import { format } from "date-fns";
 
-const EditForm: React.FC<any> = ({ unit, division }) => {
-    const { data, setData, errors, processing, put, clearErrors } = useForm({
-        name: division.name || "",
-        abbr: division.abbr || "",
-        description: division.description || "",
-        members:
-            division.users.map((user: any) => ({
-                uuid: user.uuid,
-                name: `${user.first_name} ${user.last_name}`,
-                grade: user.pivot.grade,
-            })) || [],
+
+const CreateForm: React.FC<any> = ({ board }) => {
+    const { data, setData, errors, processing, post, clearErrors } = useForm<{
+        name: string;
+        jugement_period: DateRange;
+        description: string;
+        members: { uuid: string; name: string; email: string }[];
+    }>({
+        name: "",
+        jugement_period: { from: undefined, to: undefined },
+        description: "",
+        members: [],
     });
-    const submitHandler = (e: React.FormEvent) => {
-        e.preventDefault();
 
-        put(
-            route("manage.unit.division.update", {
-                unit: unit.id,
-                division: division.id,
-            }),
-            {
-                preserveScroll: true,
-            }
-        );
-    };
-
-    const addMember = (user: Member) => {
-        if (!data.members.some((member: Member) => member.uuid == user.uuid)) {
+    const addMember = (user: User) => {
+        if (!data.members.some((member) => member.uuid == user.uuid)) {
             setData((data) => {
-                data.members.push({ ...user, grade: "" });
+                data.members.push({ ...user });
                 return { ...data };
             });
         }
@@ -67,11 +55,17 @@ const EditForm: React.FC<any> = ({ unit, division }) => {
     const removeMember = (uuid: string) => {
         setData((data) => {
             const members = data.members;
-            const idx = members.findIndex(
-                (member: any) => member.uuid === uuid
-            );
+            const idx = members.findIndex((member) => member.uuid === uuid);
             members.splice(idx, 1);
             return { ...data, members };
+        });
+    };
+
+    const submitHandler = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        post(route("manage.board.store", { board }), {
+            preserveScroll: true,
         });
     };
 
@@ -80,39 +74,71 @@ const EditForm: React.FC<any> = ({ unit, division }) => {
             className="space-y-4 md:space-y-8"
             onSubmit={submitHandler}
         >
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid sm:grid-cols-3 gap-4">
                 <div className="space-y-1 sm:col-span-2 col-span-3">
-                    <Label>Nom de la division</Label>
+                    <Label>Nom du conseil scientifique</Label>
                     <Input
                         value={data.name}
-                        onChange={(e) => setData("name", e.target.value)}
+                        onChange={(e) => {
+                            clearErrors("name");
+                            setData("name", e.target.value);
+                        }}
                     />
                     <InputError message={errors.name} />
                 </div>
+                <div className="space-y-1 sm:col-span-2 col-span-3">
+                    <Label>Date début/fin</Label>
+                        <Field
+                            type="calendar"
+                            mode="range"
+                            showOutsideDays={false}
+                            value={data.jugement_period}
+                            onValueChange={(value: DateRange) => {
+                                clearErrors("jugement_period");
+                                setData("jugement_period", value);
+                            }}
+                            labels={{
+                                trigger: (value) => {
+                                    if (!value?.from && !value?.to) {
+                                        return "Date début/fin";
+                                    }
 
-                <div className="space-y-1 sm:col-span-1 col-span-3">
-                    <Label>Abréviation</Label>
-                    <Input
-                        value={data.abbr}
-                        onChange={(e) => setData("abbr", e.target.value)}
-                    />
-                    <InputError message={errors.abbr} />
+                                    if (value?.from && !value?.to) {
+                                        return `De ${format(
+                                            value.from,
+                                            "dd/MM/yyy"
+                                        )}`;
+                                    }
+
+                                    return `De ${format(
+                                        value.from,
+                                        "dd/MM/yyy"
+                                    )} à ${format(value.to, "dd/MM/yyy")}`;
+                                },
+                            }}
+                        />
+                        <InputError message={errors.jugement_period} />
                 </div>
 
                 <div className="space-y-1 col-span-3">
                     <Label>Description</Label>
                     <Textarea
                         value={data.description}
-                        onChange={(e) => setData("description", e.target.value)}
+                        onChange={(e) => {
+                            clearErrors("description");
+                            setData("description", e.target.value);
+                        }}
                     />
                     <InputError message={errors.description} />
                 </div>
+
                 <div className="space-y-1 col-span-3">
                     <SearchMembers
                         members={data.members}
                         addMember={addMember}
-                        removeMember={removeMember}
                     />
+                </div>
+                <div className="space-y-1 col-span-3">
                 </div>
 
                 {!!data.members.length && (
@@ -122,11 +148,9 @@ const EditForm: React.FC<any> = ({ unit, division }) => {
                                 Vous devez remplire tous les chames grades*
                             </div>
                         )}
-                        {data.members.map((member: Member, idx: number) => (
-                            <div
-                                key={member.uuid}
-                                className="flex items-center gap-4"
-                            >
+
+                        {data.members.map((member, idx) => (
+                            <div key={idx} className="flex items-center gap-4">
                                 <Button
                                     type="button"
                                     variant="outline"
@@ -134,20 +158,13 @@ const EditForm: React.FC<any> = ({ unit, division }) => {
                                 >
                                     {member.name}
                                 </Button>
-
-                                <Input
-                                    placeholder="grade"
-                                    value={member.grade}
-                                    onChange={(e) => {
-                                        setData((data) => {
-                                            data.members[idx].grade =
-                                                e.target.value;
-                                            return { ...data };
-                                        });
-                                        clearErrors(`members.${idx}.grade`);
-                                    }}
-                                />
-
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    className="justify-start basis-3/5 sm:text-base text-xs"
+                                >
+                                    {member.email}
+                                </Button>
                                 <Button
                                     variant="destructive"
                                     className="items-center"
@@ -166,13 +183,16 @@ const EditForm: React.FC<any> = ({ unit, division }) => {
             </div>
 
             <div className="mx-auto max-w-lg flex flex-col-reverse sm:flex-row items-center sm:gap-4 gap-2">
-                <Button variant="destructive" className="w-full" asChild>
-                    <Link href={route("manage.unit.show", unit.id)}>
-                        Annuler
-                    </Link>
+                <Button
+                    variant="destructive"
+                    disabled={processing}
+                    className="w-full"
+                    asChild
+                >
+                    <Link href={route("manage.board.index")}>Annuler</Link>
                 </Button>
                 <Button disabled={processing} className="w-full">
-                    Sauvegarder
+                    Créer
                 </Button>
             </div>
         </FormWrapper>
@@ -180,16 +200,11 @@ const EditForm: React.FC<any> = ({ unit, division }) => {
 };
 
 interface SearchMemberProps {
-    members: User[];
+    members: any[];
     addMember: (user: User) => void;
-    removeMember: (uuid: string) => void;
 }
 
-const SearchMembers = ({
-    addMember,
-    members,
-    removeMember,
-}: SearchMemberProps) => {
+const SearchMembers = ({ addMember, members }: SearchMemberProps) => {
     const [search, setSearch] = React.useState("");
     const debouncedValue = useDebounce(search, 300);
     const commandInputRef = React.useRef<HTMLInputElement>(null);
@@ -217,6 +232,7 @@ const SearchMembers = ({
                         value={search}
                         onValueChange={setSearch}
                         placeholder="Rechercher..."
+                        autoFocus
                     />
                     {isFetching && (
                         <LoaderCircle className="animate-spin mr-2" />
@@ -294,4 +310,4 @@ const SearchMembers = ({
     );
 };
 
-export default EditForm;
+export default CreateForm;

@@ -132,10 +132,10 @@ class User extends Authenticatable
 
     /**
      * Get all divisions associated with the user
-     * 
-     * This method defines a many to many relationship, indicating 
+     *
+     * This method defines a many to many relationship, indicating
      * that a user can belongs to many divisions.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function divisions(): BelongsToMany
@@ -147,10 +147,10 @@ class User extends Authenticatable
 
     /**
      * Get all projects associated with the user (creator)
-     * 
-     * This method defines a one-to-many relationship, indicating 
+     *
+     * This method defines a one-to-many relationship, indicating
      * that a user can have multiple projects and a project belongs to one user.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function projects(): HasMany
@@ -160,11 +160,11 @@ class User extends Authenticatable
 
     /**
      * Get all projects associated with the user (member)
-     * 
-     * This method defines a many-to-many relationship, indicating 
-     * that a project can have multiple users (members), and a user 
+     *
+     * This method defines a many-to-many relationship, indicating
+     * that a project can have multiple users (members), and a user
      * can be associated with multiple projects.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function onProjects(): BelongsToMany
@@ -175,5 +175,31 @@ class User extends Authenticatable
     public function unit()
     {
         return $this->belongsTo(Unit::class);
+    }
+
+    /**
+     * Get all boards associated with the user (president)
+     *
+     * This method defines a one-to-many relationship, indicating
+     * that a user (president) is in multiple boards, and a board has one user (president).
+     */
+    public function boards(): HasMany
+    {
+        return $this->hasMany(Board::class, 'user_id', 'id');
+    }
+
+    /**
+     * Get all boards associated with the user.
+     *
+     * This method defines a many-to-many relationship, indicating
+     * that a user can belong to many boards.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function onBoards(): BelongsToMany
+    {
+        return $this->belongsToMany(Board::class, 'board_user', 'user_id', 'board_id')
+            ->withPivot('comment', 'is_favorable')
+            ->withTimestamps();
     }
 }

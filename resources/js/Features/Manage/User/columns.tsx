@@ -3,7 +3,7 @@ import { createColumnHelper } from "@tanstack/react-table";
 import dayjs from "dayjs";
 import { Switch } from "@/Components/ui/switch";
 import { Checkbox } from "@/Components/ui/checkbox";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, Pencil, SquareArrowOutUpRight } from "lucide-react";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -25,6 +25,7 @@ import {
     RowExpander,
     RowSelecter,
 } from "@/Components/DataTable";
+import { Link } from "@inertiajs/react";
 
 const columnHelper = createColumnHelper<User>();
 
@@ -50,6 +51,15 @@ export const columnDef = [
 
     columnHelper.accessor("name", {
         header: "Nom prénom",
+        cell: ({ row }) => (
+            <Link
+                href={route("manage.user.show", row.original.id)}
+                className="inline-flex items-center hover:text-blue-600 duration-100"
+            >
+                {row.original.name}{" "}
+                <SquareArrowOutUpRight className="h-4 w-4 ml-1.5" />
+            </Link>
+        ),
     }),
 
     columnHelper.accessor("email", {
@@ -154,7 +164,12 @@ export const columnDef = [
                             Copier l'ID
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem>Modifier</DropdownMenuItem>
+                        {/* <DropdownMenuItem asChild>
+                            <Link href={route("manage.user.edit", { board: id })}>
+                                <Pencil className="w-4 h-4 mr-2" />
+                                Modifier
+                            </Link>
+                    </DropdownMenuItem> */}
                         <DropdownMenuItem>Supprimé</DropdownMenuItem>
                         <DropdownMenuItem>Blocker</DropdownMenuItem>
                     </DropdownMenuContent>
