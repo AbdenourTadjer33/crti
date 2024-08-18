@@ -21,10 +21,10 @@ class Division extends Model
 
     /**
      * Get the unit that own the division
-     * 
-     * This method establishes an inverse one-to-many relationship 
+     *
+     * This method establishes an inverse one-to-many relationship
      * where a division belongs to a single unit.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function unit(): BelongsTo
@@ -34,9 +34,9 @@ class Division extends Model
 
     /**
      * Get all users associated with a division
-     * 
-     * This method defines a many-to-many relationship, indicating 
-     * that a division can have multiple users, and a user 
+     *
+     * This method defines a many-to-many relationship, indicating
+     * that a division can have multiple users, and a user
      * can be associated with multiple divisions.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
@@ -50,11 +50,11 @@ class Division extends Model
 
     /**
      * Get all projects associated with a division.
-     * 
-     * This method defines a one-to-many relationship, indicating 
+     *
+     * This method defines a one-to-many relationship, indicating
      * that a division can have multiple projects, and a project belongs to one division.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany 
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function projects(): HasMany
     {

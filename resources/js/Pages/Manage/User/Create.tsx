@@ -22,8 +22,10 @@ const Create: React.FC<{
     permissions: Permission[];
     roles: Role[];
     universities: { id: number; name: string }[];
-    units: { id: number; name: string }[];
-}> = ({ permissions, roles, universities, units }) => {
+    units: [];
+    divisions:[]
+    boards:[]
+}> = ({ permissions, roles, universities, units, divisions, boards}) => {
     return (
         <AuthLayout>
             <Head title="Créer utilisateur" />
@@ -40,8 +42,8 @@ const Create: React.FC<{
                         Votre modèle de tableau de bord de gestion d'accées.
                     </Text>
                 </div>
-                
-                <CreateForm units={units} universities={universities} />
+
+                <CreateForm units={units} boards={boards}/>
             </div>
         </AuthLayout>
     );

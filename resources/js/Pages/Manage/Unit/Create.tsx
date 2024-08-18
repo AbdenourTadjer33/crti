@@ -28,7 +28,6 @@ const Create: React.FC = () => (
                     Utilisez ce formulaire pour ajouter une nouvelle unité,
                     Cliquez sur "Créer" pour enregistrer les informations ou "Annuler"
                     pour revenir à la page précédente sans sauvegarder.
-
                 </Text>
             </div>
 

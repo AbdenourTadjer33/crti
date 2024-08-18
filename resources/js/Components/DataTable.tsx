@@ -14,6 +14,19 @@ interface DataTableOptions {
     noDataPlaceholder?: React.ReactNode;
 }
 
+interface HeaderSelecterProps {
+    table: TanstackTable.Table<any>;
+}
+
+interface RowSelecterProps {
+    row: TanstackTable.Row<any>;
+}
+
+interface RowExpanderProps {
+    row: TanstackTable.Row<any>;
+}
+
+
 export default function DataTable({ options }: { options: DataTableOptions }) {
     return (
         <>
@@ -102,7 +115,8 @@ export default function DataTable({ options }: { options: DataTableOptions }) {
     );
 }
 
-function HeaderSelecter({ table }: TanstackTable.HeaderContext<any, any>) {
+
+function HeaderSelecter({ table }: HeaderSelecterProps) {
     return (
         <Checkbox
             checked={
@@ -116,7 +130,7 @@ function HeaderSelecter({ table }: TanstackTable.HeaderContext<any, any>) {
     );
 }
 
-function RowSelecter({ row }: TanstackTable.CellContext<any, any>) {
+function RowSelecter({ row }: RowSelecterProps) {
     return (
         <Checkbox
             checked={row.getIsSelected()}
@@ -126,7 +140,7 @@ function RowSelecter({ row }: TanstackTable.CellContext<any, any>) {
     );
 }
 
-function RowExpander({ row }: TanstackTable.CellContext<any, any>) {
+function RowExpander({ row }: RowExpanderProps) {
     return row.getCanExpand() ? (
         <Button variant="ghost" onClick={row.getToggleExpandedHandler()}>
             {row.getIsExpanded() ? (

@@ -9,8 +9,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Modules\Permission\Models\Role;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Manage\User\StoreRequest;
+use App\Http\Resources\Manage\BoardResource;
+use App\Http\Resources\Manage\DivisionResource;
 use Modules\Permission\Models\Permission;
 use App\Http\Resources\Manage\UserResource as ManageUserResource;
+use App\Models\Board;
+use App\Models\Division;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -34,32 +40,54 @@ class UserController extends Controller
     public function create()
     {
         return Inertia::render('Manage/User/Create', [
-            'permissions' => Permission::getPermissions(),
-            'roles' => Role::getRoles(),
-            // 'universities' => Cache::remember('universities', now()->addMinutes(10), fn () => University::get()),
-            // 'grades' => Grades::get(),
-            // 'diplomes' => Diploma::get(),
-            'universities' => [],
-            'grades' => [],
-            'diplomes' => [],
-            'units' => Unit::get(['id', 'name'])
+            'units' => Unit::with('divisions')->get(),
+            'boards' => BoardResource::collection(Board::all()),
         ]);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreRequest $request)
     {
+        /** @var User */
+
         DB::transaction(function () use ($request) {
             $user = User::create([
-                'name' => $request->input('name'),
+                'last_name' => $request->input('last_name'),
+                'first_name' => $request->input('first_name'),
                 'email' => $request->input('email'),
                 'status' => $request->input('status'),
                 'password' => $request->input('password'),
+                'dob' => $request->input('dob'),
+                'sex' => $request->input('sex'),
+                'password' => Hash::make($request->input('password')),
+                'status' => $request->input('status'),
+                'unit_id' => $request->input('unit_id')
             ]);
+
+            if (isset($validated['divisions'])) {
+                $divisions = collect($validated['divisions'])->mapWithKeys(function ($division) {
+                    return [$division['id'] => $division['grade'] ?? null];
+                });
+
+                $pivotData = $divisions->mapWithKeys(function ($grade, $divisionId) {
+                    return [$divisionId => ['grade' => $grade]];
+                });
+
+                $user->divisions()->attach($pivotData);
+            }
+
+            if ($request->has('boards')) {
+                $boards = $request->input('boards');
+                $user->boards()->attach($boards);
+            }
         });
 
+        return redirect(route('manage.user.index'))->with('alert', [
+            'status' => 'success',
+            'message' => 'Utilisateur avec succés'
+        ]);
     }
 
     /**
@@ -67,7 +95,10 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        return new ManageUserResource($user);
+        $user->load('divisions');
+        return Inertia::render('Manage/User/Show',[
+            'user' => new ManageUserResource($user),
+        ]);
     }
 
     /**

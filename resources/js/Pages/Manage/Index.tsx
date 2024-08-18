@@ -8,24 +8,28 @@ import { ArrowRightCircle, House } from "lucide-react";
 
 const apps = [
     {
-        title: "Gestion d'utilisateurs",
+        title: "Gestion des utilisateurs",
         link: route("manage.user.index"),
     },
     {
-        title: "Gestion de role et permission",
+        title: "Gestion des roles et permissions",
         link: route("manage.role.index"),
     },
     {
-        title: "Gestion d'unité et divisions",
+        title: "Gestion des unitées et divisions",
         link: route("manage.unit.index"),
     },
     {
-        title: "Gestion des boards",
-        link: "#",
-    }, 
+        title: "Gestion des conseils scientifique",
+        link: route("manage.board.index"),
+    },
     {
-        title: "Gestion de project",
-        link: "#",
+        title: "Gestion des projets",
+        link: route("manage.project.index"),
+    },
+    {
+        title: "Gestion de resources",
+        link: route("manage.resource.index"),
     },
 ];
 
@@ -65,7 +69,7 @@ export default function Manage() {
                                 {capitalize(app.title)}
                             </Heading>
                             {/* <Button variant="outline" size="sm"> */}
-                                <ArrowRightCircle className="h-6 w-6 text-primary-700 group-hover:text-gray-700" />
+                            <ArrowRightCircle className="h-6 w-6 text-primary-700 group-hover:text-gray-700" />
                             {/* </Button> */}
                         </Link>
                     ))}

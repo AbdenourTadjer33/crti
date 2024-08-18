@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Manage;
 
+use App\Http\Resources\UserDivisionsResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -15,6 +16,7 @@ class UserResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id' => $this->id,
             'uuid' => $this->uuid,
             'name' => $this->last_name . ' ' . $this->first_name,
             'dob' => $this->dob,
@@ -25,8 +27,12 @@ class UserResource extends JsonResource
             'createdAt' => $this->created_at,
             'updatedAt' => $this->updated_at,
             'deletedAt' => $this->deleted_at,
+            'divisions' => UserDivisionsResource::collection($this->whenLoaded('divisions')),
             'division' => $this->whenPivotLoaded('division_user', fn () => [
                 'grade' => $this->pivot->grade,
+                'addedAt' => $this->pivot->created_at,
+            ]),
+            'board' => $this->whenPivotLoaded('board_user', fn () => [
                 'addedAt' => $this->pivot->created_at,
             ]),
         ];

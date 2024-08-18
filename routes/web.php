@@ -14,6 +14,7 @@ use App\Http\Controllers\Manage\PermissionController;
 use App\Http\Controllers\Manage\ResourceController;
 use App\Http\Controllers\Manage\UnitDivisionController;
 use App\Http\Controllers\Project\ProjectVersionController;
+use App\Http\Controllers\Manage\ProjectController as ManageProjectController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -54,6 +55,7 @@ Route::prefix('/app')->middleware(['auth'])->group(function () {
         Route::resource('users', UserController::class)->names('user');
         Route::resource('boards', BoardController::class)->names('board');
         Route::resource('resources', ResourceController::class)->names('resource');
+        Route::resource('projects', ManageProjectController::class)->only(['index', 'show'])->names('project');
     });
 
     Route::resource('projects', ProjectController::class)->only(["index", "store", "show"])->names('project');

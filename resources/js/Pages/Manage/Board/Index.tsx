@@ -5,21 +5,20 @@ import Breadcrumb from "@/Components/Breadcrumb";
 import { Heading } from "@/Components/ui/heading";
 import { Text } from "@/Components/ui/paragraph";
 import { Button } from "@/Components/ui/button";
-import Table from "@/Features/Manage/Unit/Table";
-import { Pagination, Unit } from "@/types";
+import { Board, Pagination } from "@/types";
 import { Plus, House } from "lucide-react";
-import { json } from "stream/consumers";
+import Table from "@/Features/Manage/Board/Table";
 
 const breadcrumbs = [
     { href: route("app"), label: <House className="w-5 h-5" /> },
     { href: route("manage.index"), label: "Centres d'administration" },
-    { label: "Gestion d'unité" },
+    { label: "Gestion des conseils scientifique" },
 ];
 
-const Index: React.FC<{ units: Pagination<Unit> }> = ({ units }) => {
+const Index: React.FC<{ boards: Pagination<Board> }> = ({ boards }) => {
     return (
         <AuthLayout>
-            <Head title="Gestion d'unité" />
+            <Head title="Gestion des conseils scientifique" />
 
             <div className="space-y-4">
                 <Breadcrumb items={breadcrumbs} />
@@ -27,24 +26,24 @@ const Index: React.FC<{ units: Pagination<Unit> }> = ({ units }) => {
                 <div className="flex sm:flex-row flex-col justify-between sm:items-end gap-4">
                     <div className="space-y-2">
                         <Heading level={3} className="font-medium">
-                            Gestion d'unité
+                            Gestion des conseils scientifique
                         </Heading>
 
                         <Text className={"max-w-7xl"}>
-                            Voici la liste de toutes les unités enregistrées .
-                            Vous pouvez visualiser les détails de chaque unité,
-                            et accéder aux options pour modifier ou supprimer les unités existantes.
+                            Voici la liste de tout les conseils scientifique enregistrées.
+                            Vous pouvez visualiser les détails de chaque conseil scientifique,
+                            et accéder aux options pour modifier ou supprimer les conseils scientifique existantes.
                         </Text>
                     </div>
 
                     <Button asChild>
-                        <Link href={route("manage.unit.create")}>
+                        <Link href={route("manage.board.create")}>
                             <Plus className="w-4 h-4 mr-2" />
-                            Ajouter Unité
+                            Ajouter un conseil scientifique
                         </Link>
                     </Button>
                 </div>
-                <Table units={units} />
+                <Table boards={boards} />
             </div>
         </AuthLayout>
     );

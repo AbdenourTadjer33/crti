@@ -3,8 +3,7 @@ import { FormWrapper } from "@/Components/ui/form";
 import { Link, useForm, usePage } from "@inertiajs/react";
 import { Button } from "@/Components/ui/button";
 import { Label } from "@/Components/ui/label";
-import { Input } from "@/Components/ui/input";
-import { InputError } from "@/Components/ui/input-error";
+import { Input, InputError } from "@/Components/ui/input";
 import { Textarea } from "@/Components/ui/textarea";
 import { User } from "@/types";
 import { useDebounce } from "@/Hooks/use-debounce";
@@ -25,29 +24,28 @@ import {
 import Avatar from "@/Components/Avatar";
 import { Skeleton } from "@/Components/ui/skeleton";
 import { Kbd } from "@/Components/ui/kbd";
-import { Division } from "@/types/division";
-import { Member } from "@/types/member";
 import { isAnyKeyBeginWith } from "@/Libs/Validation/utils";
+import { MemberBoard } from "@/types/member";
 
-const EditForm: React.FC<any> = ({ unit, division }) => {
+const EditForm: React.FC<any> = ({ board }) => {
     const { data, setData, errors, processing, put, clearErrors } = useForm({
-        name: division.name || "",
-        abbr: division.abbr || "",
-        description: division.description || "",
+        name: board.name || "",
+        abbr: board.abbr || "",
+        description: board.description || "",
         members:
-            division.users.map((user: any) => ({
+            board.users.map((user: any) => ({
                 uuid: user.uuid,
                 name: `${user.first_name} ${user.last_name}`,
-                grade: user.pivot.grade,
+                email: user.email,
             })) || [],
     });
+
     const submitHandler = (e: React.FormEvent) => {
         e.preventDefault();
 
         put(
-            route("manage.unit.division.update", {
-                unit: unit.id,
-                division: division.id,
+            route("manage.board.update", {
+                board: board.id,
             }),
             {
                 preserveScroll: true,
@@ -55,8 +53,8 @@ const EditForm: React.FC<any> = ({ unit, division }) => {
         );
     };
 
-    const addMember = (user: Member) => {
-        if (!data.members.some((member: Member) => member.uuid == user.uuid)) {
+    const addMember = (user: MemberBoard) => {
+        if (!data.members.some((member: MemberBoard) => member.uuid == user.uuid)) {
             setData((data) => {
                 data.members.push({ ...user, grade: "" });
                 return { ...data };
@@ -122,7 +120,7 @@ const EditForm: React.FC<any> = ({ unit, division }) => {
                                 Vous devez remplire tous les chames grades*
                             </div>
                         )}
-                        {data.members.map((member: Member, idx: number) => (
+                        {data.members.map((member: MemberBoard, idx: number) => (
                             <div
                                 key={member.uuid}
                                 className="flex items-center gap-4"
@@ -134,8 +132,15 @@ const EditForm: React.FC<any> = ({ unit, division }) => {
                                 >
                                     {member.name}
                                 </Button>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    className="justify-start basis-3/5 sm:text-base text-xs"
+                                >
+                                    {member.email}
+                                </Button>
 
-                                <Input
+                                {/* <Input
                                     placeholder="grade"
                                     value={member.grade}
                                     onChange={(e) => {
@@ -146,7 +151,7 @@ const EditForm: React.FC<any> = ({ unit, division }) => {
                                         });
                                         clearErrors(`members.${idx}.grade`);
                                     }}
-                                />
+                                /> */}
 
                                 <Button
                                     variant="destructive"
@@ -167,9 +172,7 @@ const EditForm: React.FC<any> = ({ unit, division }) => {
 
             <div className="mx-auto max-w-lg flex flex-col-reverse sm:flex-row items-center sm:gap-4 gap-2">
                 <Button variant="destructive" className="w-full" asChild>
-                    <Link href={route("manage.unit.show", unit.id)}>
-                        Annuler
-                    </Link>
+                    <Link href={route("manage.board.show", board.id)}>Annuler</Link>
                 </Button>
                 <Button disabled={processing} className="w-full">
                     Sauvegarder
