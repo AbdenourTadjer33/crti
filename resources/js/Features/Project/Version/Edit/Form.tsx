@@ -3,15 +3,21 @@ import { useForm } from "@inertiajs/react";
 import { FormWrapper } from "@/Components/ui/form";
 import { Stepper, useStepper } from "@/Components/Stepper";
 import { EditProjectContext } from "@/Contexts/Project/edit-project-context";
-
-import IdentificationForm from "./IdentificationStep";
-import MemberForm from "./MemberStep";
-import TaskForm from "./TaskStep";
+import IdentificationStep from "./IdentificationStep";
+import MemberStep from "./MemberStep";
+import TaskStep from "./TaskStep";
 import ConfirmationStep from "./ConfirmationStep";
+import { useValidation } from "@/Libs/Validation";
+import { ProjectForm } from "@/types/form";
 
-const Form: React.FC<any> = ({ version }) => {
-    const { data, setData, errors, clearErrors, processing, setError, put } =
-        useForm({
+interface FormProps {
+    version: ProjectForm;
+    params: any;
+}
+
+const Form: React.FC<FormProps> = ({ version, params }) => {
+    const { data, setData, errors, setError, clearErrors, processing, put } =
+        useForm<ProjectForm>({
             name: version.name,
             nature: version.nature,
             domains: version.domains,
@@ -21,6 +27,7 @@ const Form: React.FC<any> = ({ version }) => {
             methodology: version.methodology,
             is_partner: version.is_partner,
             partner: version.partner,
+            creator: version.creator,
             members: version.members,
             resources: [],
             resources_crti: [],
@@ -28,23 +35,33 @@ const Form: React.FC<any> = ({ version }) => {
             tasks: version.tasks,
         });
 
+    const { validate, validating } = useValidation({
+        url: route("project.version.update", {
+            project: route().params.project,
+            version: route().params.version,
+        }),
+        method: "post",
+        data,
+        onError: (errors) => setError(errors),
+    });
+
     const stepper = useStepper({
         steps: [
             {
                 label: "Identification de projet",
-                form: (props) => <IdentificationForm {...props} />,
+                form: (props) => <IdentificationStep {...props} />,
             },
             {
-                label: "Membres de l'équipe",
-                form: (props) => <MemberForm {...props} />,
+                label: "Members de l'équipe",
+                form: (props) => <MemberStep {...props} />,
             },
             {
                 label: "Ressources nécessaires",
-                form: () => <></>,
+                form: (props) => <></>,
             },
             {
                 label: "Orgnisation des travaux",
-                form: (props) => <TaskForm {...props} />,
+                form: (props) => <TaskStep {...props} />,
             },
             {
                 label: "Confirmation",
@@ -58,17 +75,16 @@ const Form: React.FC<any> = ({ version }) => {
             <EditProjectContext.Provider
                 value={{
                     data,
-                    // @ts-expect-error
                     setData,
                     errors,
-                    // @ts-expect-error
-                    clearErrors,
-                    processing,
+                    clearErrors: clearErrors as any,
+                    processing: processing || validating,
                     setError,
-                    put,
+                    validate,
                 }}
             >
                 <Stepper {...{ stepper }} />
+                {/* <pre>{JSON.stringify(data, null, 2)}</pre> */}
             </EditProjectContext.Provider>
         </FormWrapper>
     );

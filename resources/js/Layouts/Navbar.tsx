@@ -4,7 +4,9 @@ import { Moon, Search } from "lucide-react";
 import { FaBell, FaEye } from "react-icons/fa";
 import { useUser } from "@/Hooks/use-user";
 import * as DropdownMenu from "@/Components/ui/dropdown-menu";
-import Avatar from "@/Components/Avatar";
+// import Avatar from "@/Components/Avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/Components/ui/avatar";
+import { getInitials } from "@/Utils/helper";
 
 const Navbar: React.FC = () => {
     return (
@@ -65,11 +67,10 @@ const UserMenu = () => {
     return (
         <DropdownMenu.DropdownMenu>
             <DropdownMenu.DropdownMenuTrigger asChild>
-                <button
-                    type="button"
-                    className="flex mx-3 rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600 bg-gray-100 dark:bg-gray-500"
-                >
-                    <Avatar name={name} />
+                <button className="flex mx-3 rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark:ring-gray-700 outline-none">
+                    <Avatar>
+                        <AvatarFallback>{getInitials(name)}</AvatarFallback>
+                    </Avatar>
                 </button>
             </DropdownMenu.DropdownMenuTrigger>
             <DropdownMenu.DropdownMenuContent>
@@ -122,11 +123,11 @@ const NotificationManu = () => {
                     >
                         <div className="flex-shrink-0">
                             <span className="w-11 h-11 rounded-full" />
-                            {/* <img
+                            <img
                                 className="w-11 h-11 rounded-full"
                                 src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/bonnie-green.png"
                                 alt="Bonnie Green avatar"
-                            /> */}
+                            />
                             <div className="flex absolute justify-center items-center ml-6 -mt-5 w-5 h-5 rounded-full border border-white bg-primary-700 dark:border-gray-700">
                                 <svg
                                     aria-hidden="true"

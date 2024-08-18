@@ -1,4 +1,5 @@
-import { Input, InputError, InputPassword } from "@/Components/ui/input";
+import { Input } from "@/Components/ui/input";
+import { InputError } from "@/Components/ui/input-error";
 import {
     Popover,
     PopoverContent,
@@ -146,7 +147,7 @@ const CreateForm: React.FC<{
                 </div>
                 <div>
                     <Label>Mot de passe</Label>
-                    <InputPassword />
+                    <Input />
                     <InputError message={errors.password} />
                 </div>
             </div>

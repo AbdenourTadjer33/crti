@@ -1,7 +1,4 @@
-import * as React from "react";
-
-import { Button } from "./button";
-import { IoMdEye } from "react-icons/io";
+import React from "react";
 import { cn } from "@/Utils/utils";
 
 export interface InputProps
@@ -21,53 +18,4 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     )
 );
 
-Input.displayName = "Input";
-
-const InputError = ({
-    className,
-    message,
-}: {
-    className?: string;
-    message?: string;
-}) => {
-    if (!message) return;
-    return (
-        <div className={`sm:text-base text-sm text-red-500 ${className}`}>
-            {message}
-        </div>
-    );
-};
-InputError.displayName = "InputError";
-
-const InputPassword = () => {
-    const inputRef = React.createRef<HTMLInputElement>();
-
-    return (
-        <div className="relative">
-            <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="flex items-center absolute top-1/2 -translate-y-1/2 right-0 hover:bg-transparent"
-                onClick={() => {
-                    const input = inputRef.current;
-
-                    input!.type =
-                        input?.type === "password" ? "text" : "password";
-                }}
-            >
-                <IoMdEye className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-            </Button>
-            <Input
-                ref={inputRef}
-                type="password"
-                className="pr-10"
-                autoComplete="off"
-            />
-        </div>
-    );
-};
-
-InputPassword.displayName = "InputPassword";
-
-export { Input, InputError, InputPassword };
+export { Input };

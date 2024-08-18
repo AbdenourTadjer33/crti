@@ -5,13 +5,13 @@ import { columnDef } from "../Permission/columns";
 import { router, useForm } from "@inertiajs/react";
 import { Role } from "@/types";
 import { Label } from "@/Components/ui/label";
-import { Input, InputError } from "@/Components/ui/input";
+import { Input } from "@/Components/ui/input";
+import { InputError } from "@/Components/ui/input-error";
 import { Textarea } from "@/Components/ui/textarea";
 import { Button } from "@/Components/ui/button";
 import { MdAdd, MdSearch } from "react-icons/md";
-import { TableWraper } from "@/Components/ui/table";
+import { TableWrapper } from "@/Components/ui/table";
 import DataTable from "@/Components/DataTable";
-
 
 const EditForm = ({ role }: { role: Role }) => {
     const { permissions } = React.useContext(PermissionContext);
@@ -116,7 +116,7 @@ const EditForm = ({ role }: { role: Role }) => {
                     </Button>
                 </div>
 
-                <TableWraper className="shadow-none">
+                <TableWrapper className="shadow-none">
                     <div className="flex justify-between items-center py-3 px-4">
                         <div className="relative w-full sm:w-80">
                             <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
@@ -136,7 +136,7 @@ const EditForm = ({ role }: { role: Role }) => {
                         </Button>
                     </div>
                     <DataTable table={table} />
-                </TableWraper>
+                </TableWrapper>
             </div>
 
             <div className="flex justify-center gap-2">

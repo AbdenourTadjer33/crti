@@ -2,6 +2,10 @@
 declare module 'ziggy-js' {
   interface RouteList {
     "sanctum.csrf-cookie": [],
+    "api.project.domain.index": [],
+    "api.project.domain.store": [],
+    "api.project.nature.index": [],
+    "api.project.nature.store": [],
     "app": [],
     "search.user": [],
     "manage.index": [],
@@ -11,7 +15,8 @@ declare module 'ziggy-js' {
     "manage.unit.show": [
         {
             "name": "unit",
-            "required": true
+            "required": true,
+            "binding": "id"
         }
     ],
     "manage.unit.edit": [
@@ -35,12 +40,6 @@ declare module 'ziggy-js' {
             "binding": "id"
         }
     ],
-    "manage.unit.division.index": [
-        {
-            "name": "unit",
-            "required": true
-        }
-    ],
     "manage.unit.division.create": [
         {
             "name": "unit",
@@ -58,41 +57,49 @@ declare module 'ziggy-js' {
     "manage.unit.division.show": [
         {
             "name": "unit",
-            "required": true
+            "required": true,
+            "binding": "id"
         },
         {
             "name": "division",
-            "required": true
+            "required": true,
+            "binding": "id"
         }
     ],
     "manage.unit.division.edit": [
         {
             "name": "unit",
-            "required": true
+            "required": true,
+            "binding": "id"
         },
         {
             "name": "division",
-            "required": true
+            "required": true,
+            "binding": "id"
         }
     ],
     "manage.unit.division.update": [
         {
             "name": "unit",
-            "required": true
+            "required": true,
+            "binding": "id"
         },
         {
             "name": "division",
-            "required": true
+            "required": true,
+            "binding": "id"
         }
     ],
     "manage.unit.division.destroy": [
         {
             "name": "unit",
-            "required": true
+            "required": true,
+            "binding": "id"
         },
         {
             "name": "division",
-            "required": true
+            "required": true,
+            "binding": "id"
         }
     ],
     "manage.permission.index": [],
@@ -188,6 +195,33 @@ declare module 'ziggy-js' {
             "binding": "id"
         }
     ],
+    "manage.board.index": [],
+    "manage.board.create": [],
+    "manage.board.store": [],
+    "manage.board.show": [
+        {
+            "name": "board",
+            "required": true
+        }
+    ],
+    "manage.board.edit": [
+        {
+            "name": "board",
+            "required": true
+        }
+    ],
+    "manage.board.update": [
+        {
+            "name": "board",
+            "required": true
+        }
+    ],
+    "manage.board.destroy": [
+        {
+            "name": "board",
+            "required": true
+        }
+    ],
     "project.index": [],
     "project.store": [],
     "project.show": [
@@ -202,7 +236,7 @@ declare module 'ziggy-js' {
             "required": true
         }
     ],
-    "project.version.index": [
+    "project.version.duplicate": [
         {
             "name": "project",
             "required": true
@@ -221,16 +255,6 @@ declare module 'ziggy-js' {
             "binding": "code"
         }
     ],
-    "project.version.show": [
-        {
-            "name": "project",
-            "required": true
-        },
-        {
-            "name": "version",
-            "required": true
-        }
-    ],
     "project.version.edit": [
         {
             "name": "project",
@@ -242,16 +266,6 @@ declare module 'ziggy-js' {
         }
     ],
     "project.version.update": [
-        {
-            "name": "project",
-            "required": true
-        },
-        {
-            "name": "version",
-            "required": true
-        }
-    ],
-    "project.version.destroy": [
         {
             "name": "project",
             "required": true

@@ -5,7 +5,7 @@ import { useDebounce } from "@/Hooks/use-debounce";
 import { CreateProjectContext } from "@/Contexts/Project/create-project-context";
 import { User } from "@/types";
 import { Button } from "@/Components/ui/button";
-import { InputError } from "@/Components/ui/input";
+import { InputError } from "@/Components/ui/input-error";
 import {
     Command,
     CommandEmpty,
@@ -86,7 +86,7 @@ const MemberForm = ({ prev, next }: FormProps) => {
     };
 
     return (
-        <div className="space-y-8">
+        <>
             <Heading level={6}>Ajouter les membres du projet</Heading>
 
             <SearchMembers addMember={addMember} removeMember={removeMember} />
@@ -112,7 +112,7 @@ const MemberForm = ({ prev, next }: FormProps) => {
                     Suivant
                 </Button>
             </div>
-        </div>
+        </>
     );
 };
 

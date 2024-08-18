@@ -1,17 +1,17 @@
 import React from "react";
 import { ValidationOptions } from "@/Libs/Validation";
 import { ProjectForm, setDataByKeyValuePair, setDataByMethod, setDataByObject, SetError } from "@/types/form";
-import { VisitOptions } from "@inertiajs/core";
+
+type Data = Omit<ProjectForm, "creator">;
 
 interface ProjectContext {
-    data: ProjectForm;
+    data: Data;
     errors: Partial<Record<keyof ProjectForm | string, string>>;
     processing: boolean;
-    setData: setDataByObject<ProjectForm> & setDataByMethod<ProjectForm> & setDataByKeyValuePair<ProjectForm>;
-    clearErrors: (...fields: (keyof ProjectForm | string)[]) => void;
-    setError: SetError<ProjectForm>;
+    setData: setDataByObject<Data> & setDataByMethod<Data> & setDataByKeyValuePair<Data>;
+    clearErrors: (...fields: (keyof Data | string)[]) => void;
+    setError: SetError<Data>;
     validate: (fields: string, options?: Partial<ValidationOptions>) => void;
-    post: (url: string, options?: VisitOptions) => void;
 }
 
 const CreateProjectContext = React.createContext<ProjectContext>({
@@ -41,7 +41,6 @@ const CreateProjectContext = React.createContext<ProjectContext>({
     clearErrors: () => { },
     setError: () => { },
     validate: () => { },
-    post: () => { },
 });
 
 export {

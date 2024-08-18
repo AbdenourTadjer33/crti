@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 
-import { Input, InputError } from "@/Components/ui/input";
+import { Input } from "@/Components/ui/input";
+import { InputError } from "@/Components/ui/input-error";
 import { Label } from "@/Components/ui/label";
 import { router, useForm } from "@inertiajs/react";
 import { Button } from "@/Components/ui/button";
@@ -9,7 +10,7 @@ import { PermissionContext } from "@/Contexts/Manage/Role/PermissionContext";
 import { columnDef } from "../Permission/columns";
 import * as TanstackTable from "@tanstack/react-table";
 import DataTable from "@/Components/DataTable";
-import { TableWraper } from "@/Components/ui/table";
+import { TableWrapper } from "@/Components/ui/table";
 import { MdAdd, MdSearch } from "react-icons/md";
 
 const CreateForm = () => {
@@ -106,7 +107,7 @@ const CreateForm = () => {
                     </Button>
                 </div>
 
-                <TableWraper className="shadow-none">
+                <TableWrapper className="shadow-none">
                     <div className="flex justify-between items-center py-3 px-4">
                         <div className="relative w-full sm:w-80">
                             <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
@@ -126,7 +127,7 @@ const CreateForm = () => {
                         </Button>
                     </div>
                     <DataTable options={{ table }} />
-                </TableWraper>
+                </TableWrapper>
             </div>
 
             <div className="flex justify-center gap-2">

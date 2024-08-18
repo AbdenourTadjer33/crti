@@ -1,7 +1,6 @@
 import React from "react";
 import { ValidationOptions } from "@/Libs/Validation";
 import { ProjectForm, setDataByKeyValuePair, setDataByMethod, setDataByObject, SetError } from "@/types/form";
-import { VisitOptions } from "@inertiajs/core";
 
 interface ProjectContext {
     data: ProjectForm,
@@ -11,7 +10,6 @@ interface ProjectContext {
     clearErrors: (...fields: (keyof ProjectForm | string)[]) => void;
     setError: SetError<ProjectForm>;
     validate: (fields: string, options?: Partial<ValidationOptions>) => void;
-    put: (url: string, options?: VisitOptions) => void;
 }
 
 const EditProjectContext = React.createContext<ProjectContext>({
@@ -25,6 +23,7 @@ const EditProjectContext = React.createContext<ProjectContext>({
         methodology: "",
         is_partner: false,
         partner: { name: "", email: "", phone: "" },
+        creator: { uuid: "", name: "", email: "" },
         members: [],
         resources: [],
         resources_crti: [],
@@ -37,7 +36,6 @@ const EditProjectContext = React.createContext<ProjectContext>({
     clearErrors: () => { },
     setError: () => { },
     validate: () => { },
-    put: () => { },
 });
 
 export {

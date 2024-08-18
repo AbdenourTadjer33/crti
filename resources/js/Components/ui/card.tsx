@@ -51,7 +51,7 @@ const CardSubTitle = React.forwardRef<
     <h5
         ref={ref}
         className={cn(
-            "lg:text-xl text-base font-medium text-pretty tracking-tight",
+            "text-xl font-medium text-pretty tracking-tight",
             className
         )}
         {...props}

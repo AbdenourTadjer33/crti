@@ -3,6 +3,10 @@ function capitalize(word: string) {
     return word.charAt(0).toUpperCase() + word.slice(1);
 }
 
+function getInitials(name: string) {
+    return name.split(' ').map(word => word[0]).join('').toUpperCase();
+}
+
 function isNumber(any: any): boolean {
     return !isNaN(Number(any));
 }
@@ -21,4 +25,4 @@ function isKeyExisit(obj: object, key: string) {
     return Object.keys(obj);
 }
 
-export { capitalize, route, assert, searchForKeyByPattern, isKeyExisit };
+export { capitalize, route, assert, searchForKeyByPattern, isKeyExisit, getInitials };

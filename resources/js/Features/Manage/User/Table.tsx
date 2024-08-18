@@ -24,7 +24,7 @@ import { Input } from "@/Components/ui/input";
 import { IoMdOptions } from "react-icons/io";
 import { MdSearch } from "react-icons/md";
 import React from "react";
-import { TableWraper } from "@/Components/ui/table";
+import { TableWrapper } from "@/Components/ui/table";
 import { columnDef } from "./columns";
 
 const Table: React.FC<{ users: PaginationType<User> }> = ({ users }) => {
@@ -50,7 +50,7 @@ const Table: React.FC<{ users: PaginationType<User> }> = ({ users }) => {
     }
 
     return (
-        <TableWraper>
+        <TableWrapper>
             <div className="p-4 flex justify-between gap-2">
                 <div className="relative sm:w-80">
                     <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
@@ -112,7 +112,7 @@ const Table: React.FC<{ users: PaginationType<User> }> = ({ users }) => {
                     subComponent,
                 }}
             />
-        </TableWraper>
+        </TableWrapper>
     );
 };
 

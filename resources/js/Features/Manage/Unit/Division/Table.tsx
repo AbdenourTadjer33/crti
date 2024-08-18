@@ -7,7 +7,7 @@ import {
     Row,
     useReactTable,
 } from "@tanstack/react-table";
-import { TableWraper } from "@/Components/ui/table";
+import { TableWrapper } from "@/Components/ui/table";
 import { MdSearch } from "react-icons/md";
 import { Input } from "@/Components/ui/input";
 import DataTable from "@/Components/DataTable";
@@ -57,7 +57,7 @@ const Table: React.FC<{ divisions: Division[] }> = ({ divisions }) => {
                     Ajouter divisions
                 </Link>
             </div>
-            <TableWraper>
+            <TableWrapper>
                 <div className="p-4 flex justify-between gap-2">
                     <div className="relative sm:w-80">
                         <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
@@ -134,7 +134,7 @@ const Table: React.FC<{ divisions: Division[] }> = ({ divisions }) => {
                         table,
                     }}
                 />
-            </TableWraper>
+            </TableWrapper>
         </>
     );
 };

@@ -3,7 +3,8 @@ import { FormWrapper } from "@/Components/ui/form";
 import { Link, useForm } from "@inertiajs/react";
 import { Button } from "@/Components/ui/button";
 import { Label } from "@/Components/ui/label";
-import { Input, InputError } from "@/Components/ui/input";
+import { Input } from "@/Components/ui/input";
+import { InputError } from "@/Components/ui/input-error";
 import { Textarea } from "@/Components/ui/textarea";
 
 const EditForm: React.FC<any> = ({ unit }) => {
@@ -66,7 +67,12 @@ const EditForm: React.FC<any> = ({ unit }) => {
             </div>
 
             <div className="mx-auto max-w-lg flex flex-col-reverse sm:flex-row items-center sm:gap-4 gap-2">
-                <Button variant="destructive" disabled={processing} className="w-full" asChild>
+                <Button
+                    variant="destructive"
+                    disabled={processing}
+                    className="w-full"
+                    asChild
+                >
                     <Link href={route("manage.unit.show", unit.id)}>
                         Annuler
                     </Link>

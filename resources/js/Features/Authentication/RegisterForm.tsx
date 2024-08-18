@@ -3,7 +3,8 @@ import { useForm } from "@inertiajs/react";
 import { Calendar } from "@/Components/ui/calendar";
 import { Button } from "@/Components/ui/button";
 import { Label } from "@/Components/ui/label";
-import { Input, InputError } from "@/Components/ui/input";
+import { Input } from "@/Components/ui/input";
+import { InputError } from "@/Components/ui/input-error";
 import { format } from "date-fns";
 import {
     Popover,
@@ -39,16 +40,17 @@ const RegisterForm = () => {
     };
 
     return (
-        <FormWrapper className="w-full sm:max-w-xl p-6 space-y-4 md:space-y-6" onSubmit={registerHandler}>
+        <FormWrapper
+            className="w-full sm:max-w-xl p-6 space-y-4 md:space-y-6"
+            onSubmit={registerHandler}
+        >
             <Heading level={3} className="font-medium">
                 Créé un compte
             </Heading>
 
             <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-1">
-                    <Label htmlFor="fname">
-                        Prénom
-                    </Label>
+                    <Label htmlFor="fname">Prénom</Label>
                     <Input
                         id="fname"
                         placeholder="Entrez votre prénom"
@@ -59,9 +61,7 @@ const RegisterForm = () => {
                     <InputError className="mt-1" message={errors.fname} />
                 </div>
                 <div className="space-y-1">
-                    <Label htmlFor="lname">
-                        Nom
-                    </Label>
+                    <Label htmlFor="lname">Nom</Label>
                     <Input
                         id="lname"
                         placeholder="Entrez votre nom"
@@ -102,9 +102,7 @@ const RegisterForm = () => {
             </div>
 
             <div className="space-y-1">
-                <Label htmlFor="username">
-                    Adresse e-mail
-                </Label>
+                <Label htmlFor="username">Adresse e-mail</Label>
                 <Input
                     id="username"
                     placeholder="Entrez votre email professionnel"
@@ -115,9 +113,7 @@ const RegisterForm = () => {
             </div>
 
             <div className="space-y-1">
-                <Label htmlFor="password">
-                    Mot de passe
-                </Label>
+                <Label htmlFor="password">Mot de passe</Label>
                 <Input
                     id="password"
                     type="password"

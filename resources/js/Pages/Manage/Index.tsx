@@ -1,11 +1,10 @@
 import AuthLayout from "@/Layouts/AuthLayout";
 import { Head, Link } from "@inertiajs/react";
 import { capitalize } from "@/Utils/helper";
-import { MdHome } from "react-icons/md";
 import Breadcrumb from "@/Components/Breadcrumb";
 import { Heading } from "@/Components/ui/heading";
 import { Text } from "@/Components/ui/paragraph";
-import { ArrowRightCircle } from "lucide-react";
+import { ArrowRightCircle, House } from "lucide-react";
 
 const apps = [
     {
@@ -31,7 +30,7 @@ const apps = [
 ];
 
 const breadcrumbs = [
-    { href: route("app"), label: <MdHome className="w-5 h-5" /> },
+    { href: route("app"), label: <House className="w-5 h-5" /> },
     { label: "Centre d'administration" },
 ];
 

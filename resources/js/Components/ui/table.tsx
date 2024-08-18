@@ -114,7 +114,7 @@ const TableCaption = React.forwardRef<
 ));
 TableCaption.displayName = "TableCaption";
 
-const TableWraper = React.forwardRef<
+const TableWrapper = React.forwardRef<
     HTMLDivElement,
     React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
@@ -128,7 +128,7 @@ const TableWraper = React.forwardRef<
     />
 ));
 
-TableWraper.displayName = "TableWrapper";
+TableWrapper.displayName = "TableWrapper";
 
 export {
     Table,
@@ -139,5 +139,5 @@ export {
     TableRow,
     TableCell,
     TableCaption,
-    TableWraper,
+    TableWrapper,
 };

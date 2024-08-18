@@ -1,6 +1,6 @@
 import React from "react";
 import { Button, ButtonGroup } from "@/Components/ui/button";
-import { TableWraper } from "@/Components/ui/table";
+import { TableWrapper } from "@/Components/ui/table";
 import { MdAdd } from "react-icons/md";
 import { CreateProjectContext } from "@/Contexts/Project/create-project-context";
 import DataTable from "@/Components/DataTable";
@@ -13,9 +13,10 @@ import { X } from "lucide-react";
 import { FormProps } from "@/Components/Stepper";
 import { useSessionStorage } from "@/Hooks/use-session-storage-with-object";
 import { deepKeys } from "@/Libs/Validation/utils";
+import { useUpdateEffect } from "@/Hooks/use-update-effect";
 
 const TaskStep = ({ prev, next }: FormProps) => {
-    const { data, setData, processing, errors, validate, clearErrors } =
+    const { data, processing, validate, clearErrors } =
         React.useContext(CreateProjectContext);
 
     const goNext = () => {
@@ -33,7 +34,7 @@ const TaskStep = ({ prev, next }: FormProps) => {
         <div className="space-y-8">
             <TaskTable />
 
-            <pre>{JSON.stringify({ tasks: data.tasks, errors }, null, 2)}</pre>
+            <pre>{JSON.stringify(data.tasks, null, 2)}</pre>
 
             <div className="flex gap-4 max-w-lg mx-auto">
                 <Button
@@ -102,7 +103,7 @@ const TaskTable = () => {
         });
     };
 
-    React.useEffect(() => {
+    useUpdateEffect(() => {
         setData((data) => {
             data.tasks = tasks;
             return { ...data };
@@ -110,7 +111,7 @@ const TaskTable = () => {
     }, [tasks]);
 
     return (
-        <TableWraper className="shadow-none">
+        <TableWrapper className="shadow-none">
             <div className="p-4 flex gap-4 flex-row-reverse">
                 <ButtonGroup>
                     <Button onClick={newTask}>
@@ -159,13 +160,13 @@ const TaskTable = () => {
                                 className="p-0 text-lg"
                                 onClick={newTask}
                             >
-                                ajouter une tâche
+                                Ajouter une tâche
                             </Button>
                         </div>
                     ),
                 }}
             />
-        </TableWraper>
+        </TableWrapper>
     );
 };
 

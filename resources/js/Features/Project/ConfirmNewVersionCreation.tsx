@@ -1,4 +1,5 @@
 import React from "react";
+import { Link, router } from "@inertiajs/react";
 import { useMediaQuery } from "@/Hooks/use-media-query";
 import { Button, buttonVariants } from "@/Components/ui/button";
 import * as Dialog from "@/Components/ui/dialog";
@@ -7,10 +8,10 @@ import { Progress } from "@/Components/ui/infinate-progress";
 import { LoaderCircle, MoveRight } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { duplicateProjectVersion } from "@/Services/api/projects";
-import { Input, InputError } from "@/Components/ui/input";
+import { InputError } from "@/Components/ui/input-error";
 import { Text } from "@/Components/ui/paragraph";
-import { Link } from "@inertiajs/react";
 import { cn } from "@/Utils/utils";
+import { Textarea } from "@/Components/ui/textarea";
 
 const MAX_REASON = 300;
 
@@ -28,6 +29,7 @@ const ConfirmNewVersionCreation: React.FC<Props> = ({ open, setOpen }) => {
                 const projectId = route().params.project as string;
                 return duplicateProjectVersion(projectId, data);
             },
+            onSuccess: () => router.reload({ only: ["versionInCreation"] }),
         });
 
     if (isDesktop) {
@@ -73,7 +75,10 @@ const ConfirmNewVersionCreation: React.FC<Props> = ({ open, setOpen }) => {
                                 error,
                                 reset,
                                 onCreate: () => mutate({ reason }),
-                                onCancel: () => setOpen(false),
+                                onCancel: () => {
+                                    setOpen(false);
+                                    setReason("");
+                                },
                             }}
                         />
                     </div>
@@ -111,6 +116,8 @@ const ConfirmNewVersionCreation: React.FC<Props> = ({ open, setOpen }) => {
                 <div className="px-4 mb-4 space-y-4">
                     <CreateNewVersion
                         {...{
+                            reason,
+                            setReason,
                             isPending,
                             isError,
                             isSuccess,
@@ -118,7 +125,10 @@ const ConfirmNewVersionCreation: React.FC<Props> = ({ open, setOpen }) => {
                             error,
                             reset,
                             onCreate: () => mutate({ reason }),
-                            onCancel: () => setOpen(false),
+                            onCancel: () => {
+                                setOpen(false);
+                                setReason("");
+                            },
                         }}
                     />
                 </div>
@@ -159,6 +169,25 @@ const CreateNewVersion: React.FC<CreateNewVersionProps> = ({
         }, 200);
     };
 
+    const updateReason = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        const { value } = e.target;
+        if (value.length <= MAX_REASON) setReason(value);
+    };
+
+    if (isError && error.response.status === 409) {
+        return (
+            <>
+                <Text className="text-red-500">
+                    {error.response.data.message}
+                </Text>
+
+                <Button className="w-full" onClick={closeAndResetFn}>
+                    Fermer
+                </Button>
+            </>
+        );
+    }
+
     if (isError && error?.response.status !== 422)
         return (
             <>
@@ -168,7 +197,7 @@ const CreateNewVersion: React.FC<CreateNewVersionProps> = ({
                 </Text>
 
                 <Button className="w-full" onClick={closeAndResetFn}>
-                    Essayez plus tard
+                    réessayez plus tard
                 </Button>
             </>
         );
@@ -179,8 +208,6 @@ const CreateNewVersion: React.FC<CreateNewVersionProps> = ({
                 <Text className="text-green-600">
                     Version créer avec succés
                 </Text>
-
-                <pre>{JSON.stringify(data, null, 2)}</pre>
 
                 <div className="flex flex-col-reverse gap-2 sm:flex-row sm:gap-4 sm:mx-auto">
                     <Button
@@ -206,20 +233,22 @@ const CreateNewVersion: React.FC<CreateNewVersionProps> = ({
 
     return (
         <>
-            <div
-                className="absolute top-0 left-0 right-0 h-0.5 bg-indigo-50 hidden data-[pending=true]:block"
-                data-pending={isPending}
-            >
-                <Progress className="bg-indigo-600" />
-            </div>
-
-            <div className="grid space-y-1">
-                <Input
-                    value={reason}
-                    onChange={(e) => setReason(e.target.value)}
+            <div>
+                <div className="relative">
+                    <Textarea
+                        value={reason}
+                        onChange={updateReason}
+                        placeholder="Raison de la nouvelle version"
+                        className="min-h-32 max-h-60"
+                    />
+                    <div className="absolute bottom-1.5 right-2.5">
+                        <span>{reason.length}</span>/<span>{MAX_REASON}</span>
+                    </div>
+                </div>
+                <InputError
+                    className="ms-1 mt-0.5"
+                    message={error?.response.data.message}
                 />
-
-                <InputError message={error?.response.data.message} />
             </div>
 
             <div className="flex flex-col-reverse gap-2 sm:flex-row sm:gap-4 sm:mx-auto">
@@ -230,6 +259,12 @@ const CreateNewVersion: React.FC<CreateNewVersionProps> = ({
                     onClick={closeAndResetFn}
                 >
                     Annuler
+                    <div
+                        className="absolute top-0 left-0 right-0 h-0.5 bg-indigo-50 hidden data-[pending=true]:block"
+                        data-pending={isPending}
+                    >
+                        <Progress className="bg-indigo-600" />
+                    </div>
                 </Button>
                 <Button
                     variant="default"

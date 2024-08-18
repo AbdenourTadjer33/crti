@@ -1,5 +1,5 @@
 import React from "react";
-import { router, useForm } from "@inertiajs/react";
+import { useForm } from "@inertiajs/react";
 import { useMutation } from "@tanstack/react-query";
 import { LoaderCircle } from "lucide-react";
 import { useValidation } from "@/Libs/Validation";
@@ -29,7 +29,7 @@ interface FormProps {
 const Form: React.FC<FormProps> = ({ version, params }) => {
     const projectId = React.useMemo(() => route().params.project as string, []);
     const { data, setData, errors, clearErrors, processing, setError, post } =
-        useForm<ProjectForm>(
+        useForm<Omit<ProjectForm, "creator">>(
             `create-first-project-version-${projectId}`,
             version ?? {
                 name: "",
@@ -113,15 +113,15 @@ const Form: React.FC<FormProps> = ({ version, params }) => {
     return (
         <>
             <div
-                className="fixed top-0 left-1/2 -translate-x-1/2 px-4 py-2.5 bg-gray-950 text-gray-100 rounded shadow-lg flex items-center gap-2 data-[pending=false]:hidden"
-                data-pending={isPending && delayPassed}
+                className="fixed top-0 left-1/2 -translate-x-1/2 px-4 py-2.5 bg-gray-950 text-gray-100 rounded shadow-lg flex items-center gap-2 data-[state=false]:hidden"
+                data-state={isPending && delayPassed}
             >
                 <LoaderCircle className="h-4 w-4 animate-spin" />
                 <Text className="text-base text-pretty font-medium text-inherit">
-                    sauvegarder....
+                    Sauvegarder....
                 </Text>
             </div>
-            <FormWrapper className="space-y-4 md:space-y-8">
+            <FormWrapper className="space-y-4 sm:space-y-6">
                 <CreateProjectContext.Provider
                     value={{
                         data,
@@ -131,7 +131,6 @@ const Form: React.FC<FormProps> = ({ version, params }) => {
                         processing: processing || validating,
                         setError,
                         validate,
-                        post,
                     }}
                 >
                     <Stepper {...{ stepper }} />

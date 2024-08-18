@@ -1,6 +1,7 @@
 import React from "react";
 import { useForm } from "@inertiajs/react";
-import { Input, InputError } from "@/Components/ui/input";
+import { Input } from "@/Components/ui/input";
+import { InputError } from "@/Components/ui/input-error";
 
 const Create: React.FC = () => {
     const { data, setData, errors, clearErrors, processing } = useForm({

@@ -6,7 +6,7 @@ import {
     getExpandedRowModel,
     useReactTable,
 } from "@tanstack/react-table";
-import { TableWraper } from "@/Components/ui/table";
+import { TableWrapper } from "@/Components/ui/table";
 import { Input } from "@/Components/ui/input";
 import DataTable from "@/Components/DataTable";
 import {
@@ -39,7 +39,7 @@ const Table: React.FC<{ units: PaginationType<Unit> }> = ({ units }) => {
     });
 
     return (
-        <TableWraper>
+        <TableWrapper>
             <div className="p-4 flex justify-between gap-2">
                 <div className="relative sm:w-80">
                     <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
@@ -100,7 +100,7 @@ const Table: React.FC<{ units: PaginationType<Unit> }> = ({ units }) => {
                     pagination: { links: units.links, meta: units.meta },
                 }}
             />
-        </TableWraper>
+        </TableWrapper>
     );
 };
 

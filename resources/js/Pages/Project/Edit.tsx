@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import { Head } from "@inertiajs/react";
 import { Heading } from "@/Components/ui/heading";
 import { Text } from "@/Components/ui/paragraph";
@@ -9,19 +9,20 @@ import { House } from "lucide-react";
 import Form from "@/Features/Project/Version/Edit/Form";
 
 const Create: React.FC<any> = ({ version }) => {
+    const { data, params } = version;
     const breadcrubms = React.useMemo(
         () => [
             { href: route("app"), label: <House className="w-5 h-5" /> },
             { href: route("project.index"), label: "Projets" },
             {
                 href: route("project.show", route().params.project as string),
-                label: version.name,
+                label: data.name,
             },
             {
                 label: (
                     <>
                         Continue la version de{" "}
-                        <span className="font-medium">{version.name}</span>
+                        <span className="font-medium">{data.name}</span>
                     </>
                 ),
             },
@@ -31,14 +32,16 @@ const Create: React.FC<any> = ({ version }) => {
 
     return (
         <AuthLayout>
-            <Head title={`Continue la version de ${version.name}`} />
+            <Head title={`Continue la version de ${data.name}`} />
             <div className="space-y-4">
                 <Breadcrumb items={breadcrubms} />
 
                 <div className="space-y-2">
                     <Heading level={3} className="font-medium">
                         Continue la version de{" "}
-                        <span className="font-semibold">{version.name}</span>
+                        <span className="font-semibold">
+                            {data.name}
+                        </span>
                     </Heading>
                     <Text>
                         Sur cette page, vous pouvez consulter l'état actuel du
@@ -52,7 +55,7 @@ const Create: React.FC<any> = ({ version }) => {
                     </Text>
                 </div>
 
-                <Form version={version} />
+                <Form version={version?.data} params={version?.params} />
             </div>
         </AuthLayout>
     );

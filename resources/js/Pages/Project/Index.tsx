@@ -4,10 +4,15 @@ import AuthLayout from "@/Layouts/AuthLayout";
 import Breadcrumb from "@/Components/Breadcrumb";
 import { Heading } from "@/Components/ui/heading";
 import { Text } from "@/Components/ui/paragraph";
-import { MdHome } from "react-icons/md";
 import ConfirmNewProjectCreation from "@/Features/Project/ConfirmNewProjectCreation";
-import { ArrowRightCircle, ChevronDown, GitMerge, Search } from "lucide-react";
-import { TableWraper } from "@/Components/ui/table";
+import {
+    ArrowRightCircle,
+    ChevronDown,
+    GitMerge,
+    House,
+    Search,
+} from "lucide-react";
+import { TableWrapper } from "@/Components/ui/table";
 import { Input } from "@/Components/ui/input";
 import {
     DropdownMenu,
@@ -19,38 +24,12 @@ import { Badge } from "@/Components/ui/badge";
 import dayjs from "dayjs";
 import { BaseProject, Project } from "@/types/project";
 import Avatar from "@/Components/Avatar";
+import { Card } from "@/Components/ui/card";
 
 const breadcrumbs = [
-    { href: route("app"), label: <MdHome className="w-5 h-5" /> },
+    { href: route("app"), label: <House className="w-5 h-5" /> },
     { label: "Projets" },
 ];
-
-// const filterOptions = [
-//     {
-//         label: "Tous les projets",
-//         value: "all",
-//     },
-//     {
-//         label: "En examen",
-//         value: "review",
-//     },
-//     {
-//         label: "En instance",
-//         value: "pending",
-//     },
-//     {
-//         label: "Suspendu",
-//         value: "suspended",
-//     },
-//     {
-//         label: "Rejeté",
-//         value: "rejected",
-//     },
-//     {
-//         label: "Achevé",
-//         value: "completed",
-//     },
-// ];
 
 interface ProjectIndexProps {
     userDivisions?: [];
@@ -80,14 +59,20 @@ const Index: React.FC<ProjectIndexProps> = ({ userDivisions, data }) => {
                         Projets
                     </Heading>
 
-                    <Text className="max-w-7xl">
-                        Votre modèle de tableau de bord de gestion d'accées.
+                    <Text className="text-sm sm:text-base">
+                        Découvrez et gérez l'ensemble des projets en cours et
+                        terminés. Accédez aux détails de chaque projet, suivez
+                        les progrès, et collaborez avec les membres de votre
+                        équipe pour atteindre les objectifs fixés. Cette page
+                        vous offre une vue d'ensemble claire et structurée de
+                        tous les projets associés à votre division ou
+                        organisation
                     </Text>
                 </div>
 
-                <TableWraper className="shadow-none p-2 overflow-x-auto snap-mandatory snap-x scrollbar-thumb-gray-400 scrollbar-track-gray-200 scrollbar-thin">
-                    <ul className="flex items-stretch gap-2">
-                        <li className="shrink-0 w-full max-w-xs snap-center h-28">
+                <TableWrapper className="shadow-none p-2 overflow-x-auto snap-mandatory snap-x scrollbar-thumb-gray-400 scrollbar-track-gray-200 scrollbar-thin">
+                    <ul className="flex gap-2">
+                        <li className="shrink-0 w-full max-w-xs snap-center">
                             <ConfirmNewProjectCreation
                                 onTriggerPressed={() =>
                                     userDivisions ||
@@ -96,52 +81,54 @@ const Index: React.FC<ProjectIndexProps> = ({ userDivisions, data }) => {
                                 divisions={userDivisions}
                             />
                         </li>
+
                         {projectInCreation.map((project, idx) => (
-                            <li
-                                key={idx}
-                                className="shrink-0 w-full max-w-sm snap-center h-28"
-                            >
+                            <li key={idx} className="shrink-0 snap-center">
                                 <ProjectInCreationCard project={project} />
                             </li>
                         ))}
                     </ul>
-                </TableWraper>
+                </TableWrapper>
 
-                <div className="flex items-center justify-stretch md:justify-between gap-2">
-                    <div className="relative flex-1 lg:max-w-lg ">
-                        <Input
-                            className="pl-10 w-full"
-                            placeholder="Filtrer les Projets..."
-                        />
-                        <Search className="h-5 w-5 absolute left-2 top-1/2 -translate-y-1/2 text-gray-500" />
-                    </div>
+                {!!projects.length && (
+                    <>
+                        <div className="flex items-center justify-stretch md:justify-between gap-2">
+                            <div className="relative flex-1 lg:max-w-lg ">
+                                <Input
+                                    className="pl-10 w-full"
+                                    placeholder="Filtrer les Projets..."
+                                />
+                                <Search className="h-5 w-5 absolute left-2 top-1/2 -translate-y-1/2 text-gray-500" />
+                            </div>
 
-                    <div className="flex items-center gap-3">
-                        <DropdownMenu>
-                            <DropdownMenuTrigger
-                                className="hidden lg:flex"
-                                asChild
-                            >
-                                <Button
-                                    variant="outline"
-                                    className="justify-between gap-4"
-                                >
-                                    Sort by activity
-                                    <ChevronDown className="h-5 w-5" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent></DropdownMenuContent>
-                        </DropdownMenu>
-                    </div>
-                </div>
+                            <div className="flex items-center gap-3">
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger
+                                        className="hidden lg:flex"
+                                        asChild
+                                    >
+                                        <Button
+                                            variant="outline"
+                                            className="justify-between gap-4"
+                                        >
+                                            Sort by activity
+                                            <ChevronDown className="h-5 w-5" />
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent></DropdownMenuContent>
+                                </DropdownMenu>
+                            </div>
+                        </div>
 
-                <ul className="flex items-center justify-start flex-wrap gap-3">
-                    {projects.map((project, idx) => (
-                        <li key={idx}>
-                            <ProjectCard project={project} />
-                        </li>
-                    ))}
-                </ul>
+                        <ul className="flex items-center justify-start flex-wrap gap-3">
+                            {projects.map((project, idx) => (
+                                <li key={idx}>
+                                    <ProjectCard project={project} />
+                                </li>
+                            ))}
+                        </ul>
+                    </>
+                )}
             </div>
         </AuthLayout>
     );
@@ -252,6 +239,25 @@ const ProjectInCreationCard: React.FC<{ project: BaseProject }> = ({
 
         return () => clearInterval(interval);
     }, []);
+
+    return (
+        <Link href={href}>
+            <Card className="p-4 space-y-1 transition-all hover:border-primary-700 border-2 hover:bg-gray-50 duration-150">
+                <div className="flex items-center justify-between gap-4">
+                    <Text className="text-sm">{`Code: ${project.code}`}</Text>
+
+                    <Badge>{project.status}</Badge>
+                </div>
+                <div className="flex items-center gap-0.5">
+                    <GitMerge className="mx-1 h-4 w-4 text-gray-700" />
+                    <Badge variant="blue" className="whitespace-nowrap">
+                        {project.division.name}
+                    </Badge>
+                </div>
+                <Text>{`Créer ${relativeTime}`}</Text>
+            </Card>
+        </Link>
+    );
 
     return (
         <Link

@@ -3,7 +3,8 @@ import { FormWrapper } from "@/Components/ui/form";
 import { Link, useForm, usePage } from "@inertiajs/react";
 import { Button } from "@/Components/ui/button";
 import { Label } from "@/Components/ui/label";
-import { Input, InputError } from "@/Components/ui/input";
+import { Input } from "@/Components/ui/input";
+import { InputError } from "@/Components/ui/input-error";
 import { Textarea } from "@/Components/ui/textarea";
 import { User } from "@/types";
 import { useDebounce } from "@/Hooks/use-debounce";
@@ -167,7 +168,9 @@ const EditForm: React.FC<any> = ({ unit, division }) => {
 
             <div className="mx-auto max-w-lg flex flex-col-reverse sm:flex-row items-center sm:gap-4 gap-2">
                 <Button variant="destructive" className="w-full" asChild>
-                    <Link href={route("manage.unit.show", unit.id)}>Annuler</Link>
+                    <Link href={route("manage.unit.show", unit.id)}>
+                        Annuler
+                    </Link>
                 </Button>
                 <Button disabled={processing} className="w-full">
                     Sauvegarder

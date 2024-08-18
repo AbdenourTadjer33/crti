@@ -6,8 +6,7 @@ import Breadcrumb from "@/Components/Breadcrumb";
 import { Heading } from "@/Components/ui/heading";
 import { Text } from "@/Components/ui/paragraph";
 import { Button, buttonVariants } from "@/Components/ui/button";
-import { House, MapPin, Plus } from "lucide-react";
-import { TableWraper } from "@/Components/ui/table";
+import { House, MapPin } from "lucide-react";
 import Table from "@/Features/Manage/Unit/Division/Table";
 import {
     Card,
@@ -18,7 +17,6 @@ import {
     CardSubTitle,
     CardTitle,
 } from "@/Components/ui/card";
-import { Badge } from "@/Components/ui/badge";
 
 const Show: React.FC<any> = ({ unit }) => {
     const breadcrumbs = React.useMemo(

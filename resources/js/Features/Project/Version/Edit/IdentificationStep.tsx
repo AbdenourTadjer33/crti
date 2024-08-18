@@ -1,53 +1,22 @@
 import React from "react";
 import { EditProjectContext } from "@/Contexts/Project/edit-project-context";
-import { InputError } from "@/Components/ui/input";
+import { InputError } from "@/Components/ui/input-error";
 import { Label } from "@/Components/ui/label";
 import { Checkbox } from "@/Components/ui/checkbox";
 import { Button } from "@/Components/ui/button";
-import { format } from "date-fns";
 import { FormProps } from "@/Components/Stepper";
-import { DateRange } from "react-day-picker";
-import Field from "@/Libs/FormBuilder/components/Field";
 import { Editor } from "@/Components/Editor";
 import { capitalize } from "@/Utils/helper";
-import { deepKeys } from "@/Libs/Validation/utils";
-
-const domains = [
-    "Artificial Intelligence",
-    "Machine Learning",
-    "Data Science",
-    "Internet of Things",
-    "Robotics",
-    "Cybersecurity",
-    "Blockchain",
-    "Cloud Computing",
-    "Augmented Reality",
-    "Virtual Reality",
-    "Renewable Energy",
-    "Healthcare Technology",
-    "Financial Technology",
-    "E - commerce",
-    "Education Technology",
-    "Automotive Technology",
-    "Smart Cities",
-    "Agricultural Technology",
-    "Environmental Sustainability",
-    "Biotechnology",
-    "Telecommunications",
-    "Software Development",
-    "Hardware Development",
-    "Industrial Automation",
-    "Media and Entertainment",
-];
-
-const projectNatures = [
-    "dévloppement d'un produit",
-    "dévloppement d'un process",
-    "dévloppement de service",
-    "expertise",
-];
+import { usePage } from "@inertiajs/react";
+import { Input } from "@/Components/ui/input";
+import NatureField from "../NatureField";
+import DomainField from "../DomainField";
+import TimelineField from "../TimelineField";
 
 const Identification = ({ next }: FormProps) => {
+    const { domains, natures }: Record<string, string[]> = usePage()
+        .props as any;
+
     const { data, setData, errors, processing, validate, clearErrors } =
         React.useContext(EditProjectContext);
 
@@ -64,15 +33,21 @@ const Identification = ({ next }: FormProps) => {
 
     return (
         <>
-            <div className="grid xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 gap-4">
+            <div className="space-y-1">
+                <Label>Porteur de projet</Label>
+                <Input
+                    defaultValue={`${data.creator.name} ${data.creator.email}`}
+                />
+            </div>
+
+            <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-4">
                 <div className="space-y-1">
                     <Label>Intitulé du projet</Label>
-                    <Field
-                        type="text"
+                    <Input
                         value={data.name}
-                        onValueChange={(value) => {
+                        onChange={(e) => {
                             clearErrors("name");
-                            setData("name", value);
+                            setData("name", capitalize(e.target.value));
                         }}
                     />
                     <InputError message={errors.name} />
@@ -80,94 +55,29 @@ const Identification = ({ next }: FormProps) => {
 
                 <div className="space-y-1">
                     <Label>Nature du projet</Label>
-                    <Field
-                        type="combobox"
-                        options={projectNatures}
-                        multiple={false}
+                    <NatureField
                         value={data.nature}
-                        onValueChange={(value) => {
-                            clearErrors("nature");
-                            setData("nature", value);
-                        }}
-                        trigger={(value) => {
-                            return value
-                                ? capitalize(value)
-                                : "Sélectionner la nature de projet";
-                        }}
-                        empty={(search) => (
-                            <div
-                                onClick={() => {
-                                    projectNatures.push(search);
-                                    clearErrors("nature");
-                                    setData("nature", search);
-                                }}
-                            >
-                                Ajouter {search}
-                            </div>
-                        )}
+                        setValue={(value) => setData("nature", value)}
+                        natures={natures}
                     />
                     <InputError message={errors.nature} />
                 </div>
 
                 <div className="space-y-1">
                     <Label>Domaine d'application</Label>
-                    <Field
-                        type="combobox"
-                        options={domains}
-                        multiple
-                        value={data.domains}
-                        onValueChange={(value) => {
-                            clearErrors("domains");
-                            setData("domains", value);
-                        }}
-                        trigger={(value) => {
-                            return value?.length
-                                ? value
-                                : "Sélectionner les domaines d'application";
-                        }}
-                        empty={(search) => (
-                            <div
-                                onClick={() => {
-                                    domains.push(search);
-                                }}
-                            >
-                                Ajouter {search}
-                            </div>
-                        )}
+                    <DomainField
+                        values={data.domains}
+                        setValues={(values) => setData("domains", values)}
+                        domains={domains}
                     />
                     <InputError message={errors.domains} />
                 </div>
 
                 <div className="space-y-1">
                     <Label>Date début/fin</Label>
-                    <Field
-                        type="calendar"
-                        mode="range"
-                        showOutsideDays={false}
+                    <TimelineField
                         value={data.timeline}
-                        onValueChange={(value: DateRange) => {
-                            clearErrors("timeline");
-                            setData("timeline", value);
-                        }}
-                        labels={{
-                            trigger: (value) => {
-                                if (!value?.from && !value?.to) {
-                                    return "Date début/fin";
-                                }
-
-                                if (value?.from && !value?.to) {
-                                    return `De ${format(
-                                        value.from,
-                                        "dd/MM/yyy"
-                                    )}`;
-                                }
-
-                                return `De ${format(
-                                    value.from,
-                                    "dd/MM/yyy"
-                                )} à ${format(value.to, "dd/MM/yyy")}`;
-                            },
-                        }}
+                        setValue={(value) => setData("timeline", value!)}
                     />
                     <InputError message={errors.timeline} />
                 </div>
@@ -216,7 +126,6 @@ const Identification = ({ next }: FormProps) => {
                         clearErrors("is_partner");
                         if (!checked) {
                             clearErrors(
-                                // @ts-ignore
                                 "partner.name",
                                 "partner.email",
                                 "partner.phone"
@@ -232,14 +141,12 @@ const Identification = ({ next }: FormProps) => {
                 <div className="grid xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 gap-4">
                     <div className="space-y-1">
                         <Label>Nom du partenaire socio-economique</Label>
-                        <Field
-                            type="text"
+                        <Input
                             value={data.partner.name}
-                            onValueChange={(value) => {
-                                // @ts-ignore
+                            onChange={(e) => {
                                 clearErrors("partner.name");
                                 setData((data) => {
-                                    data.partner.name = value;
+                                    data.partner.name = e.target.value;
                                     return { ...data };
                                 });
                             }}
@@ -249,14 +156,13 @@ const Identification = ({ next }: FormProps) => {
 
                     <div className="space-y-1">
                         <Label>Adresse e-mail du partenaire</Label>
-                        <Field
-                            type="text"
+                        <Input
+                            type="email"
                             value={data.partner.email}
-                            onValueChange={(value) => {
-                                // @ts-ignore
+                            onChange={(e) => {
                                 clearErrors("partner.email");
                                 setData((data) => {
-                                    data.partner.email = value;
+                                    data.partner.email = e.target.value;
                                     return { ...data };
                                 });
                             }}
@@ -266,14 +172,12 @@ const Identification = ({ next }: FormProps) => {
 
                     <div className="space-y-1">
                         <Label>N° téléphone du partenaire</Label>
-                        <Field
-                            type="text"
+                        <Input
                             value={data.partner.phone}
-                            onValueChange={(value) => {
-                                // @ts-ignore
+                            onChange={(e) => {
                                 clearErrors("partner.phone");
                                 setData((data) => {
-                                    data.partner.phone = value;
+                                    data.partner.phone = e.target.value;
                                     return { ...data };
                                 });
                             }}

@@ -11,7 +11,7 @@ interface VersionInCreationProps {
 
 const VersionInCreation: React.FC<VersionInCreationProps> = ({ version }) => {
     const displayWarning = React.useMemo(() => {
-        return dayjs().diff(dayjs(version.createdAt), "minute") >= 20;
+        return dayjs().diff(dayjs(version.createdAt), "minute") > 15;
     }, [version.createdAt]);
 
     const href = route("project.version.edit", {
@@ -46,12 +46,11 @@ const VersionInCreation: React.FC<VersionInCreationProps> = ({ version }) => {
         );
     }
     return (
-        <Card.Card className="max-w-xl p-4 space-y-2">
-            <Card.CardTitle className="text-xl font-medium">
+        <Card.Card className="max-w-xl p-4 space-y-2 overflow-hidden">
+            <Card.CardTitle className="text-xl">
                 Version incomplète
             </Card.CardTitle>
             <Card.CardDescription>{version.reason}</Card.CardDescription>
-
             <div className="flex justify-end">
                 <Link href={href} className={cn(buttonVariants({}))}>
                     Continue la version

@@ -21,10 +21,11 @@ interface ProjectForm {
     methodology: string;
     is_partner: boolean;
     partner: { name: string; email: string; phone: string };
+    creator: MemberForm;
     members: MemberForm[];
-    resources: Resource[];
-    resources_crti: Resource[];
-    resources_partner: Resource[];
+    resources: Omit<Resource, "price">[];
+    resources_crti: Omit<Resource, "state">[];
+    resources_partner: Omit<Resource, "state">[];
     tasks: TaskForm[];
 }
 
@@ -39,7 +40,6 @@ interface Resource {
     description: string;
     price: string;
     state: string;
-    location: string;
 }
 
 interface TaskForm {

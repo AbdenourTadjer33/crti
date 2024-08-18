@@ -1,5 +1,5 @@
-import { cn } from "@/Utils/utils";
 import React from "react";
+import { cn } from "@/Utils/utils";
 
 interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {
     name: string;

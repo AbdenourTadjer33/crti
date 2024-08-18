@@ -4,17 +4,21 @@ import { createColumnHelper } from "@tanstack/react-table";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import { CreateProjectContext } from "@/Contexts/Project/create-project-context";
 import { TaskForm } from "@/types/form";
-import { Button } from "@/Components/ui/button";
-import { Check, Edit, X } from "lucide-react";
+import { Button, buttonVariants } from "@/Components/ui/button";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import { CalendarIcon, Check, ChevronDown, Edit, X } from "lucide-react";
 import { deepKeys, isAnyKeyBeginWith } from "@/Libs/Validation/utils";
-import * as Tooltip from "@/Components/ui/tooltip";
-import * as Dropdown from "@/Components/ui/dropdown-menu";
-import Avatar from "@/Components/Avatar";
 import { cn } from "@/Utils/utils";
 import { Note } from "@/Components/Note";
-import { EditableCell } from "@/Components/EditableCell";
+import { Input } from "@/Components/ui/input";
+import { Calendar } from "@/Components/ui/calendar";
+import Avatar from "@/Components/Avatar";
+import * as Popover from "@/Components/ui/popover";
+import * as Command from "@/Components/ui/command";
+import * as Select from "@/Components/ui/select";
+import * as Tooltip from "@/Components/ui/tooltip";
+import * as Dropdown from "@/Components/ui/dropdown-menu";
 
 const columnHelper = createColumnHelper<TaskForm>();
 
@@ -71,18 +75,28 @@ export const columnDef = [
 
     columnHelper.accessor("name", {
         header: "tâche",
-        cell: (cell) => {
+        cell: ({ table, row, column, getValue }) => {
             const { errors } = React.useContext(CreateProjectContext);
             const isAnyError = isAnyKeyBeginWith(
                 errors,
-                `tasks.${cell.row.index}.name`
+                `tasks.${row.index}.name`
             );
 
+            if (!row.getIsOnEditMode()) {
+                return getValue();
+            }
+
             return (
-                <EditableCell
-                    type="text"
-                    className={cn(isAnyError ? "border-red-500" : "")}
-                    {...cell}
+                <Input
+                    value={getValue()}
+                    onChange={(e) =>
+                        table.updateData(
+                            row.index,
+                            column.id as keyof TaskForm,
+                            e.target.value
+                        )
+                    }
+                    className="w-full min-w-[20rem] max-w-sm"
                 />
             );
         },
@@ -138,69 +152,101 @@ export const columnDef = [
 
     columnHelper.accessor("timeline", {
         header: "echancier",
-        cell: (cell) => {
-            const { errors } = React.useContext(CreateProjectContext);
+        cell: ({ table, row, column, getValue }) => {
+            const { errors, data } = React.useContext(CreateProjectContext);
             const isError = isAnyKeyBeginWith(
                 errors,
-                `tasks.${cell.row.index}.timeline`
+                `tasks.${row.index}.timeline`
             );
 
+            if (!row.getIsOnEditMode()) {
+                return `De ${format(getValue().from!, "dd/MM/yyy")} à ${format(
+                    getValue().to!,
+                    "dd/MM/yyy"
+                )}`;
+            }
+
             return (
-                <EditableCell
-                    type="calendar"
-                    mode="range"
-                    showOutsideDays={false}
-                    className={isError ? "border-red-500" : ""}
-                    labels={{
-                        trigger: (value) => {
-                            if (!value?.from && !value?.to) {
-                                return "Date début/fin";
+                <Popover.Popover>
+                    <Popover.PopoverTrigger asChild>
+                        <Button
+                            variant="outline"
+                            className="w-full min-w-[15rem] max-w-xs justify-between pr-0"
+                        >
+                            <div className="w-full truncate text-start">
+                                {!getValue() ||
+                                (!getValue()?.from && !getValue()?.to)
+                                    ? "Date début/fin"
+                                    : getValue().from && !getValue().to
+                                    ? `De ${format(
+                                          getValue().from!,
+                                          "dd/MM/yyy"
+                                      )}`
+                                    : getValue().from &&
+                                      getValue().to &&
+                                      `De ${format(
+                                          getValue().from!,
+                                          "dd/MM/yyy"
+                                      )} à ${format(
+                                          getValue().to!,
+                                          "dd/MM/yyy"
+                                      )}`}
+                            </div>
+                            <div
+                                className={buttonVariants({
+                                    variant: "ghost",
+                                    size: "sm",
+                                })}
+                            >
+                                <CalendarIcon className="shrink-0 w-5 h-5 text-gray-500 dark:text-gray-400" />
+                            </div>
+                        </Button>
+                    </Popover.PopoverTrigger>
+                    <Popover.PopoverContent className="w-auto p-0">
+                        <Calendar
+                            mode="range"
+                            showOutsideDays={false}
+                            selected={getValue()}
+                            onSelect={(range) => {
+                                table.updateData(
+                                    row.index,
+                                    column.id as keyof TaskForm,
+                                    range
+                                );
+                            }}
+                            disabled={{
+                                before: data?.timeline?.from!,
+                                after: data?.timeline?.to!,
+                            }}
+                            defaultMonth={
+                                getValue()?.from || data?.timeline?.from
                             }
-
-                            if (value?.from && !value?.to) {
-                                return `De ${format(value.from, "dd/MM/yyy")}`;
-                            }
-
-                            return `De ${format(
-                                value.from,
-                                "dd/MM/yyy"
-                            )} à ${format(value.to, "dd/MM/yyy")}`;
-                        },
-                    }}
-                    display={
-                        cell.getValue()?.from && cell.getValue()?.to ? (
-                            <>
-                                De {format(cell.getValue().from!, "dd/MM/yyy")}{" "}
-                                à {format(cell.getValue().to!, "dd/MM/yyy")}
-                            </>
-                        ) : (
-                            ""
-                        )
-                    }
-                    {...cell}
-                />
+                        />
+                    </Popover.PopoverContent>
+                </Popover.Popover>
             );
         },
     }),
 
     columnHelper.accessor("users", {
         header: "assigné à",
-        cell: (cell) => {
+        cell: ({ table, row, column, getValue }) => {
             const { errors, data } = React.useContext(CreateProjectContext);
-            const { members } = data;
+            const members = React.useMemo(() => data.members, [data.members]);
+            const uuids = React.useMemo(() => getValue(), [getValue()]);
+            const selectedMembers = React.useMemo(
+                () => members.filter((m) => uuids.includes(m.uuid)),
+                [members, uuids]
+            );
             const isError = isAnyKeyBeginWith(
                 errors,
-                `tasks.${cell.row.index}.users`
+                `tasks.${row.index}.users`
             );
 
-            const Display = () => {
-                const data = members.filter((member) =>
-                    cell.getValue().includes(member.uuid)
-                );
-
+            if (!row.getIsOnEditMode()) {
                 return (
-                    <div className="flex items-center">
-                        {data.map((member, idx) => (
+                    <div className="flex items-center -space-x-1.5">
+                        {selectedMembers.map((member, idx) => (
                             <Tooltip.TooltipProvider key={idx}>
                                 <Tooltip.Tooltip>
                                     <Tooltip.TooltipTrigger
@@ -222,60 +268,138 @@ export const columnDef = [
                         ))}
                     </div>
                 );
-            };
+            }
 
             return (
-                <EditableCell
-                    type="combobox"
-                    multiple={true}
-                    options={members.map((member) => {
-                        return { label: member.name, value: member.uuid };
-                    })}
-                    className={isError ? "border-red-500" : ""}
-                    labels={{
-                        trigger: (value) => {
-                            const selected: string[] = members
-                                .filter((member) => value.includes(member.uuid))
-                                .map((member) => member.name);
+                <Popover.Popover>
+                    <Popover.PopoverTrigger asChild>
+                        <Button
+                            variant="outline"
+                            className="w-full min-w-[24rem] max-w-sm justify-between pr-0"
+                        >
+                            <div className="w-full truncate text-start">
+                                {uuids.length
+                                    ? selectedMembers
+                                          .map((m) => m.name)
+                                          .join(", ")
+                                    : "Sélectionner les members pour cette tâche"}
+                            </div>
+                            <div
+                                className={buttonVariants({
+                                    variant: "ghost",
+                                    size: "sm",
+                                })}
+                            >
+                                <ChevronDown className="shrink-0 h-4 w-4" />
+                            </div>
+                        </Button>
+                    </Popover.PopoverTrigger>
+                    <Popover.PopoverContent className="w-auto p-0">
+                        <Command.Command loop>
+                            <Command.CommandHeader>
+                                <Command.CommandInput placeholder="Rechercher" />
+                            </Command.CommandHeader>
+                            <Command.CommandList>
+                                <Command.CommandEmpty className="p-4">
+                                    No results found.
+                                </Command.CommandEmpty>
 
-                            if (!selected.length) {
-                                return "Members";
-                            }
-
-                            if (selected.length === 1) {
-                                return selected[0];
-                            }
-
-                            return `${selected[0]} et ${
-                                selected.length - 1
-                            } autre${selected.length - 1 > 1 ? "s" : ""}`;
-                        },
-                    }}
-                    display={<Display />}
-                    {...cell}
-                />
+                                <Command.CommandGroup>
+                                    {members &&
+                                        members.map((member, idx) => (
+                                            <Command.CommandItem
+                                                key={idx}
+                                                value={member.uuid}
+                                                onSelect={(uuid) => {
+                                                    const selectedUuids = [
+                                                        ...uuids,
+                                                    ];
+                                                    if (
+                                                        selectedUuids.includes(
+                                                            uuid
+                                                        )
+                                                    ) {
+                                                        selectedUuids.splice(
+                                                            selectedUuids.indexOf(
+                                                                uuid
+                                                            ),
+                                                            1
+                                                        );
+                                                    } else {
+                                                        selectedUuids.push(
+                                                            uuid
+                                                        );
+                                                    }
+                                                    table.updateData(
+                                                        row.index,
+                                                        column.id as keyof TaskForm,
+                                                        selectedUuids
+                                                    );
+                                                }}
+                                            >
+                                                <Check
+                                                    className={
+                                                        "mr-2 h-4 w-4 data-[checked=false]:opacity-0"
+                                                    }
+                                                    data-checked={uuids?.includes(
+                                                        member.uuid
+                                                    )}
+                                                />
+                                                {member.name}
+                                            </Command.CommandItem>
+                                        ))}
+                                </Command.CommandGroup>
+                            </Command.CommandList>
+                        </Command.Command>
+                    </Popover.PopoverContent>
+                </Popover.Popover>
             );
         },
     }),
 
     columnHelper.accessor("priority", {
         header: "priorité",
-        cell: (cell) => {
+        cell: ({ table, row, column, getValue }) => {
             const { errors } = React.useContext(CreateProjectContext);
             const isError = isAnyKeyBeginWith(
                 errors,
-                `tasks.${cell.row.index}.priority`
+                `tasks.${row.index}.priority`
             );
+
+            if (!row.getIsOnEditMode()) {
+                return getValue();
+            }
+
             return (
-                <EditableCell
-                    type="combobox"
-                    options={["basse", "Moyenne", "Haute"]}
-                    placeholders={{
-                        trigger: "Priorité",
-                    }}
-                    className={isError ? "border-red-500" : ""}
-                    {...cell}
-                />
+                <Select.Select
+                    value={getValue()}
+                    onValueChange={(value) =>
+                        table.updateData(
+                            row.index,
+                            column.id as keyof TaskForm,
+                            value
+                        )
+                    }
+                >
+                    <Select.SelectTrigger className="min-w-[15rem]">
+                        {getValue()
+                            ? getValue()
+                            : "Sélectionner priorité de la tâche"}
+                    </Select.SelectTrigger>
+                    <Select.SelectContent>
+                        <Select.SelectGroup>
+                            <Select.SelectItem value="Basse">
+                                Basse
+                            </Select.SelectItem>
+                            <Select.SelectItem value="Moyenne">
+                                Moyenne
+                            </Select.SelectItem>
+                            <Select.SelectItem value="Haute">
+                                Haute
+                            </Select.SelectItem>
+                        </Select.SelectGroup>
+                    </Select.SelectContent>
+                </Select.Select>
             );
         },
     }),

@@ -157,7 +157,7 @@ const NoteDialog: React.FC<React.PropsWithChildren> = ({ children }) => {
                 <DialogPrimitive.Content
                     onCloseAutoFocus={(e) => e.preventDefault()}
                     onInteractOutside={(e) => e.preventDefault()}
-                    className="fixed top-0 left-0 m-4"
+                    className="fixed top-0 left-0 m-4 z-50"
                 >
                     {children}
                 </DialogPrimitive.Content>

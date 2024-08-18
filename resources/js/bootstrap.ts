@@ -5,11 +5,16 @@ import fr from "dayjs/locale/fr";
 import localData from "dayjs/plugin/localeData";
 import objectSupport from "dayjs/plugin/objectSupport";
 import relativeTime from "dayjs/plugin/relativeTime";
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 
 dayjs.locale(fr);
 dayjs.extend(objectSupport);
 dayjs.extend(relativeTime);
 dayjs.extend(localData);
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
 
 axios.defaults.withCredentials = true;
 axios.defaults.withXSRFToken = true;
@@ -25,8 +30,6 @@ axios.interceptors.response.use(
         return response;
     },
 );
-
-window.axios = axios;
 
 router.on("invalid", (event) => {
     // event.preventDefault();

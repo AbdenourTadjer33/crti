@@ -21,7 +21,7 @@ const Edit: React.FC<any> = ({ division, unit }) => {
                 href: route("manage.unit.division.show", { unit: route().params.unit as string, division }),
                 label: division.abbr,
             },
-            { label: "modifier " + division.abbr ?? division.name },
+            { label: "modifier " + (division.abbr ?? division.name) },
         ],
         []
     );

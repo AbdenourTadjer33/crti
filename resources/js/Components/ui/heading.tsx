@@ -11,7 +11,7 @@ const HeadingLevels: HeadingLevels = {
     3: "md:text-3xl sm:text-2xl text-xl font-bold dark:text-white",
     4: "text-2xl font-medium dark:text-white",
     5: "text-xl font-medium dark:text-white",
-    6: "text-lg font-medium dark:text-white",
+    6: "sm:text-lg text-base font-medium dark:text-white",
 };
 
 interface HeadingProps extends React.HTMLProps<HTMLHeadingElement> {

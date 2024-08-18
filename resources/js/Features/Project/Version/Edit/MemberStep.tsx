@@ -5,7 +5,7 @@ import { useDebounce } from "@/Hooks/use-debounce";
 import { EditProjectContext } from "@/Contexts/Project/edit-project-context";
 import { User } from "@/types";
 import { Button } from "@/Components/ui/button";
-import { InputError } from "@/Components/ui/input";
+import { InputError } from "@/Components/ui/input-error";
 import {
     Command,
     CommandEmpty,

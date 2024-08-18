@@ -1,9 +1,10 @@
 import React from "react";
-import { Link, useForm, usePage } from "@inertiajs/react";
+import { Link, useForm } from "@inertiajs/react";
 import { Button } from "@/Components/ui/button";
 import { FormWrapper } from "@/Components/ui/form";
 import { Label } from "@/Components/ui/label";
-import { Input, InputError } from "@/Components/ui/input";
+import { Input } from "@/Components/ui/input";
+import { InputError } from "@/Components/ui/input-error";
 import { Textarea } from "@/Components/ui/textarea";
 import { useDebounce } from "@/Hooks/use-debounce";
 import { User } from "@/types";

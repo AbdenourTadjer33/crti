@@ -13,7 +13,7 @@ import { Text } from "@/Components/ui/paragraph";
 import { Label } from "@/Components/ui/label";
 import { cn } from "@/Utils/utils";
 import { Skeleton } from "@/Components/ui/skeleton";
-import { InputError } from "@/Components/ui/input";
+import { InputError } from "@/Components/ui/input-error";
 
 const ConfirmNewProjectCreation: React.FC<{
     onTriggerPressed: () => void;
@@ -172,12 +172,8 @@ const CreateNewProject: React.FC<CreateNewProjectProps> = ({
                     Une erreur est sourvenu lors de création de projet.
                 </Text>
 
-                <Button
-                    // variant="outline"
-                    className="w-full"
-                    onClick={closeAndResetFn}
-                >
-                    Try later
+                <Button className="w-full" onClick={closeAndResetFn}>
+                    réessayez plus tard
                 </Button>
             </>
         );
@@ -199,7 +195,7 @@ const CreateNewProject: React.FC<CreateNewProjectProps> = ({
                         Fermer
                     </Button>
                     <Link
-                        href={route("project.version.create", data.data.code)}
+                        href={route("project.version.create", data.code)}
                         className={cn(buttonVariants({}), "w-full")}
                     >
                         Poursuivre la création

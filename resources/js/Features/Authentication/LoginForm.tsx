@@ -1,6 +1,7 @@
 import React from "react";
 import { Link, useForm } from "@inertiajs/react";
-import { Input, InputError } from "@/Components/ui/input";
+import { Input } from "@/Components/ui/input";
+import { InputError } from "@/Components/ui/input-error";
 import { Checkbox } from "@/Components/ui/checkbox";
 import { Label } from "@/Components/ui/label";
 import { Button } from "@/Components/ui/button";

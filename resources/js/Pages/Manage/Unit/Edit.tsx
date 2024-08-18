@@ -17,7 +17,7 @@ const Edit: React.FC<{ unit: any }> = ({ unit }) => {
                 href: route("manage.unit.show", unit.id),
                 label: unit.abbr ?? unit.name,
             },
-            { label: "Modifier " + unit.abbr ?? unit.name },
+            { label: "Modifier " + (unit.abbr ?? unit.name) },
         ],
         []
     );
