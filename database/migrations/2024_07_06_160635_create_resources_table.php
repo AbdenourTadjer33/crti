@@ -13,15 +13,11 @@ return new class extends Migration
     {
         Schema::create('resources', function (Blueprint $table) {
             $table->id();
+            $table->enum('type', ['existing_resource', 'requested_resource']);
             $table->string('name');
             $table->longText('description')->nullable();
+            $table->string('state')->nullable();
             $table->timestamps();
-        });
-
-        Schema::create('existing_resources', function (Blueprint $table) {
-            $table->foreignId('resource_id')->constrained('resources', 'id')->cascadeOnDelete();
-            $table->string('state');
-            $table->primary('resource_id');
         });
     }
 
