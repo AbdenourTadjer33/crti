@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as TanstackTable from "@tanstack/react-table";
 import * as Table from "@/Components/ui/table";
-import Pagination from "./Pagination";
+import Pagination from "./pagination";
 import { PaginationLinks, PaginationMeta } from "@/types";
 import { Checkbox } from "@/Components/ui/checkbox";
 import { Button } from "@/Components/ui/button";
