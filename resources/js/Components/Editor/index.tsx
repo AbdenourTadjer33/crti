@@ -140,7 +140,7 @@ const RichEditor: React.FC<RichEditorProps> = ({
         return {
             attributes: {
                 class: cn(
-                    "p-2 prose max-w-full focus:outline-none min-h-28 max-h-52 overflow-y-auto first:*:mt-0",
+                    "p-2 prose max-w-full focus:outline-none min-h-32 resize-y overflow-y-auto first:*:mt-0",
                     classNames?.content
                 ),
                 spellCheck: String(spellCheck),
