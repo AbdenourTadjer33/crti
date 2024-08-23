@@ -69,42 +69,34 @@ interface StepItemProps {
 
 interface StepperWrapperProps extends React.HTMLAttributes<HTMLUListElement> {}
 
-function useStepper(options: StepperOptions): StepperHook {
+function useStepper({ steps, state }: StepperOptions): StepperHook {
     const finalSteps = React.useMemo<Step[]>(
         () =>
-            options.steps.map((step, idx) => ({
+            steps.map((step, idx) => ({
                 id: idx + 1,
                 title: step.title,
                 description: step.description,
                 content: step.content,
             })),
-        [options.steps]
+        [steps]
     );
 
-    const [errors, setErrors] = React.useState<Record<number, true>>(
-        options?.state?.errors ?? {}
-    );
-    const [success, setSuccess] = React.useState<Record<number, true>>(
-        options?.state?.success ?? {}
-    );
-    const [currentStep, setCurrentStep] = React.useState<number>(
-        options?.state?.initial ?? 1
-    );
+    const [errors, setErrors] = React.useState(state?.errors ?? {});
+    const [success, setSuccess] = React.useState(state?.success ?? {});
+    const [currentStep, setCurrentStep] = React.useState(state?.initial ?? 1);
 
     const stepsCount = finalSteps.length;
 
     const canGoNext: boolean = currentStep < stepsCount;
 
-    const canGoPrev: boolean = currentStep > 0;
-
-    const next = () =>
-        setCurrentStep((_step) => (canGoNext ? _step + 1 : _step));
-
-    const prev = () =>
-        setCurrentStep((_step) => (canGoPrev ? _step - 1 : _step));
+    const canGoPrev: boolean = currentStep > 1;
 
     const goTo = (to: number) =>
-        setCurrentStep((_step) => (to >= 0 && to <= stepsCount ? to : _step));
+        setCurrentStep((_step) => (to >= 1 && to <= stepsCount ? to : _step));
+
+    const next = () => canGoNext && goTo(currentStep + 1);
+
+    const prev = () => canGoPrev && goTo(currentStep - 1);
 
     const setIsError = (step: number) =>
         setErrors((errors) => ({ ...errors, [step]: true }));
@@ -125,13 +117,13 @@ function useStepper(options: StepperOptions): StepperHook {
         });
 
     React.useEffect(() => {
-        const obj = { ...success };
-        Object.keys(obj).map((step) => {
+        const updatedSuccess = { ...success };
+        Object.keys(updatedSuccess).forEach((step) => {
             if (Number(step) >= currentStep) {
-                delete obj[Number(step)];
-                setSuccess(obj);
+                delete updatedSuccess[Number(step)];
             }
         });
+        setSuccess(updatedSuccess);
     }, [currentStep]);
 
     return {
