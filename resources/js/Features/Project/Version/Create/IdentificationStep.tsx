@@ -180,6 +180,8 @@ const Identification = ({ next }: FormProps) => {
                 </div>
             )}
 
+            <DeliverableField values={data.deliverables} />
+
             <div className="flex gap-4 max-w-lg mx-auto">
                 <Button
                     type="button"
@@ -192,6 +194,91 @@ const Identification = ({ next }: FormProps) => {
                 </Button>
             </div>
         </>
+    );
+};
+
+interface DeliverableFieldProps {
+    values: string[];
+}
+
+const DeliverableField: React.FC<DeliverableFieldProps> = ({ values }) => {
+    const { clearErrors, setData } = React.useContext(CreateProjectContext);
+    const [state, setState] = React.useState("");
+
+    const addNew = () => {
+        if (!state.trim().length) {
+            alert("add deliverable name");
+            return;
+        }
+
+        clearErrors("deliverables");
+
+        setData((data) => {
+            data.deliverables.push(state);
+            return { ...data };
+        });
+
+        setState("");
+    };
+
+    return (
+        <Card.Card className="p-4 space-y-4">
+            <Card.CardSubTitle>Produit livrable du projet</Card.CardSubTitle>
+
+            <div className="max-w-screen-lg mx-auto space-y-2">
+                {values?.map((deliverable, idx) => (
+                    <div key={idx} className="relative">
+                        <Input
+                            value={deliverable}
+                            onChange={(e) => {
+                                setData((data) => {
+                                    data.deliverables[idx] = capitalize(
+                                        e.target.value
+                                    );
+                                    return { ...data };
+                                });
+                            }}
+                        />
+                        <Button
+                            size="sm"
+                            variant="destructive"
+                            className="absolute right-0.5 top-1/2 -translate-y-1/2"
+                            onClick={() => {
+                                setData((data) => {
+                                    data.deliverables.splice(idx, 1);
+                                    return { ...data };
+                                });
+                            }}
+                        >
+                            Supprimer
+                        </Button>
+                    </div>
+                ))}
+            </div>
+
+            <div className="relative max-w-screen-lg mx-auto">
+                <Input
+                    value={state}
+                    onChange={(e) => setState(capitalize(e.target.value))}
+                    className="pr-20"
+                    onKeyDown={(e) => {
+                        if (e.code === "Enter") {
+                            e.preventDefault();
+                            addNew();
+                        }
+                    }}
+                />
+                <Button
+                    type="button"
+                    variant="ghost"
+                    className="absolute right-0.5 top-1/2 -translate-y-1/2"
+                    size="sm"
+                    onClick={addNew}
+                >
+                    Ajouter
+                </Button>
+            </div>
+        </Card.Card>
     );
 };
 
