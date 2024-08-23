@@ -124,6 +124,16 @@ function useStepper(options: StepperOptions): StepperHook {
             return { ...success };
         });
 
+    React.useEffect(() => {
+        const obj = { ...success };
+        Object.keys(obj).map((step) => {
+            if (Number(step) >= currentStep) {
+                delete obj[Number(step)];
+                setSuccess(obj);
+            }
+        });
+    }, [currentStep]);
+
     return {
         steps: finalSteps,
         currentStep,
