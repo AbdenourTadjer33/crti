@@ -95,7 +95,7 @@ const CreateForm: React.FC<CreateProps> = ({ projects, presidents }) => {
             onSubmit={submitHandler}
         >
             <div className="grid sm:grid-cols-3 gap-4">
-                <div className="space-y-1 sm:col-span-1 col-span-3">
+                {/* <div className="space-y-1 sm:col-span-1 col-span-3">
                     <Label required>Nom du conseil scientifique</Label>
                     <Input
                         value={data.name}
@@ -105,7 +105,7 @@ const CreateForm: React.FC<CreateProps> = ({ projects, presidents }) => {
                         }}
                     />
                     <InputError message={errors.name} />
-                </div>
+                </div> */}
                 <div className="pace-y-1 sm:col-span-1 col-span-3">
                     <Label required>Projet associé</Label>
                     <SelectProjectField
