@@ -100,6 +100,10 @@ class ProjectController extends Controller
 
     public function suggest(Request $request)
     {
+        $request->validate([
+            'value' => ['required', 'string', 'min:4', 'max: 50'],
+        ]);
+
         if ($request->routeIs('project.suggest.domain')) {
             DB::table('domains')->insert([
                 'domain' => $request->input('value'),
