@@ -3,12 +3,11 @@ import { Head } from "@inertiajs/react";
 import { Heading } from "@/Components/ui/heading";
 import { Text } from "@/Components/ui/paragraph";
 import AuthLayout from "@/Layouts/AuthLayout";
-import Breadcrumb from "@/Components/Breadcrumb";
+import Breadcrumb from "@/Components/common/breadcrumb";
 import { House } from "lucide-react";
-
 import Form from "@/Features/Project/Version/Edit/Form";
 
-const Create: React.FC<any> = ({ version }) => {
+const Edit: React.FC<any> = ({ version }) => {
     const { data, params } = version;
     const breadcrubms = React.useMemo(
         () => [
@@ -18,30 +17,20 @@ const Create: React.FC<any> = ({ version }) => {
                 href: route("project.show", route().params.project as string),
                 label: data.name,
             },
-            {
-                label: (
-                    <>
-                        Continue la version de{" "}
-                        <span className="font-medium">{data.name}</span>
-                    </>
-                ),
-            },
+            { label: "Continue la version" },
         ],
         []
     );
 
     return (
-        <AuthLayout>
-            <Head title={`Continue la version de ${data.name}`} />
+        <>
+            <Head title="Continue la version" />
             <div className="space-y-4">
                 <Breadcrumb items={breadcrubms} />
 
                 <div className="space-y-2">
                     <Heading level={3} className="font-medium">
-                        Continue la version de{" "}
-                        <span className="font-semibold">
-                            {data.name}
-                        </span>
+                        Continue la version
                     </Heading>
                     <Text>
                         Sur cette page, vous pouvez consulter l'état actuel du
@@ -55,10 +44,15 @@ const Create: React.FC<any> = ({ version }) => {
                     </Text>
                 </div>
 
-                <Form version={version?.data} params={version?.params} />
+                <Form version={data} params={params} />
             </div>
-        </AuthLayout>
+        </>
     );
 };
 
-export default Create;
+// @ts-ignore
+Edit.layout = (page) => {
+    return <AuthLayout children={page} />;
+};
+
+export default Edit;

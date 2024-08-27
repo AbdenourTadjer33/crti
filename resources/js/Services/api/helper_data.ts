@@ -2,7 +2,7 @@ import axios, { AxiosRequestConfig, AxiosResponse, AxiosError } from "axios";
 
 async function addProjectDomain(domain: string, config: AxiosRequestConfig = {}): Promise<AxiosResponse<any, any> | undefined> {
     try {
-        const response = await axios.post(route("api.project.domain.store"), { domain }, config);
+        const response = await axios.post(route("project.suggest.domain"), { value: domain }, config);
         return response;
     } catch (e) {
         const error = e as AxiosError;
@@ -12,7 +12,7 @@ async function addProjectDomain(domain: string, config: AxiosRequestConfig = {})
 
 async function addProjectNature(nature: string, config: AxiosRequestConfig = {}): Promise<AxiosResponse<any, any> | undefined> {
     try {
-        const response = await axios.post(route("api.project.nature.store"), { nature }, config);
+        const response = await axios.post(route("project.suggest.nature"), { value: nature }, config);
         return response
     } catch (e) {
         const error = e as AxiosError;

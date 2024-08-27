@@ -1,7 +1,7 @@
 import React from "react";
 import { Heading } from "@/Components/ui/heading";
 import { Text } from "@/Components/ui/paragraph";
-import Breadcrumb from "@/Components/Breadcrumb";
+import Breadcrumb from "@/Components/common/breadcrumb";
 import AuthLayout from "@/Layouts/AuthLayout";
 import { Head } from "@inertiajs/react";
 import { House } from "lucide-react";

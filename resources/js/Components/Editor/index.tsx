@@ -140,7 +140,7 @@ const RichEditor: React.FC<RichEditorProps> = ({
         return {
             attributes: {
                 class: cn(
-                    "p-2 prose max-w-full focus:outline-none min-h-32 resize-y overflow-y-auto first:*:mt-0",
+                    "p-2 prose prose-slate prose-sm sm:prose-base dark:prose-invert prose-a:text-blue-600 focus:outline-none max-w-full focus:outline-none min-h-32 resize-y overflow-y-auto first:*:mt-0",
                     classNames?.content
                 ),
                 spellCheck: String(spellCheck),
@@ -155,6 +155,7 @@ const RichEditor: React.FC<RichEditorProps> = ({
         editable: editable,
         autofocus: autofocus,
         editorProps: editorPropsFn(),
+        immediatelyRender: true,
     });
 
     if (!editor) {
@@ -169,9 +170,12 @@ const RichEditor: React.FC<RichEditorProps> = ({
                 classNames?.root
             )}
         >
-            {slotBeforeFn(editor)}
-            <EditorContent editor={editor} className={cn(classNames?.wrapper)} />
-            {slotAfterFn(editor)}
+            {editable && slotBeforeFn(editor)}
+            <EditorContent
+                editor={editor}
+                className={cn(classNames?.wrapper)}
+            />
+            {editable && slotAfterFn(editor)}
         </div>
     );
 };

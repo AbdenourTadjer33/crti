@@ -1,9 +1,9 @@
-import React, { useEffect } from "react";
+import React from "react";
 
 const useUpdateEffect = (callback: React.EffectCallback, deps?: React.DependencyList) => {
     const firstRenderRef = React.useRef(true);
 
-    useEffect(() => {
+    React.useEffect(() => {
         if (firstRenderRef.current) {
             firstRenderRef.current = false;
             return;

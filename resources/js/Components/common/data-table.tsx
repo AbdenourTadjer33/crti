@@ -5,13 +5,14 @@ import Pagination from "./pagination";
 import { PaginationLinks, PaginationMeta } from "@/types";
 import { Checkbox } from "@/Components/ui/checkbox";
 import { Button } from "@/Components/ui/button";
-import { MdKeyboardArrowDown, MdKeyboardArrowRight } from "react-icons/md";
+import { ChevronDown, ChevronRight } from "lucide-react";
 
 interface DataTableOptions {
     table: TanstackTable.Table<any>;
-    subComponent?: (props: { row: TanstackTable.Row<any> }) => React.ReactElement;
+    subComponent?: (props: { row: TanstackTable.Row<any> }) => React.ReactNode;
     pagination?: { links: PaginationLinks; meta: PaginationMeta };
     noDataPlaceholder?: React.ReactNode;
+    footer?: (props: any) => React.ReactNode;
 }
 
 interface HeaderSelecterProps {
@@ -26,8 +27,8 @@ interface RowExpanderProps {
     row: TanstackTable.Row<any>;
 }
 
-
 export default function DataTable({ options }: { options: DataTableOptions }) {
+    console.log();
     return (
         <>
             <Table.Table>
@@ -100,6 +101,26 @@ export default function DataTable({ options }: { options: DataTableOptions }) {
                         </Table.TableRow>
                     )}
                 </Table.TableBody>
+
+                <Table.TableFooter>
+                    {options.table.getFooterGroups().map((footerGroup, idx) => (
+                        <Table.TableRow key={idx}>
+                            {footerGroup.headers.map((footer) => (
+                                <Table.TableCell
+                                    key={footer.id}
+                                    colSpan={footer.colSpan}
+                                >
+                                    {footer.isPlaceholder
+                                        ? null
+                                        : TanstackTable.flexRender(
+                                              footer.column.columnDef.footer,
+                                              footer.getContext()
+                                          )}
+                                </Table.TableCell>
+                            ))}
+                        </Table.TableRow>
+                    ))}
+                </Table.TableFooter>
             </Table.Table>
             {options.pagination &&
                 options.pagination.meta.per_page <
@@ -114,7 +135,6 @@ export default function DataTable({ options }: { options: DataTableOptions }) {
         </>
     );
 }
-
 
 function HeaderSelecter({ table }: HeaderSelecterProps) {
     return (
@@ -144,9 +164,9 @@ function RowExpander({ row }: RowExpanderProps) {
     return row.getCanExpand() ? (
         <Button variant="ghost" onClick={row.getToggleExpandedHandler()}>
             {row.getIsExpanded() ? (
-                <MdKeyboardArrowDown className="w-5 h-5" />
+                <ChevronDown className="w-5 h-5" />
             ) : (
-                <MdKeyboardArrowRight className="w-5 h-5" />
+                <ChevronRight className="w-5 h-5" />
             )}
         </Button>
     ) : null;

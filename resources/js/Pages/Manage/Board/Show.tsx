@@ -1,4 +1,4 @@
-import Breadcrumb from "@/Components/Breadcrumb";
+import Breadcrumb from "@/Components/common/breadcrumb";
 import { Button, buttonVariants } from "@/Components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/Components/ui/card";
 import { Heading } from "@/Components/ui/heading";

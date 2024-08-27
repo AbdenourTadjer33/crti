@@ -17,10 +17,8 @@ import {
     DialogTitle,
 } from "@/Components/ui/dialog";
 
-import { MoreHorizontal } from "lucide-react";
-import { FaInfoCircle } from "react-icons/fa";
+import { Delete, Edit, Info, MoreHorizontal } from "lucide-react";
 import { router } from "@inertiajs/react";
-import { MdDelete, MdEdit } from "react-icons/md";
 
 export default function ({ row }) {
     const [deleteModal, setDeleteModal] = React.useState(false);
@@ -39,7 +37,7 @@ export default function ({ row }) {
 
     return (
         <>
-            <DropdownMenu onSelect={(e) => e.preventDefault()}>
+            <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="w-8 h-8 p-0">
                         <MoreHorizontal className="w-5 h-5" />
@@ -53,11 +51,11 @@ export default function ({ row }) {
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem>
-                        <MdEdit className="w-4 h-4 mr-2" />
+                        <Edit className="w-4 h-4 mr-2" />
                         Modifier
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={setDeleteModal}>
-                        <MdDelete className="w-4 h-4 text-red-500 dark:text-red-600 mr-2" />
+                        <Delete className="w-4 h-4 text-red-500 dark:text-red-600 mr-2" />
                         Supprimé
                     </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -67,7 +65,7 @@ export default function ({ row }) {
                 <DialogContent onOpenAutoFocus={(e) => e.preventDefault()}>
                     <DialogHeader>
                         <DialogTitle className="inline-flex items-center gap-2">
-                            <FaInfoCircle className="w-6 h-6 text-red-600 dark:text-red-700" />
+                            <Info className="w-6 h-6 text-red-600 dark:text-red-700" />
                             Etes-vous absolument sûr?
                         </DialogTitle>
                         <DialogDescription>

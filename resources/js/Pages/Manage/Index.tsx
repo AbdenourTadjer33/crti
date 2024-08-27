@@ -1,7 +1,7 @@
 import AuthLayout from "@/Layouts/AuthLayout";
 import { Head, Link } from "@inertiajs/react";
 import { capitalize } from "@/Utils/helper";
-import Breadcrumb from "@/Components/Breadcrumb";
+import Breadcrumb from "@/Components/common/breadcrumb";
 import { Heading } from "@/Components/ui/heading";
 import { Text } from "@/Components/ui/paragraph";
 import { ArrowRightCircle, House } from "lucide-react";

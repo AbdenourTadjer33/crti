@@ -1,8 +1,9 @@
-import Avatar from "@/Components/Avatar";
+import { Avatar, AvatarFallback } from "@/Components/ui/avatar";
 import { Button, buttonVariants } from "@/Components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/Components/ui/card";
 import { Indicator } from "@/Components/ui/indicator";
 import { Text } from "@/Components/ui/paragraph";
+import { getInitials } from "@/Utils/helper";
 import { Link } from "@inertiajs/react";
 import { UUID } from "crypto";
 
@@ -39,10 +40,9 @@ export const UserCard: React.FC<UserCardProps> = ({ user }) => {
     return (
         <Card>
             <CardHeader className="flex flex-row gap-5 items-center" >
-                <Avatar
-                    name={user.name}
-                    size="xl"
-                />
+                <Avatar>
+                    <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+                </Avatar>
                 <CardTitle>
                     {user.name}<br/>
                     <Text className="flex items-center gap-1">

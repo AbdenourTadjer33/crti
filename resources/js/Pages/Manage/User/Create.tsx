@@ -1,18 +1,16 @@
+import React from "react";
 import { Permission, Role } from "@/types";
-
 import AuthLayout from "@/Layouts/AuthLayout";
-import Breadcrumb from "@/Components/Breadcrumb";
+import Breadcrumb from "@/Components/common/breadcrumb";
 import CreateForm from "@/Features/Manage/User/CreateForm";
-import { FormWrapper } from "@/Components/ui/form";
 import { Head } from "@inertiajs/react";
 import { Heading } from "@/Components/ui/heading";
-import { MdHome } from "react-icons/md";
-import React from "react";
 import { Text } from "@/Components/ui/paragraph";
+import { House } from "lucide-react";
 
 
 const breadcrumbs = [
-    { href: route("app"), label: <MdHome className="w-6 h-6" /> },
+    { href: route("app"), label: <House className="w-5 h-5" /> },
     { href: route("manage.index"), label: "Centres d'administration" },
     { href: route("manage.user.index"), label: "Gestion d'utilisateurs" },
     { label: "Créer utilisateur" },

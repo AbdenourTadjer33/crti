@@ -1,3 +1,4 @@
+import { UUID } from "crypto";
 import { DateRange } from "react-day-picker";
 
 type setDataByObject<Tform> = (data: Tform) => void;
@@ -20,22 +21,34 @@ interface ProjectForm {
     goals: string;
     methodology: string;
     is_partner: boolean;
-    partner: { name: string; email: string; phone: string };
-    creator: MemberForm;
+    partner: PartnerForm;
+    deliverables: string[];
+    estimated_amount: string;
+    creator?: MemberForm;
     members: MemberForm[];
     resources: Omit<Resource, "price">[];
-    resources_crti: Omit<Resource, "state">[];
-    resources_partner: Omit<Resource, "state">[];
+    resources_crti: Omit<Resource, "code" | "state">[];
+    resources_partner: Omit<Resource, "code" | "state">[];
     tasks: TaskForm[];
 }
 
+interface PartnerForm {
+    organisation: string;
+    sector: string;
+    contact_name: string;
+    contact_post: string;
+    contact_email: string;
+    contact_phone: string;
+}
+
 interface MemberForm {
-    uuid: string;
+    uuid: UUID;
     name: string;
     email: string;
 }
 
 interface Resource {
+    code: string;
     name: string;
     description: string;
     price: string;
@@ -43,11 +56,10 @@ interface Resource {
 }
 
 interface TaskForm {
-    id: string;
     name: string;
     description: string;
     timeline: DateRange;
-    users: string[];
+    users: MemberForm["uuid"][];
     priority: string;
 }
 

@@ -7,7 +7,7 @@ import {
 } from "@tanstack/react-table";
 import { TableWrapper } from "@/Components/ui/table";
 import { Input } from "@/Components/ui/input";
-import DataTable from "@/Components/DataTable";
+import DataTable from "@/Components/common/data-table";
 import {
     DropdownMenu,
     DropdownMenuCheckboxItem,

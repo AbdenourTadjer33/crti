@@ -1,11 +1,11 @@
 import React from "react";
 import * as Card from "@/Components/ui/card";
-import TanstackTable from "@tanstack/react-table";
+import * as TanstackTable from "@tanstack/react-table";
 import DataTable from "@/Components/common/data-table";
 import { StepperContentProps } from "@/Components/ui/stepper";
 import { CreateProjectContext as ProjectContext } from "@/Contexts/Project/create-project-context";
 import { Button } from "@/Components/ui/button";
-import { router } from "@inertiajs/react";
+import { router, usePage } from "@inertiajs/react";
 import { format } from "date-fns";
 import { ProjectForm } from "@/types/form";
 import { Text } from "@/Components/ui/paragraph";
@@ -15,9 +15,10 @@ import { Avatar, AvatarFallback } from "@/Components/ui/avatar";
 import { currencyFormat, getInitials } from "@/Utils/helper";
 import { useUser } from "@/Hooks/use-user";
 import { Editor } from "@/Components/Editor";
-import { columnDef } from "../task-columns";
-import { columnDef as resourceColumnDef } from "../resource-columns";
+import { columnDef } from "./task-columns";
+import { columnDef as resourceColumnDef } from "./resource-columns";
 import { TableWrapper } from "@/Components/ui/table";
+import * as Tooltip from "@/Components/ui/tooltip";
 
 function prepareData(data: Omit<ProjectForm, "creator">) {
     const formData: any = { ...data };
@@ -36,6 +37,10 @@ function prepareData(data: Omit<ProjectForm, "creator">) {
 const ConfirmationStep = ({ prev }: StepperContentProps) => {
     const { uuid } = useUser("uuid");
     const { data, processing } = React.useContext(ProjectContext);
+    const { domains, natures } = usePage<{
+        domains: undefined | { id: number; name: string; suggested: boolean }[];
+        natures: undefined | { id: number; name: string; suggested: boolean }[];
+    }>().props;
 
     const submitHandler = () => {
         const formData = prepareData(data);
@@ -51,22 +56,49 @@ const ConfirmationStep = ({ prev }: StepperContentProps) => {
     return (
         <>
             <Card.Card>
-                <Card.CardHeader>
+                <Card.CardHeader className="sm:p-6 p-4">
                     <Text></Text>
-                    <Card.CardTitle className="sm:text-2xl text-xl">
-                        {data.name}
-                    </Card.CardTitle>
-                    <Card.CardSubTitle className="sm:text-xl text-lg">
-                        {data.nature}
-                    </Card.CardSubTitle>
+                    <Tooltip.TooltipProvider>
+                        <Tooltip.Tooltip>
+                            <Tooltip.TooltipTrigger asChild>
+                                <Card.CardTitle className="sm:text-2xl text-xl">
+                                    {data.name}
+                                </Card.CardTitle>
+                            </Tooltip.TooltipTrigger>
+                            <Tooltip.TooltipContent>
+                                Titre de projet
+                            </Tooltip.TooltipContent>
+                        </Tooltip.Tooltip>
+                    </Tooltip.TooltipProvider>
+                    <Tooltip.TooltipProvider>
+                        <Tooltip.Tooltip>
+                            <Tooltip.TooltipTrigger asChild>
+                                <Card.CardSubTitle className="sm:text-xl text-lg">
+                                    {
+                                        natures?.find(
+                                            (n) => String(n.id) === data.nature
+                                        )?.name
+                                    }
+                                </Card.CardSubTitle>
+                            </Tooltip.TooltipTrigger>
+                            <Tooltip.TooltipContent>
+                                Nature de projet
+                            </Tooltip.TooltipContent>
+                        </Tooltip.Tooltip>
+                    </Tooltip.TooltipProvider>
                 </Card.CardHeader>
-                <Card.CardContent className="space-y-4 sm:space-y-6">
+                <Card.CardContent className="sm:p-6 p-4 pt-0 sm:pt-0 space-y-4 sm:space-y-6">
                     <div className="space-y-2">
                         <Heading level={6}>Domaines</Heading>
-                        <div className="flex flex-wrap items-center gap-1 5">
+
+                        <div className="flex flex-wrap items-center gap-1">
                             {data.domains.map((domain, idx) => (
-                                <Badge key={idx} variant="blue">
-                                    {domain}
+                                <Badge key={idx} variant="blue" size="sm">
+                                    {
+                                        domains?.find(
+                                            (d) => String(d.id) === domain
+                                        )?.name
+                                    }
                                 </Badge>
                             ))}
                         </div>
@@ -74,6 +106,7 @@ const ConfirmationStep = ({ prev }: StepperContentProps) => {
 
                     <div className="space-y-2">
                         <Heading level={6}>Chronologie</Heading>
+
                         <div className="text-gray-600">
                             {`Du ${format(
                                 data.timeline.from!,
@@ -131,7 +164,7 @@ const ConfirmationStep = ({ prev }: StepperContentProps) => {
                                     </Card.CardTitle>
                                     <Card.CardDescription>
                                         Information sur le partenaire
-                                        socioéconomique
+                                        socio-économique
                                     </Card.CardDescription>
                                 </Card.CardHeader>
                                 <Card.CardContent className="space-y-4">
@@ -184,7 +217,6 @@ const ConfirmationStep = ({ prev }: StepperContentProps) => {
                         <Heading level={6}>
                             Description succincte du projet
                         </Heading>
-
                         <Editor
                             autofocus={false}
                             content={data.description}
@@ -237,14 +269,17 @@ const ConfirmationStep = ({ prev }: StepperContentProps) => {
                         <ResourceTable resources={data.resources_crti} />
                     </div>
 
-                    <div className="space-y-2">
-                        <Heading level={6}>
-                            Matière première, composants et petits équipements à
-                            acquérir par le partenaire socio-économique
-                        </Heading>
+                    {data.is_partner && (
+                        <div className="space-y-2">
+                            <Heading level={6}>
+                                Matière première, composants et petits
+                                équipements à acquérir par le partenaire
+                                socio-économique
+                            </Heading>
 
-                        <ResourceTable resources={data.resources_partner} />
-                    </div>
+                            <ResourceTable resources={data.resources_partner} />
+                        </div>
+                    )}
 
                     <Card.Card className="p-6 space-y-6">
                         <div className="space-y-2">

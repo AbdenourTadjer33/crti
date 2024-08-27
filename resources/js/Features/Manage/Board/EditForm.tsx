@@ -22,11 +22,12 @@ import {
     CommandList,
     CommandShortcut,
 } from "@/Components/ui/command";
-import Avatar from "@/Components/Avatar";
 import { Skeleton } from "@/Components/ui/skeleton";
 import { Kbd } from "@/Components/ui/kbd";
 import { isAnyKeyBeginWith } from "@/Libs/Validation/utils";
 import { MemberBoard } from "@/types/member";
+import { Avatar, AvatarFallback } from "@/Components/ui/avatar";
+import { getInitials } from "@/Utils/helper";
 
 const EditForm: React.FC<any> = ({ board }) => {
     const { data, setData, errors, processing, put, clearErrors } = useForm({
@@ -278,10 +279,11 @@ const SearchMembers = ({
                                         className="py-2.5 grid sm:grid-cols-3 grid-cols-2 gap-4"
                                     >
                                         <div className="inline-flex items-center space-x-2">
-                                            <Avatar
-                                                size="sm"
-                                                name={user.name}
-                                            />
+                                            <Avatar>
+                                                <AvatarFallback>
+                                                    {getInitials(user.name)}
+                                                </AvatarFallback>
+                                            </Avatar>
                                             <div>{user.name}</div>
                                         </div>
                                         <div className="hidden sm:block">

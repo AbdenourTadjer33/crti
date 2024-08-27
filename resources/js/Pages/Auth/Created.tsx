@@ -1,5 +1,5 @@
 import { SuccessCheckAlert } from "@/Components/Alerts/Alert";
-import AppLogo from "@/Components/AppLogo";
+import AppLogo from "@/Components/common/app-logo";
 import GuestLayout from "@/Layouts/GuestLayout";
 import { Head } from "@inertiajs/react";
 

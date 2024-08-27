@@ -2,11 +2,9 @@ import { Role } from "@/types";
 import React from "react";
 import { columnDef } from "./columns";
 import { TableWrapper } from "@/Components/ui/table";
-import { MdSearch } from "react-icons/md";
 import { Input } from "@/Components/ui/input";
 import { Button } from "@/Components/ui/button";
-import { IoMdOptions } from "react-icons/io";
-import DataTable from "@/Components/DataTable";
+import DataTable from "@/Components/common/data-table";
 import { Badge } from "@/Components/ui/badge";
 import {
     getCoreRowModel,
@@ -26,6 +24,7 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/Components/ui/tooltip";
+import { Search, SlidersHorizontal } from "lucide-react";
 
 const Table: React.FC<{ roles: Role[] }> = ({ roles }) => {
     const finaldata = React.useMemo(() => roles, [roles]);
@@ -60,7 +59,7 @@ const Table: React.FC<{ roles: Role[] }> = ({ roles }) => {
             <div className="p-4 flex justify-between gap-2">
                 <div className="relative sm:w-80">
                     <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
-                        <MdSearch className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                        <Search className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                     </div>
                     <Input placeholder="Search" className="pl-10" />
                 </div>
@@ -71,7 +70,7 @@ const Table: React.FC<{ roles: Role[] }> = ({ roles }) => {
                             <TooltipTrigger asChild>
                                 <DropdownMenuTrigger asChild>
                                     <Button variant="ghost">
-                                        <IoMdOptions className="w-5 h-5" />
+                                        <SlidersHorizontal className="w-5 h-5" />
                                     </Button>
                                 </DropdownMenuTrigger>
                             </TooltipTrigger>

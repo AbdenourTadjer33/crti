@@ -1,16 +1,16 @@
 import React from "react";
 import {Head, Link} from "@inertiajs/react";
 import AuthLayout from "@/Layouts/AuthLayout";
-import Breadcrumb from "@/Components/Breadcrumb";
+import Breadcrumb from "@/Components/common/breadcrumb";
 import Table from "@/Features/Manage/Role/Table";
 import {Role} from "@/types";
 import {Heading} from "@/Components/ui/heading";
 import {Text} from "@/Components/ui/paragraph";
 import {Button} from "@/Components/ui/button";
-import {MdAdd, MdHome} from "react-icons/md";
+import { House, Plus } from "lucide-react";
 
 const breadcrumbs = [
-    {href: route("app"), label: <MdHome className="w-6 h-6"/>},
+    {href: route("app"), label: <House className="w-5 h-5"/>},
     {href: route("manage.index"), label: "Centres d'administration"},
     {label: "Roles & permissions"},
 ];
@@ -36,7 +36,7 @@ const Index: React.FC<{ roles: Role[] }> = ({roles}) => {
 
                     <Button asChild>
                         <Link href={route('manage.role.create')}>
-                            <MdAdd className="w-4 h-4 mr-2"/>Ajouter
+                            <Plus className="w-4 h-4 mr-2"/>Ajouter
                         </Link>
                     </Button>
                 </div>

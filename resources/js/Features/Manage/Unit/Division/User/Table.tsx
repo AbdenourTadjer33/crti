@@ -6,9 +6,8 @@ import {
     useReactTable,
 } from "@tanstack/react-table";
 import { TableWrapper } from "@/Components/ui/table";
-import { MdSearch } from "react-icons/md";
 import { Input } from "@/Components/ui/input";
-import DataTable from "@/Components/DataTable";
+import DataTable from "@/Components/common/data-table";
 import {
     DropdownMenu,
     DropdownMenuCheckboxItem,
@@ -22,10 +21,10 @@ import {
     TooltipTrigger,
 } from "@/Components/ui/tooltip";
 import { Button, buttonVariants } from "@/Components/ui/button";
-import { IoMdOptions } from "react-icons/io";
 import { columnDef } from "./Columns";
 import { User } from "@/types";
 import EditGradeDialog from "./EditGradeDialog";
+import { Search, SlidersHorizontal } from "lucide-react";
 
 const Table: React.FC<{ users: User[] }> = ({ users }) => {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -75,7 +74,7 @@ const Table: React.FC<{ users: User[] }> = ({ users }) => {
             <div className="p-4 flex justify-between gap-2">
                 <div className="relative sm:w-80">
                     <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
-                        <MdSearch className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                        <Search className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                     </div>
                     <Input placeholder="Search" className="pl-10" />
                 </div>
@@ -86,7 +85,7 @@ const Table: React.FC<{ users: User[] }> = ({ users }) => {
                                 <TooltipTrigger asChild>
                                     <DropdownMenuTrigger asChild>
                                         <Button variant="ghost">
-                                            <IoMdOptions className="ww-5 h-5" />
+                                            <SlidersHorizontal className="ww-5 h-5" />
                                         </Button>
                                     </DropdownMenuTrigger>
                                 </TooltipTrigger>

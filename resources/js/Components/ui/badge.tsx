@@ -1,7 +1,7 @@
 import { cn } from "@/Utils/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 
-const badgeVariants = cva("text-xs font-medium px-2.5 py-0.5 rounded", {
+const badgeVariants = cva("font-medium rounded px-2.5 py-0.5", {
     variants: {
         variant: {
             blue: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
@@ -11,9 +11,14 @@ const badgeVariants = cva("text-xs font-medium px-2.5 py-0.5 rounded", {
             indigo: "bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300",
             purple: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300",
         },
+        size: {
+            default: "text-xs",
+            sm: "text-sm",
+        },
     },
     defaultVariants: {
         variant: "dark",
+        size: "default",
     },
 });
 
@@ -21,10 +26,10 @@ interface BadgeProps
     extends React.HTMLAttributes<HTMLSpanElement>,
         VariantProps<typeof badgeVariants> {}
 
-function Badge({ className, variant, ...props }: BadgeProps) {
+function Badge({ className, variant, size, ...props }: BadgeProps) {
     return (
         <span
-            className={cn(badgeVariants({ variant }), className)}
+            className={cn(badgeVariants({ variant, size }), className)}
             {...props}
         />
     );

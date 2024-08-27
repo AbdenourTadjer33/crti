@@ -1,4 +1,9 @@
-export const SuccessCheckAlert = () => {
+import { cn } from "@/Utils/utils";
+import React from "react";
+
+interface Props extends React.HTMLAttributes<HTMLOrSVGElement> {}
+
+export const SuccessCheckAlert: React.FC<Props> = ({ className, ...props }) => {
     const cssStyles = `
         .path {
             stroke-dasharray: 1000;
@@ -36,13 +41,14 @@ export const SuccessCheckAlert = () => {
 
     return (
         <svg
-            className="w-[100px] block mx-auto"
+            className={cn("w-[100px] block mx-auto", className)}
             version="1.1"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 130.2 130.2"
-            style={{ animation: "dash 0.9s ease-in-out" }} // Apply initial animation
+            style={{ animation: "dash 0.9s ease-in-out" }}
+            {...props}
         >
-            <style>{cssStyles}</style> {/* Embed CSS styles */}
+            <style>{cssStyles}</style>
             <circle
                 className="path circle"
                 fill="none"

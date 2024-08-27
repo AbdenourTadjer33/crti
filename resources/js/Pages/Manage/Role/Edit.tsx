@@ -1,17 +1,16 @@
-import Breadcrumb from "@/Components/Breadcrumb";
+import Breadcrumb from "@/Components/common/breadcrumb";
 import AuthLayout from "@/Layouts/AuthLayout";
 import { Permission, Role } from "@/types";
 import { Head } from "@inertiajs/react";
-import { MdHome } from "react-icons/md";
-
 import { Heading } from "@/Components/ui/heading";
 import { Text } from "@/Components/ui/paragraph";
 import { FormWrapper } from "@/Components/ui/form";
 import { PermissionContext } from "@/Contexts/Manage/Role/PermissionContext";
 import EditForm from "@/Features/Manage/Role/EditForm";
+import { House } from "lucide-react";
 
 const breadcrumbs = [
-    { href: route("app"), label: <MdHome /> },
+    { href: route("app"), label: <House className="h-5 w-5 " /> },
     { href: route("manage.index"), label: "Centres d'administrations" },
     { href: route("manage.role.index"), label: "Role & permissions" },
     { label: "Edit role" },

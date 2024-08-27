@@ -1,22 +1,32 @@
 import React from "react";
 import { useForm } from "@inertiajs/react";
 import { FormWrapper } from "@/Components/ui/form";
-import { Stepper, useStepper } from "@/Components/Stepper";
 import { EditProjectContext } from "@/Contexts/Project/edit-project-context";
-import IdentificationStep from "./IdentificationStep";
-import MemberStep from "./MemberStep";
-import TaskStep from "./TaskStep";
-import ConfirmationStep from "./ConfirmationStep";
 import { useValidation } from "@/Libs/Validation";
 import { ProjectForm } from "@/types/form";
+import { useStepper } from "@/Components/ui/stepper";
+import Stepper from "@/Components/common/stepper";
+import IdentificationForm from "./IdentificationStep";
+import MemberForm from "./MemberStep";
+import TaskForm from "./TaskStep";
+import ResourceForm from "./ResourceStep";
+import ConfirmationStep from "./ConfirmationStep";
+import { useDebounce } from "@/Hooks/use-debounce";
+import { useMutation } from "@tanstack/react-query";
+import { syncProjectVersion } from "@/Services/api/projects";
+import { useUpdateEffect } from "@/Hooks/use-update-effect";
 
 interface FormProps {
     version: ProjectForm;
-    params: any;
+    params?: Partial<{
+        currentStep?: number;
+        errors?: Record<number, true>;
+        success?: Record<number, true>;
+    }>;
 }
 
 const Form: React.FC<FormProps> = ({ version, params }) => {
-    const { data, setData, errors, setError, clearErrors, processing, put } =
+    const { data, setData, errors, setError, clearErrors, processing } =
         useForm<ProjectForm>({
             name: version.name,
             nature: version.nature,
@@ -27,11 +37,13 @@ const Form: React.FC<FormProps> = ({ version, params }) => {
             methodology: version.methodology,
             is_partner: version.is_partner,
             partner: version.partner,
+            deliverables: version.deliverables,
+            estimated_amount: version.estimated_amount,
             creator: version.creator,
             members: version.members,
             resources: [],
-            resources_crti: [],
-            resources_partner: [],
+            resources_crti: version.resources_crti,
+            resources_partner: version.resources_partner,
             tasks: version.tasks,
         });
 
@@ -40,7 +52,7 @@ const Form: React.FC<FormProps> = ({ version, params }) => {
             project: route().params.project,
             version: route().params.version,
         }),
-        method: "post",
+        method: "put",
         data,
         onError: (errors) => setError(errors),
     });
@@ -48,30 +60,72 @@ const Form: React.FC<FormProps> = ({ version, params }) => {
     const stepper = useStepper({
         steps: [
             {
-                label: "Identification de projet",
-                form: (props) => <IdentificationStep {...props} />,
+                title: "Identification de projet",
+                description: "Définir les détails du projet.",
+                content: (props) => <IdentificationForm {...props} />,
             },
             {
-                label: "Members de l'équipe",
-                form: (props) => <MemberStep {...props} />,
+                title: "Membres de l'équipe",
+                description: "Ajouter les membres du projet.",
+                content: (props) => <MemberForm {...props} />,
             },
             {
-                label: "Ressources nécessaires",
-                form: (props) => <></>,
+                title: "Orgnisation des travaux",
+                description: "Planifier les tâches à réaliser.",
+                content: (props) => <TaskForm {...props} />,
             },
             {
-                label: "Orgnisation des travaux",
-                form: (props) => <TaskStep {...props} />,
+                title: "Ressources nécessaires",
+                description: "Lister les ressources requises.",
+                content: (props) => <ResourceForm {...props} />,
             },
             {
-                label: "Confirmation",
-                form: (props) => <ConfirmationStep {...props} />,
+                title: "Confirmation",
+                description: "Vérifier et valider les informations.",
+                content: (props) => <ConfirmationStep {...props} />,
             },
         ],
+        state: {
+            initial: params?.currentStep,
+            errors: params?.errors,
+            success: params?.success,
+        },
     });
 
+    const debouncedValue = useDebounce(
+        JSON.stringify({
+            data,
+            params: {
+                currentStep: stepper.currentStep,
+                errors: stepper.errors,
+                success: stepper.success,
+            },
+        }),
+        2000
+    );
+
+    const { mutate } = useMutation<ProjectForm>({
+        mutationFn: async () =>
+            syncProjectVersion(
+                {
+                    project: route().params.project,
+                    version: route().params.version,
+                },
+                {
+                    data,
+                    params: {
+                        currentStep: stepper.currentStep,
+                        errors: stepper.errors,
+                        success: stepper.success,
+                    },
+                }
+            ),
+    });
+
+    useUpdateEffect(() => mutate(), [debouncedValue]);
+
     return (
-        <FormWrapper className="space-y-4 md:space-y-8">
+        <FormWrapper className="space-y-4 md:space-y-6">
             <EditProjectContext.Provider
                 value={{
                     data,
@@ -83,8 +137,7 @@ const Form: React.FC<FormProps> = ({ version, params }) => {
                     validate,
                 }}
             >
-                <Stepper {...{ stepper }} />
-                {/* <pre>{JSON.stringify(data, null, 2)}</pre> */}
+                <Stepper stepper={stepper} />
             </EditProjectContext.Provider>
         </FormWrapper>
     );

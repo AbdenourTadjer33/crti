@@ -1,8 +1,5 @@
 import * as React from "react";
-import {
-    HeaderSelecter,
-    RowSelecter,
-} from "@/Components/DataTable";
+import { HeaderSelecter, RowSelecter } from "@/Components/common/data-table";
 import { Button } from "@/Components/ui/button";
 import {
     Dialog,
@@ -28,9 +25,13 @@ import { Division } from "@/types/division";
 import { router } from "@inertiajs/react";
 import { createColumnHelper } from "@tanstack/react-table";
 import dayjs from "dayjs";
-import { ArrowRightCircle, MoreHorizontal } from "lucide-react";
-import { FaInfoCircle } from "react-icons/fa";
-import { MdDelete, MdEdit } from "react-icons/md";
+import {
+    ArrowRightCircle,
+    Delete,
+    Edit,
+    Info,
+    MoreHorizontal,
+} from "lucide-react";
 import { Link } from "@inertiajs/react";
 
 const columnHelper = createColumnHelper<Division>();
@@ -146,7 +147,7 @@ const Actions = ({ id }: { id: string }) => {
                                 division: id,
                             })}
                         >
-                            <MdEdit className="w-4 h-4 mr-2" />
+                            <Edit className="w-4 h-4 mr-2" />
                             modifier
                         </Link>
                     </DropdownMenuItem>
@@ -154,7 +155,7 @@ const Actions = ({ id }: { id: string }) => {
                     <DropdownMenuItem
                         onClick={() => setBeforeDeleteModal(true)}
                     >
-                        <MdDelete className="w-4 h-4 mr-2 text-red-500 dark:text-red-600" />
+                        <Delete className="w-4 h-4 mr-2 text-red-500 dark:text-red-600" />
                         Supprimer
                     </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -167,7 +168,7 @@ const Actions = ({ id }: { id: string }) => {
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle className="inline-flex items-center gap-2">
-                            <FaInfoCircle className="w-6 h-6 text-red-500 dark:text-red-600" />
+                            <Info className="w-6 h-6 text-red-500 dark:text-red-600" />
                             Etes-vous absolument sùr?
                         </DialogTitle>
                     </DialogHeader>

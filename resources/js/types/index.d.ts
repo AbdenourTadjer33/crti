@@ -9,6 +9,7 @@ export type PageProps<
     };
     flash: {
         alert?: Record<string, unknown>;
+        info?: Record<string, unknown>;
     };
 };
 
@@ -55,7 +56,7 @@ export type User = {
     boards?:
     {
         addedAt: string;
-    }    ;
+    };
 };
 
 export type Permission = {

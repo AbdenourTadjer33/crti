@@ -1,7 +1,7 @@
 import * as React from "react";
 import { createColumnHelper } from "@tanstack/react-table";
 import { Board } from "@/types";
-import { HeaderSelecter, RowSelecter } from "@/Components/DataTable";
+import { HeaderSelecter, RowSelecter } from "@/Components/common/data-table";
 import {
     Tooltip,
     TooltipContent,

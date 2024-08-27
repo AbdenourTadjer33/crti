@@ -1,4 +1,4 @@
-import AppLogo from "@/Components/AppLogo";
+import AppLogo from "@/Components/common/app-logo";
 import React, { useEffect } from "react";
 
 export default function ({ ...props }: React.PropsWithChildren) {

@@ -5,35 +5,55 @@ import { useUpdateEffect } from "@/Hooks/use-update-effect";
 import { addProjectDomain } from "@/Services/api/helper_data";
 import { Button, buttonVariants } from "@/Components/ui/button";
 import { router } from "@inertiajs/react";
-import { Check, ChevronDown, LoaderCircle, Plus } from "lucide-react";
+import { Check, ChevronDown, Plus } from "lucide-react";
 import { capitalize } from "@/Utils/helper";
-import { cn } from "@/Utils/utils";
 
-interface DomainFieldProps {
+interface DomainFieldProps extends React.HTMLAttributes<HTMLButtonElement> {
     values: string[];
     setValues: (values: string[]) => void;
-    domains: undefined | string[];
+    domains: undefined | { id: number; name: string; suggested: boolean }[];
 }
 
 const DomainField: React.FC<DomainFieldProps> = ({
     values,
     setValues,
     domains,
+    ...props
 }) => {
     const [data, setData] = React.useState(domains);
     const [open, setOpen] = React.useState(false);
     const [search, setSearch] = React.useState("");
-    const [loading, setLoading] = React.useState(false);
+
+    const label = React.useMemo(
+        () =>
+            values
+                .map((value) => data?.find((d) => String(d.id) === value)?.name)
+                .join(", "),
+        [values]
+    );
+
+    const mainDomains = React.useMemo(
+        () => data?.filter((d) => !d.suggested),
+        [data]
+    );
+    const suggestedDomains = React.useMemo(
+        () => data?.filter((d) => d.suggested),
+        [data]
+    );
 
     const addNewItem = async () => {
         const item = search.trim();
         const response = await addProjectDomain(item);
 
-        if (response?.status === 201) {
+        if (
+            (response?.status === 200 || response?.status === 201) &&
+            response?.data
+        ) {
             setData((prev) => {
-                return [...(prev as []), item];
+                return [...prev!, response.data];
             });
-            return;
+
+            router.reload({ only: ["domains"] });
         }
 
         if (response?.status === 422) {
@@ -49,20 +69,12 @@ const DomainField: React.FC<DomainFieldProps> = ({
                 <Button
                     variant="outline"
                     className="w-full justify-between pr-0"
-                    onClick={() => {
-                        if (!domains) {
-                            router.reload({
-                                only: ["domains"],
-                                onStart: () => setLoading(true),
-                                onFinish: () => setLoading(false),
-                            });
-                        }
-                    }}
+                    {...props}
                 >
                     <div className="w-full truncate text-start">
-                        {values.length
-                            ? values.join(", ")
-                            : "Sélectionner les domaines de projet"}
+                        {!values.length
+                            ? "Sélectionner les domaines de projet"
+                            : label}
                     </div>
                     <div
                         className={buttonVariants({
@@ -75,7 +87,16 @@ const DomainField: React.FC<DomainFieldProps> = ({
                 </Button>
             </Popover.PopoverTrigger>
             <Popover.PopoverContent className="w-auto p-0">
-                <Command.Command loop>
+                <Command.Command
+                    loop
+                    filter={(value, search) => {
+                        return data
+                            ?.find((v) => String(v.id) === value)
+                            ?.name.includes(search)
+                            ? 1
+                            : 0;
+                    }}
+                >
                     <Command.CommandHeader>
                         <Command.CommandInput
                             value={search}
@@ -95,46 +116,46 @@ const DomainField: React.FC<DomainFieldProps> = ({
                         </div>
                     </Command.CommandHeader>
                     <Command.CommandList>
-                        {loading ? (
-                            <Command.CommandLoading className="flex items-center justify-center gap-2">
-                                <LoaderCircle className="h-4 w-4 animate-spin" />
-                                Chargement...
-                            </Command.CommandLoading>
-                        ) : (
-                            <Command.CommandEmpty className="p-4">
-                                {!search ? (
-                                    "No results found."
-                                ) : (
-                                    <Button
-                                        variant="ghost"
-                                        className="text-sm gap-1"
-                                        onClick={addNewItem}
-                                    >
-                                        Ajouter{" "}
-                                        <span className="font-medium">
-                                            {search}
-                                        </span>
-                                    </Button>
-                                )}
-                            </Command.CommandEmpty>
-                        )}
-
+                        <Command.CommandEmpty className="p-4">
+                            {!search ? (
+                                "Aucun Résultat Trouvé."
+                            ) : (
+                                <Button
+                                    variant="ghost"
+                                    className="text-sm gap-1"
+                                    onClick={addNewItem}
+                                >
+                                    Ajouter{" "}
+                                    <span className="font-medium">
+                                        {search}
+                                    </span>
+                                </Button>
+                            )}
+                        </Command.CommandEmpty>
                         <Command.CommandGroup>
-                            {data &&
-                                data.map((domain, idx) => (
+                            {mainDomains &&
+                                mainDomains.map((domain, idx) => (
                                     <Command.CommandItem
                                         key={idx}
-                                        value={domain}
+                                        value={String(domain.id)}
                                         onSelect={() => {
                                             const selected = [...values];
 
-                                            if (values.includes(domain)) {
+                                            if (
+                                                values.includes(
+                                                    String(domain.id)
+                                                )
+                                            ) {
                                                 selected.splice(
-                                                    selected.indexOf(domain),
+                                                    selected.indexOf(
+                                                        String(domain.id)
+                                                    ),
                                                     1
                                                 );
                                             } else {
-                                                selected.push(domain);
+                                                selected.push(
+                                                    String(domain.id)
+                                                );
                                             }
 
                                             setValues(selected);
@@ -145,13 +166,56 @@ const DomainField: React.FC<DomainFieldProps> = ({
                                                 "mr-2 h-4 w-4 data-[checked=false]:opacity-0"
                                             }
                                             data-checked={values?.includes(
-                                                domain
+                                                String(domain.id)
                                             )}
                                         />
-                                        {domain}
+                                        {domain.name}
                                     </Command.CommandItem>
                                 ))}
                         </Command.CommandGroup>
+                        {!!suggestedDomains?.length && (
+                            <Command.CommandGroup heading="Domaine suggére">
+                                {suggestedDomains &&
+                                    suggestedDomains.map((domain, idx) => (
+                                        <Command.CommandItem
+                                            key={idx}
+                                            value={String(domain.id)}
+                                            onSelect={() => {
+                                                const selected = [...values];
+
+                                                if (
+                                                    values.includes(
+                                                        String(domain.id)
+                                                    )
+                                                ) {
+                                                    selected.splice(
+                                                        selected.indexOf(
+                                                            String(domain.id)
+                                                        ),
+                                                        1
+                                                    );
+                                                } else {
+                                                    selected.push(
+                                                        String(domain.id)
+                                                    );
+                                                }
+
+                                                setValues(selected);
+                                            }}
+                                        >
+                                            <Check
+                                                className={
+                                                    "mr-2 h-4 w-4 data-[checked=false]:opacity-0"
+                                                }
+                                                data-checked={values?.includes(
+                                                    String(domain.id)
+                                                )}
+                                            />
+                                            {domain.name}
+                                        </Command.CommandItem>
+                                    ))}
+                            </Command.CommandGroup>
+                        )}
                     </Command.CommandList>
                 </Command.Command>
             </Popover.PopoverContent>

@@ -16,9 +16,8 @@ import {
     TooltipTrigger,
 } from "@/Components/ui/tooltip";
 import dayjs from "dayjs";
-import { MoreHorizontal } from "lucide-react";
+import { Delete, Edit, Info, MoreHorizontal } from "lucide-react";
 import { Role } from "@/types";
-import { MdDelete, MdEdit } from "react-icons/md";
 import {
     Dialog,
     DialogContent,
@@ -26,12 +25,11 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/Components/ui/dialog";
-import { FaInfoCircle } from "react-icons/fa";
 import {
     HeaderSelecter,
     RowExpander,
     RowSelecter,
-} from "@/Components/DataTable";
+} from "@/Components/common/data-table";
 
 const columnHelper = createColumnHelper<Role>();
 
@@ -136,7 +134,7 @@ const Actions = ({ id }: { id: string }) => {
                 >
                     <DropdownMenuItem asChild>
                         <Link href={route("manage.role.edit", { role: id })}>
-                            <MdEdit className="w-4 h-4 mr-2" />
+                            <Edit className="w-4 h-4 mr-2" />
                             Modifier
                         </Link>
                     </DropdownMenuItem>
@@ -144,7 +142,7 @@ const Actions = ({ id }: { id: string }) => {
                     <DropdownMenuItem
                         onClick={() => setBeforeDeleteModal(true)}
                     >
-                        <MdDelete className="w-4 h-4 mr-2 text-red-500 dark:text-red-600" />
+                        <Delete className="w-4 h-4 mr-2 text-red-500 dark:text-red-600" />
                         Supprimer
                     </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -157,7 +155,7 @@ const Actions = ({ id }: { id: string }) => {
                 <DialogContent onOpenAutoFocus={(e) => e.preventDefault()}>
                     <DialogHeader>
                         <DialogTitle className="inline-flex items-center gap-2">
-                            <FaInfoCircle className="w-6 h-6 text-red-500 dark:text-red-600" />
+                            <Info className="w-6 h-6 text-red-500 dark:text-red-600" />
                             Etes-vous absolument sûr?
                         </DialogTitle>
                     </DialogHeader>

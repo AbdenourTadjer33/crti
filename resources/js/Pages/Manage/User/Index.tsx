@@ -1,15 +1,13 @@
 import { Head, Link } from "@inertiajs/react";
-import { MdAdd } from "react-icons/md";
 import { Pagination, User } from "@/types";
-
 import AuthLayout from "@/Layouts/AuthLayout";
-import Breadcrumb from "@/Components/Breadcrumb";
+import Breadcrumb from "@/Components/common/breadcrumb";
 import { Button } from "@/Components/ui/button";
 import { Heading } from "@/Components/ui/heading";
 import React from "react";
 import Table from "@/Features/Manage/User/Table";
 import { Text } from "@/Components/ui/paragraph";
-import { House } from "lucide-react";
+import { House, Plus } from "lucide-react";
 
 
 const breadcrumbs = [
@@ -39,7 +37,7 @@ const Index: React.FC<{ users: Pagination<User> }> = ({ users }) => {
 
                     <Button asChild>
                         <Link href={route("manage.user.create")}>
-                            <MdAdd className="w-4 h-4 mr-2" />
+                            <Plus className="w-4 h-4 mr-2" />
                             Ajouter
                         </Link>
                     </Button>

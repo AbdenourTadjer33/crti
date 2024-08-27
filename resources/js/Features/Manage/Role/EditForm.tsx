@@ -9,9 +9,9 @@ import { Input } from "@/Components/ui/input";
 import { InputError } from "@/Components/ui/input-error";
 import { Textarea } from "@/Components/ui/textarea";
 import { Button } from "@/Components/ui/button";
-import { MdAdd, MdSearch } from "react-icons/md";
 import { TableWrapper } from "@/Components/ui/table";
-import DataTable from "@/Components/DataTable";
+import DataTable from "@/Components/common/data-table";
+import { Plus, Search } from "lucide-react";
 
 const EditForm = ({ role }: { role: Role }) => {
     const { permissions } = React.useContext(PermissionContext);
@@ -111,7 +111,7 @@ const EditForm = ({ role }: { role: Role }) => {
                 <div className="flex items-center justify-between">
                     <Label>Selectionnez des permissions</Label>
                     <Button type="button" className="sm:hidden">
-                        <MdAdd className="w-4 h-4 mr-2" />
+                        <Plus className="w-4 h-4 mr-2" />
                         Ajouter
                     </Button>
                 </div>
@@ -120,7 +120,7 @@ const EditForm = ({ role }: { role: Role }) => {
                     <div className="flex justify-between items-center py-3 px-4">
                         <div className="relative w-full sm:w-80">
                             <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
-                                <MdSearch className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                                <Search className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                             </div>
                             <Input
                                 placeholder="Search"
@@ -131,11 +131,11 @@ const EditForm = ({ role }: { role: Role }) => {
                         </div>
 
                         <Button type="button" className="hidden sm:inline-flex">
-                            <MdAdd className="w-4 h-4 mr-2" />
+                            <Plus className="w-4 h-4 mr-2" />
                             Ajouter
                         </Button>
                     </div>
-                    <DataTable table={table} />
+                    <DataTable options={{ table }} />
                 </TableWrapper>
             </div>
 

@@ -3,20 +3,26 @@ import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/Utils/utils";
-// ring-offset-white focus:ring-1 focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500
+
 const buttonVariants = cva(
-    "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus:outline-none disabled:pointer-events-none disabled:opacity-50",
+    "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus:outline-none disabled:pointer-events-none disabled:opacity-50 focus:ring",
     {
         variants: {
             variant: {
-                default: "bg-gray-900 text-gray-50 hover:bg-gray-900/90 dark:bg-gray-50 dark:text-gray-900 dark:hover:bg-gray-50/90",
-                primary: "text-white bg-primary-600 hover:bg-primary-700 dark:text-gray-50 dark:bg-primary-800 hover:bg-primary-800/90",
-                secondary: "bg-gray-100 text-gray-900 hover:bg-gray-100/50 dark:bg-gray-800 dark:text-gray-50 dark:hover:bg-gray-800/50",
-                destructive: "bg-red-500 text-gray-50 hover:bg-red-500/90 dark:bg-red-900 dark:text-gray-50 dark:hover:bg-red-900/90",
-                outline: "border border-gray-300 bg-white hover:text-gray-900 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:hover:text-gray-50 ",
-                ghost: "hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800 dark:hover:text-gray-50",
-                link: "text-primary-900 underline-offset-4 hover:underline dark:text-gray-50 ring-0 focus:ring-0",
-                warning: "bg-yellow-400 text-white hover:bg-yellow-500",
+                default:
+                    "bg-gray-900 text-gray-50 hover:bg-gray-900/90 dark:bg-gray-50 dark:text-gray-900 dark:hover:bg-gray-50/90 focus:ring-gray-900",
+                primary:
+                    "text-white bg-primary-600 hover:bg-primary-700 dark:text-gray-50 dark:bg-primary-800 hover:bg-primary-800/90 focus:ring-primary-600",
+                secondary:
+                    "bg-gray-100 text-gray-900 hover:bg-gray-100/50 dark:bg-gray-800 dark:text-gray-50 dark:hover:bg-gray-800/50 focus:ring-gray-100",
+                destructive:
+                    "bg-red-500 text-gray-50 hover:bg-red-500/90 dark:bg-red-900 dark:text-gray-50 dark:hover:bg-red-900/90 focus:ring-red-500 dark:focus:ring-red-900",
+                outline:
+                    "border border-gray-300 bg-white hover:text-gray-900 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:hover:text-gray-50 focus:ring-2 focus:ring-primary-600",
+                ghost: "hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800 dark:hover:text-gray-50 focus:ring-gray-100 dark:focus:ring-gray-800",
+                link: "text-blue-600 underline-offset-4 hover:underline hover:text-blue-700 dark:text-blue-50 ring-0 focus:ring-0",
+                warning:
+                    "bg-yellow-400 text-white hover:bg-yellow-500 focus:ring-yellow-400",
             },
             size: {
                 default: "h-10 px-4 py-2",

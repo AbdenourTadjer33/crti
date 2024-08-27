@@ -40,7 +40,7 @@ import { TableWraper } from "@/Components/ui/table";
 import { MdAdd } from "react-icons/md";
 import * as Dropdown from "@/Components/ui/dropdown-menu";
 import { FaCaretDown } from "react-icons/fa";
-import DataTable from "@/Components/DataTable";
+import DataTable from "@/Components/common/data-table";
 import { Switch } from "@/Components/ui/switch";
 import { Text } from "@/Components/ui/paragraph";
 import { Badge } from "@/Components/ui/badge";

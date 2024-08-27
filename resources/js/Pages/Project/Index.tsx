@@ -1,7 +1,7 @@
 import React from "react";
 import { Head, Link, router } from "@inertiajs/react";
 import AuthLayout from "@/Layouts/AuthLayout";
-import Breadcrumb from "@/Components/Breadcrumb";
+import Breadcrumb from "@/Components/common/breadcrumb";
 import { Heading } from "@/Components/ui/heading";
 import { Text } from "@/Components/ui/paragraph";
 import ConfirmNewProjectCreation from "@/Features/Project/ConfirmNewProjectCreation";
@@ -23,8 +23,9 @@ import { Button } from "@/Components/ui/button";
 import { Badge } from "@/Components/ui/badge";
 import dayjs from "dayjs";
 import { BaseProject, Project } from "@/types/project";
-import Avatar from "@/Components/Avatar";
+import { Avatar, AvatarFallback } from "@/Components/ui/avatar";
 import { Card } from "@/Components/ui/card";
+import { getInitials } from "@/Utils/helper";
 
 const breadcrumbs = [
     { href: route("app"), label: <House className="w-5 h-5" /> },
@@ -48,7 +49,7 @@ const Index: React.FC<ProjectIndexProps> = ({ userDivisions, data }) => {
     }, [data]);
 
     return (
-        <AuthLayout>
+        <>
             <Head title="Projets" />
 
             <div className="space-y-4">
@@ -130,8 +131,13 @@ const Index: React.FC<ProjectIndexProps> = ({ userDivisions, data }) => {
                     </>
                 )}
             </div>
-        </AuthLayout>
+        </>
     );
+};
+
+// @ts-ignore
+Index.layout = (page) => {
+    return <AuthLayout children={page} />;
 };
 
 const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
@@ -183,11 +189,11 @@ const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
 
                 <div className="mt-2.5 flex -space-x-1.5">
                     {members.map((member) => (
-                        <Avatar
-                            key={member.uuid}
-                            name={member.name}
-                            size="sm"
-                        />
+                        <Avatar key={member.uuid}>
+                            <AvatarFallback>
+                                {getInitials(member.name)}
+                            </AvatarFallback>
+                        </Avatar>
                     ))}
                 </div>
                 <Text className="mt-2.5 inline-flex items-center text-sm">

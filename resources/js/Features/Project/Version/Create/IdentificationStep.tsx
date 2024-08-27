@@ -22,8 +22,10 @@ const Identification = ({
     markStepAsSuccess,
     clearStepError,
 }: StepperContentProps) => {
-    const { domains, natures }: Record<string, undefined | string[]> = usePage()
-        .props as any;
+    const { domains, natures } = usePage<{
+        domains: undefined | { id: number; name: string; suggested: boolean }[];
+        natures: undefined | { id: number; name: string; suggested: boolean }[];
+    }>().props;
 
     const {
         data,

@@ -4,36 +4,56 @@ import * as Command from "@/Components/ui/command";
 import { useUpdateEffect } from "@/Hooks/use-update-effect";
 import { addProjectNature } from "@/Services/api/helper_data";
 import { Button, buttonVariants } from "@/Components/ui/button";
-import { router } from "@inertiajs/react";
-import { Check, ChevronDown, LoaderCircle, Plus } from "lucide-react";
+import { Check, ChevronDown, Plus } from "lucide-react";
 import { capitalize } from "@/Utils/helper";
 import { cn } from "@/Utils/utils";
+import { router } from "@inertiajs/react";
 
-interface NatureFieldProps {
+interface NatureFieldProps extends React.HTMLAttributes<HTMLButtonElement> {
     value: string;
     setValue: (value: string) => void;
-    natures: undefined | string[];
+    natures: undefined | { id: number; name: string; suggested: boolean }[];
 }
 
 const NatureField: React.FC<NatureFieldProps> = ({
     value,
     setValue,
     natures,
+    ...props
 }) => {
     const [data, setData] = React.useState(natures);
     const [open, setOpen] = React.useState(false);
     const [search, setSearch] = React.useState("");
-    const [loading, setLoading] = React.useState(false);
+    
+    const label = React.useMemo(
+        () => data?.find((n) => String(n.id) === value)?.name,
+        [value]
+    );
+    const mainNatures = React.useMemo(
+        () => data?.filter((n) => !n.suggested),
+        [data]
+    );
+    const suggestedNatures = React.useMemo(
+        () => data?.filter((n) => n.suggested),
+        [data]
+    );
 
     const addNewItem = async () => {
         const item = search.trim();
         const response = await addProjectNature(item);
 
-        if (response?.status === 201) {
+        if (
+            (response?.status === 200 || response?.status === 201) &&
+            response.data
+        ) {
             setData((prev) => {
-                return [...(prev as []), item];
+                return [...prev!, response.data];
             });
-            return;
+
+            router.reload({ only: ["natures"] });
+
+            setValue(String(response.data.id));
+            setSearch("");
         }
 
         if (response?.status === 422) {
@@ -49,18 +69,10 @@ const NatureField: React.FC<NatureFieldProps> = ({
                 <Button
                     variant="outline"
                     className="w-full justify-between pr-0"
-                    onClick={() => {
-                        if (!natures) {
-                            router.reload({
-                                only: ["natures"],
-                                onStart: (e) => setLoading(true),
-                                onFinish: (e) => setLoading(false),
-                            });
-                        }
-                    }}
+                    {...props}
                 >
                     <div className="w-full truncate text-start">
-                        {value || "Sélectionner la nature de projet"}
+                        {!value ? "Sélectionner la nature de projet" : label}
                     </div>
 
                     <div
@@ -74,7 +86,16 @@ const NatureField: React.FC<NatureFieldProps> = ({
                 </Button>
             </Popover.PopoverTrigger>
             <Popover.PopoverContent className="w-auto p-0">
-                <Command.Command loop>
+                <Command.Command
+                    loop
+                    filter={(value, search) => {
+                        return data
+                            ?.find((v) => String(v.id) === value)
+                            ?.name.includes(search)
+                            ? 1
+                            : 0;
+                    }}
+                >
                     <Command.CommandHeader>
                         <Command.CommandInput
                             value={search}
@@ -94,58 +115,87 @@ const NatureField: React.FC<NatureFieldProps> = ({
                         </div>
                     </Command.CommandHeader>
                     <Command.CommandList>
-                        {loading ? (
-                            <Command.CommandLoading className="flex items-center justify-center gap-2">
-                                <LoaderCircle className="h-4 w-4 animate-spin" />
-                                Chargement...
-                            </Command.CommandLoading>
-                        ) : (
-                            <Command.CommandEmpty className="p-4">
-                                {!search ? (
-                                    "No results found."
-                                ) : (
-                                    <Button
-                                        variant="ghost"
-                                        className="text-sm gap-1"
-                                        onClick={addNewItem}
-                                    >
-                                        Ajouter{" "}
-                                        <span className="font-medium">
-                                            {capitalize(search)}
-                                        </span>
-                                    </Button>
-                                )}
-                            </Command.CommandEmpty>
-                        )}
-
+                        <Command.CommandEmpty className="p-4">
+                            {!search ? (
+                                "Aucun Résultat Trouvé."
+                            ) : (
+                                <Button
+                                    variant="ghost"
+                                    className="text-sm gap-1"
+                                    onClick={addNewItem}
+                                >
+                                    Ajouter{" "}
+                                    <span className="font-medium">
+                                        {search}
+                                    </span>
+                                </Button>
+                            )}
+                        </Command.CommandEmpty>
                         <Command.CommandGroup>
-                            {data &&
-                                data.map((nature, idx) => (
+                            {mainNatures &&
+                                mainNatures.map((nature) => (
                                     <Command.CommandItem
-                                        key={idx}
-                                        value={nature}
+                                        key={nature.id}
+                                        value={String(nature.id)}
                                         onSelect={(currentValue) => {
-                                            setValue(
+                                            const newValue =
                                                 currentValue === value
                                                     ? ""
-                                                    : currentValue
-                                            );
-                                            setOpen(false);
-                                            setSearch("");
+                                                    : currentValue;
+                                            setValue(newValue);
+
+                                            if (newValue) {
+                                                setOpen(false);
+                                                setSearch("");
+                                            }
                                         }}
                                     >
                                         <Check
                                             className={cn(
                                                 "mr-2 h-4 w-4",
-                                                value === nature
+                                                value === String(nature.id)
                                                     ? "opacity-100"
                                                     : "opacity-0"
                                             )}
                                         />
-                                        {nature}
+                                        {nature.name}
                                     </Command.CommandItem>
                                 ))}
                         </Command.CommandGroup>
+
+                        {!!suggestedNatures?.length && (
+                            <Command.CommandGroup heading="Natures suggére">
+                                {suggestedNatures &&
+                                    suggestedNatures.map((nature) => (
+                                        <Command.CommandItem
+                                            key={nature.id}
+                                            value={String(nature.id)}
+                                            onSelect={(currentValue) => {
+                                                const newValue =
+                                                    currentValue === value
+                                                        ? ""
+                                                        : currentValue;
+                                                setValue(newValue);
+
+                                                if (newValue) {
+                                                    setOpen(false);
+                                                    setSearch("");
+                                                }
+                                            }}
+                                        >
+                                            <Check
+                                                className={cn(
+                                                    "mr-2 h-4 w-4",
+                                                    value === String(nature.id)
+                                                        ? "opacity-100"
+                                                        : "opacity-0"
+                                                )}
+                                            />
+                                            {nature.name}
+                                        </Command.CommandItem>
+                                    ))}
+                            </Command.CommandGroup>
+                        )}
                     </Command.CommandList>
                 </Command.Command>
             </Popover.PopoverContent>

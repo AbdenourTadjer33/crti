@@ -1,11 +1,9 @@
 import React from "react";
 import { Link } from "@inertiajs/react";
-import { Moon, Search } from "lucide-react";
-import { FaBell, FaEye } from "react-icons/fa";
+import { Bell, Eye, Moon, Search } from "lucide-react";
 import { useUser } from "@/Hooks/use-user";
 import * as DropdownMenu from "@/Components/ui/dropdown-menu";
-// import Avatar from "@/Components/Avatar";
-import { Avatar, AvatarImage, AvatarFallback } from "@/Components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/Components/ui/avatar";
 import { getInitials } from "@/Utils/helper";
 
 const Navbar: React.FC = () => {
@@ -109,7 +107,7 @@ const NotificationManu = () => {
             <DropdownMenu.DropdownMenuTrigger asChild>
                 <NavBtn>
                     <span className="sr-only">View notifications</span>
-                    <FaBell className="w-6 h-6" />
+                    <Bell className="w-6 h-6" />
                 </NavBtn>
             </DropdownMenu.DropdownMenuTrigger>
             <DropdownMenu.DropdownMenuContent>
@@ -161,7 +159,7 @@ const NotificationManu = () => {
                     className="block py-2 text-md font-medium text-center text-gray-900 bg-gray-50 hover:bg-gray-100 dark:bg-gray-600 dark:text-white dark:hover:underline"
                 >
                     <div className="inline-flex items-center">
-                        <FaEye className="mr-2 w-4 h-4 text-gray-500 dark:text-gray-400" />
+                        <Eye className="mr-2 w-4 h-4 text-gray-500 dark:text-gray-400" />
                         View all
                     </div>
                 </a>

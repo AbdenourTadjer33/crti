@@ -1,6 +1,6 @@
 import React from "react";
 import AuthLayout from "@/Layouts/AuthLayout";
-import Breadcrumb from "@/Components/Breadcrumb";
+import Breadcrumb from "@/Components/common/breadcrumb";
 import ProjectDetails from "@/Features/Project/ProjectDetails";
 import { Heading } from "@/Components/ui/heading";
 import { Text } from "@/Components/ui/paragraph";
@@ -44,7 +44,7 @@ const Show: React.FC<ProjectShowProps> = ({
     const [confirmModal, setConfirmModal] = React.useState(false);
 
     return (
-        <AuthLayout>
+        <>
             <Head title={project.name} />
 
             <div className="space-y-4">
@@ -88,8 +88,13 @@ const Show: React.FC<ProjectShowProps> = ({
 
                 <ProjectDetails project={project} />
             </div>
-        </AuthLayout>
+        </>
     );
+};
+
+// @ts-ignore
+Show.layout = (page) => {
+    return <AuthLayout children={page} />;
 };
 
 export default Show;

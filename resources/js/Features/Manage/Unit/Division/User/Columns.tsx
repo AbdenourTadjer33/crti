@@ -1,7 +1,7 @@
 import {
     HeaderSelecter,
     RowSelecter,
-} from "@/Components/DataTable";
+} from "@/Components/common/data-table";
 import {
     Tooltip,
     TooltipContent,

@@ -1,4 +1,4 @@
-import DataTable from "@/Components/DataTable";
+import DataTable from "@/Components/common/data-table";
 import { Button } from "@/Components/ui/button";
 import {
     DropdownMenu,
@@ -14,9 +14,8 @@ import { Permission } from "@/types";
 import { Head, Link } from "@inertiajs/react";
 import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { useMemo } from "react";
-import { MdAdd, MdKeyboardArrowDown, MdSearch } from "react-icons/md";
-
 import { Input } from "@/Components/ui/input";
+import { ChevronDown, Plus, Search } from "lucide-react";
 
 const Index: React.FC<{ permissions: Permission[] }> = ({ permissions }) => {
     const finalData = useMemo(() => permissions, [permissions]);
@@ -47,7 +46,7 @@ const Index: React.FC<{ permissions: Permission[] }> = ({ permissions }) => {
 
                     <Link href={route("manage.permission.create")}>
                         <Button>
-                            <MdAdd className="w-4 h-4 mr-2" />
+                            <Plus className="w-4 h-4 mr-2" />
                             Ajouter
                         </Button>
                     </Link>
@@ -57,7 +56,7 @@ const Index: React.FC<{ permissions: Permission[] }> = ({ permissions }) => {
                     <div className="p-4 flex justify-between">
                         <div className="relative sm:w-96">
                             <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
-                                <MdSearch className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                                <Search className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                             </div>
                             <Input placeholder="Search" className="pl-10" />
                         </div>
@@ -66,7 +65,7 @@ const Index: React.FC<{ permissions: Permission[] }> = ({ permissions }) => {
                             <DropdownMenuTrigger asChild>
                                 <Button>
                                     visibilité des colonnes
-                                    <MdKeyboardArrowDown className="w-4 h-4 ml-2" />
+                                    <ChevronDown className="w-4 h-4 ml-2" />
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent
@@ -104,7 +103,9 @@ const Index: React.FC<{ permissions: Permission[] }> = ({ permissions }) => {
                         </DropdownMenu>
                     </div>
 
-                    <DataTable table={table} />
+                    <DataTable options={{ 
+                        table
+                     }} />
 
                     <hr className="dark:border-gray-500" />
 

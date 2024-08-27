@@ -29,16 +29,6 @@ export function deepKeys(obj: Record<string, any>, parentKey: string = "", sep: 
     }, []);
 }
 
-// export function keysBeginWith(obj: Record<string, any>, pattern: string): string[] {
-// return Object.keys(obj).reduce<string[]>((keys, key) => {
-// if (key.startsWith(pattern)) {
-// keys.push(key);
-// }
-// 
-// return keys;
-// }, []);
-// }
-
 export function keysBeginWith(obj: Record<string, any>, pattern: string): string[] {
     return Object.keys(obj).filter(key => key.startsWith(pattern));
 }

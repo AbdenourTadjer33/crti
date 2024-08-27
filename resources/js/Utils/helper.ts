@@ -7,6 +7,15 @@ function getInitials(name: string) {
     return name.split(' ').map(word => word[0]).join('').toUpperCase();
 }
 
+function currencyFormat(number: any) {
+    return new Intl.NumberFormat("fr", {
+        style: "currency",
+        currency: "dzd",
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+    }).format(number);
+};
+
 function isNumber(any: any): boolean {
     return !isNaN(Number(any));
 }
@@ -25,4 +34,4 @@ function isKeyExisit(obj: object, key: string) {
     return Object.keys(obj);
 }
 
-export { capitalize, route, assert, searchForKeyByPattern, isKeyExisit, getInitials };
+export { capitalize, route, assert, searchForKeyByPattern, isKeyExisit, getInitials, currencyFormat };

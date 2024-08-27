@@ -2,8 +2,7 @@ import { User } from "@/types";
 import { createColumnHelper } from "@tanstack/react-table";
 import dayjs from "dayjs";
 import { Switch } from "@/Components/ui/switch";
-import { Checkbox } from "@/Components/ui/checkbox";
-import { MoreHorizontal, Pencil, SquareArrowOutUpRight } from "lucide-react";
+import { MoreHorizontal, SquareArrowOutUpRight } from "lucide-react";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -24,7 +23,7 @@ import {
     HeaderSelecter,
     RowExpander,
     RowSelecter,
-} from "@/Components/DataTable";
+} from "@/Components/common/data-table";
 import { Link } from "@inertiajs/react";
 
 const columnHelper = createColumnHelper<User>();

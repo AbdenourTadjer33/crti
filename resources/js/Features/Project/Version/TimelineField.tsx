@@ -6,18 +6,23 @@ import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/Components/ui/calendar";
 
-interface TimelineFieldProps {
+interface TimelineFieldProps extends React.HTMLAttributes<HTMLButtonElement> {
     value: DateRange;
     setValue: (value: DateRange | undefined) => void;
 }
 
-const TimelineField: React.FC<TimelineFieldProps> = ({ value, setValue }) => {
+const TimelineField: React.FC<TimelineFieldProps> = ({
+    value,
+    setValue,
+    ...props
+}) => {
     return (
         <Popover.Popover>
             <Popover.PopoverTrigger asChild>
                 <Button
                     variant="outline"
                     className="w-full justify-between pr-0"
+                    {...props}
                 >
                     <div className="w-full truncate text-start">
                         {!value || (!value?.from && !value?.to)

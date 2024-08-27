@@ -18,7 +18,12 @@ const Stepper: React.FC<StepperProps> = ({ stepper }) => {
         setIsError,
         setIsSuccess,
         clearError,
+        goTo,
     } = stepper;
+
+    React.useEffect(() => {
+        window.goTo = goTo;
+    }, []);
 
     return (
         <>

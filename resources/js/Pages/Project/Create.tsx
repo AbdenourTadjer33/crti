@@ -1,18 +1,18 @@
 import React from "react";
 import { Head } from "@inertiajs/react";
 import AuthLayout from "@/Layouts/AuthLayout";
-import { MdHome } from "react-icons/md";
+import { House } from "lucide-react";
 import { Heading } from "@/Components/ui/heading";
 import { Text } from "@/Components/ui/paragraph";
-import Breadcrumb from "@/Components/Breadcrumb";
+import Breadcrumb from "@/Components/common/breadcrumb";
 import Form from "@/Features/Project/Version/Create/Form";
 
-const create: React.FC<any> = ({ version }) => {
-    const isStarting = React.useMemo(() => !version, []);
+const Create: React.FC<any> = ({ version }) => {
+    const isStarting = React.useMemo(() => !version?.data, []);
 
     const breadcrubms = React.useMemo(
         () => [
-            { href: route("app"), label: <MdHome className="w-6 h-6" /> },
+            { href: route("app"), label: <House className="w-5 h-5" /> },
             { href: route("project.index"), label: "Projets" },
             {
                 label: isStarting
@@ -24,7 +24,7 @@ const create: React.FC<any> = ({ version }) => {
     );
 
     return (
-        <AuthLayout>
+        <>
             <Head
                 title={
                     isStarting
@@ -69,10 +69,19 @@ const create: React.FC<any> = ({ version }) => {
                     </div>
                 </div>
 
-                <Form version={version?.data} params={version?.params} />
+                <Form
+                    versionId={version.id}
+                    version={version?.data}
+                    params={version?.params}
+                />
             </div>
-        </AuthLayout>
+        </>
     );
 };
 
-export default create;
+// @ts-ignore
+Create.layout = (page) => {
+    return <AuthLayout children={page} />;
+};
+
+export default Create;
