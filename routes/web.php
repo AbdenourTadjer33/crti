@@ -4,16 +4,18 @@ use App\Models\User;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Board\BoardController;
+use App\Http\Controllers\Board\BoardPostComment;
 use App\Http\Controllers\Manage\RoleController;
 use App\Http\Controllers\Manage\UnitController;
 use App\Http\Controllers\Manage\UserController;
-use App\Http\Controllers\Manage\BoardController;
 use App\Http\Controllers\Manage\ManageController;
 use App\Http\Controllers\Manage\ResourceController;
 use App\Http\Controllers\Project\ProjectController;
 use App\Http\Controllers\Manage\PermissionController;
 use App\Http\Controllers\Manage\UnitDivisionController;
 use App\Http\Controllers\Project\ProjectVersionController;
+use App\Http\Controllers\Manage\BoardController as ManageBoardController;
 use App\Http\Controllers\Manage\ProjectController as ManageProjectController;
 
 Route::get('/', function () {
@@ -53,7 +55,7 @@ Route::prefix('/app')->middleware(['auth'])->group(function () {
         Route::resource('permissions', PermissionController::class)->names('permission');
         Route::resource('roles', RoleController::class)->names('role');
         Route::resource('users', UserController::class)->names('user');
-        Route::resource('boards', BoardController::class)->names('board');
+        Route::resource('boards', ManageBoardController::class)->names('board');
         Route::resource('resources', ResourceController::class)->names('resource');
         Route::resource('projects', ManageProjectController::class)->only(['index', 'show'])->names('project');
     });
@@ -65,4 +67,7 @@ Route::prefix('/app')->middleware(['auth'])->group(function () {
     Route::post('projects/{project}/versions/duplicate/main/version', [ProjectVersionController::class, 'duplicate'])->name('project.version.duplicate');
     Route::post('projects/{project:code}/versions/{version:id}/sync', [ProjectVersionController::class, 'sync'])->name('project.version.sync');
     Route::resource('projects.versions', ProjectVersionController::class)->only(['create', 'store', 'edit', 'update'])->names('project.version');
+
+    Route::post('/boards/{board}/comments', BoardPostComment::class)->name('board.comment.store');
+    Route::resource('boards', BoardController::class)->only('index', 'show')->names('board.index');
 });

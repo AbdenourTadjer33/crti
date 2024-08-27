@@ -173,28 +173,28 @@ declare module 'ziggy-js' {
         {
             "name": "user",
             "required": true,
-            "binding": "id"
+            "binding": "uuid"
         }
     ],
     "manage.user.edit": [
         {
             "name": "user",
             "required": true,
-            "binding": "id"
+            "binding": "uuid"
         }
     ],
     "manage.user.update": [
         {
             "name": "user",
             "required": true,
-            "binding": "id"
+            "binding": "uuid"
         }
     ],
     "manage.user.destroy": [
         {
             "name": "user",
             "required": true,
-            "binding": "id"
+            "binding": "uuid"
         }
     ],
     "manage.board.index": [],
@@ -324,6 +324,20 @@ declare module 'ziggy-js' {
             "name": "version",
             "required": true,
             "binding": "id"
+        }
+    ],
+    "board.comment.store": [
+        {
+            "name": "board",
+            "required": true,
+            "binding": "id"
+        }
+    ],
+    "board.index.index": [],
+    "board.index.show": [
+        {
+            "name": "board",
+            "required": true
         }
     ],
     "api.auth.check.user": [],

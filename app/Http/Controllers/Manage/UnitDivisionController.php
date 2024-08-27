@@ -14,16 +14,18 @@ use App\Http\Requests\Manage\Division\StoreDivisionRequest;
 use App\Http\Requests\Manage\Division\UpdateDivisionRequest;
 use App\Http\Resources\Manage\UnitResource;
 use App\Http\Resources\UserDivisionsResource;
+use App\Services\AuxDataService;
 
 class UnitDivisionController extends Controller
 {
     /**
      * Show the form for creating a new resource.
      */
-    public function create(Unit $unit)
+    public function create(AuxDataService $auxDataService, Unit $unit)
     {
         return Inertia::render('Manage/Unit/Division/Create', [
             "unit" => $unit,
+            'grades' => Inertia::lazy(fn() => collect($auxDataService->getDivisionGrade())->map(fn($grade) => $grade->grade)),
         ]);
     }
 
@@ -114,7 +116,8 @@ class UnitDivisionController extends Controller
             'message' => 'Division mise a jour avec succes'
         ]);
     }
-    
+
+
 
     /**
      * Remove the specified resource from storage.

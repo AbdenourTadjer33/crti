@@ -53,7 +53,7 @@ export type User = {
         grade: string;
         addedAt: string;
     };
-    boards?:
+    board?:
     {
         addedAt: string;
     };
@@ -79,14 +79,32 @@ export type Role = {
 };
 
 export type Board = {
-    id?: string;
+    id?: number;
     name: string;
-    abbr: string
     description?: string;
     user: User[];
     userCount?: number;
-    createdAt?: string,
-    updatedAt?: string,
+    project:
+    {
+        code: string;
+        name: string,
+    },
+    president:
+    {
+        id: number;
+        uuid: string;
+        name: string
+
+    },
+    users?: {
+        uuid: string;
+        name: string;
+        isFavorable?: boolean
+    }[]
+    judgment_start_date: string;
+    judgment_end_date: string;
+    createdAt?: string;
+    updatedAt?: string;
 };
 
 type PaginationLinks = {

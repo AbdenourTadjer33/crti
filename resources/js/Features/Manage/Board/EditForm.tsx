@@ -24,16 +24,26 @@ import {
 } from "@/Components/ui/command";
 import { Skeleton } from "@/Components/ui/skeleton";
 import { Kbd } from "@/Components/ui/kbd";
-import { isAnyKeyBeginWith } from "@/Libs/Validation/utils";
 import { MemberBoard } from "@/types/member";
+import PeriodField from "./PeriodField";
+import SelectProjectField, { Project } from "./SelectProjectField";
+import SelectPresidentField from "./SelectPresidentField";
 import { Avatar, AvatarFallback } from "@/Components/ui/avatar";
 import { getInitials } from "@/Utils/helper";
 
-const EditForm: React.FC<any> = ({ board }) => {
+interface EditFormProps {
+    board: any;
+    projects: Project[];
+    presidents: any[]
+}
+
+const EditForm: React.FC<EditFormProps> = ({ board, projects, presidents }) => {
     const { data, setData, errors, processing, put, clearErrors } = useForm({
         name: board.name || "",
-        abbr: board.abbr || "",
+        project: board.project.code || "",
+        judgment_period: board.judgment_period,
         description: board.description || "",
+        president: board.president || "",
         members:
             board.users.map((user: any) => ({
                 uuid: user.uuid,
@@ -62,7 +72,7 @@ const EditForm: React.FC<any> = ({ board }) => {
             )
         ) {
             setData((data) => {
-                data.members.push({ ...user, grade: "" });
+                data.members.push({ ...user});
                 return { ...data };
             });
         }
@@ -85,32 +95,50 @@ const EditForm: React.FC<any> = ({ board }) => {
             onSubmit={submitHandler}
         >
             <div className="grid grid-cols-3 gap-4">
-                <div className="space-y-1 sm:col-span-2 col-span-3">
-                    <Label>Nom de la division</Label>
+                <div className="space-y-1 sm:col-span-1 col-span-3">
+                    <Label>Nom du conseil</Label>
                     <Input
                         value={data.name}
                         onChange={(e) => setData("name", e.target.value)}
                     />
                     <InputError message={errors.name} />
                 </div>
+                <div className="space-y-1 col-span-1">
+                    <div className="space-y-1 col-span-3">
+                        <Label required>Projet associé</Label>
+                        <SelectProjectField
+                            projects={projects}
+                            initialSelectedProject={data.project}
+                            onProjectChange={(code) => setData("project", code || "")}
+                            error={errors.project}
+                        />
+                        <InputError message={errors.project} />
+                    </div>
+                </div>
 
                 <div className="space-y-1 sm:col-span-1 col-span-3">
-                    <Label>Abréviation</Label>
-                    <Input
-                        value={data.abbr}
-                        onChange={(e) => setData("abbr", e.target.value)}
+                    <div className="space-y-1">
+                        <Label required>Date début/fin</Label>
+                        <PeriodField
+                            value={data.judgment_period}
+                            setValue={(value) =>
+                                setData("judgment_period", value!)
+                            }
+                        />
+                        <InputError message={errors.judgment_period} />
+                    </div>
+                </div>
+                <div className="space-y-1 col-span-3">
+                    <Label required>president du conseil</Label>
+                    <SelectPresidentField
+                        presidents={presidents}
+                        initialSelectedPresident={data.president.uuid}
+                        onPresidentChange={(uuid) => setData("president", uuid || "")}
+                        error={errors.president}
                     />
-                    <InputError message={errors.abbr} />
+                    <InputError message={errors.president} />
                 </div>
 
-                <div className="space-y-1 col-span-3">
-                    <Label>Description</Label>
-                    <Textarea
-                        value={data.description}
-                        onChange={(e) => setData("description", e.target.value)}
-                    />
-                    <InputError message={errors.description} />
-                </div>
                 <div className="space-y-1 col-span-3">
                     <SearchMembers
                         members={data.members}
@@ -121,11 +149,6 @@ const EditForm: React.FC<any> = ({ board }) => {
 
                 {!!data.members.length && (
                     <div className="bg-gray-100 rounded p-2 space-y-2.5 col-span-3">
-                        {isAnyKeyBeginWith(errors, "members") && (
-                            <div className="text-red-500">
-                                Vous devez remplire tous les chames grades*
-                            </div>
-                        )}
                         {data.members.map(
                             (member: MemberBoard, idx: number) => (
                                 <div
@@ -147,19 +170,6 @@ const EditForm: React.FC<any> = ({ board }) => {
                                         {member.email}
                                     </Button>
 
-                                    {/* <Input
-                                    placeholder="grade"
-                                    value={member.grade}
-                                    onChange={(e) => {
-                                        setData((data) => {
-                                            data.members[idx].grade =
-                                                e.target.value;
-                                            return { ...data };
-                                        });
-                                        clearErrors(`members.${idx}.grade`);
-                                    }}
-                                /> */}
-
                                     <Button
                                         variant="destructive"
                                         className="items-center"
@@ -178,6 +188,14 @@ const EditForm: React.FC<any> = ({ board }) => {
                         )}
                     </div>
                 )}
+                <div className="space-y-1 col-span-3">
+                    <Label>Description</Label>
+                    <Textarea
+                        value={data.description}
+                        onChange={(e) => setData("description", e.target.value)}
+                    />
+                    <InputError message={errors.description} />
+                </div>
             </div>
 
             <div className="mx-auto max-w-lg flex flex-col-reverse sm:flex-row items-center sm:gap-4 gap-2">
@@ -190,6 +208,7 @@ const EditForm: React.FC<any> = ({ board }) => {
                     Sauvegarder
                 </Button>
             </div>
+            <pre>{JSON.stringify(data, null, 2)}</pre>
         </FormWrapper>
     );
 };

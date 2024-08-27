@@ -1,7 +1,7 @@
 import {
     HeaderSelecter,
     RowSelecter,
-} from "@/Components/common/data-table";
+} from "@/Components/DataTable";
 import {
     Tooltip,
     TooltipContent,
@@ -10,11 +10,11 @@ import {
 } from "@/Components/ui/tooltip";
 import { createColumnHelper } from "@tanstack/react-table";
 import dayjs from "dayjs";
-import { User } from "@/types";
+import { Board, User } from "@/types";
 import { Link } from "@inertiajs/react";
 import { SquareArrowOutUpRight } from "lucide-react";
 
-const columnHelper = createColumnHelper<User>();
+const columnHelper = createColumnHelper<Board>();
 
 export const columnDef = [
     columnHelper.display({
@@ -25,7 +25,7 @@ export const columnDef = [
         enableSorting: false,
     }),
 
-    columnHelper.accessor("uuid", {
+    columnHelper.accessor("id", {
         header: "id",
     }),
 
@@ -33,7 +33,7 @@ export const columnDef = [
         header: "nom - prenom",
         cell: ({ row }) => (
             <Link
-                href={route("manage.user.show",  row.original.uuid)}
+                href={route("manage.user.show",  row.original.id)}
                 className="inline-flex items-center hover:text-blue-600 duration-100"
             >
                 {row.original.name}{" "}
@@ -42,24 +42,24 @@ export const columnDef = [
         ),
     }),
 
-    columnHelper.accessor("email", {
+    columnHelper.accessor("president.name", {
         header: "e-mail",
     }),
 
-    columnHelper.accessor("board.addedAt", {
-        header: "Ajouté",
-        cell: ({ getValue }) => (
-            <TooltipProvider>
-                <Tooltip>
-                    <TooltipTrigger>
-                        {dayjs(getValue()).fromNow()}
-                    </TooltipTrigger>
-                    <TooltipContent>
-                        <p>{dayjs(getValue()).format("DD-MM-YYYY HH:mm:ss")}</p>
-                    </TooltipContent>
-                </Tooltip>
-            </TooltipProvider>
-        ),
-    }),
+    // columnHelper.accessor("users.name", {
+    //     header: "Ajouté",
+    //     cell: ({ getValue }) => (
+    //         <TooltipProvider>
+    //             <Tooltip>
+    //                 <TooltipTrigger>
+    //                     {dayjs(getValue()).fromNow()}
+    //                 </TooltipTrigger>
+    //                 <TooltipContent>
+    //                     <p>{dayjs(getValue()).format("DD-MM-YYYY HH:mm:ss")}</p>
+    //                 </TooltipContent>
+    //             </Tooltip>
+    //         </TooltipProvider>
+    //     ),
+    // }),
 ];
 

@@ -16,4 +16,5 @@ async function duplicateProjectVersion(projectId: string, data: any, config: Axi
     return await response.data;
 }
 
+
 export { createProject, syncProjectVersion, duplicateProjectVersion }

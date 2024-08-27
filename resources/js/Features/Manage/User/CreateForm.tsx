@@ -36,7 +36,7 @@ import {
     CommandItem,
 } from "@/Components/ui/command";
 import { FormWrapper } from "@/Components/ui/form";
-import { TableWraper } from "@/Components/ui/table";
+import { TableWrapper } from "@/Components/ui/table";
 import { MdAdd } from "react-icons/md";
 import * as Dropdown from "@/Components/ui/dropdown-menu";
 import { FaCaretDown } from "react-icons/fa";

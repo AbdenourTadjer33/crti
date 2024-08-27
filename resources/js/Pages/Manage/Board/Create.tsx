@@ -6,11 +6,14 @@ import { Heading } from "@/Components/ui/heading";
 import { Text } from "@/Components/ui/paragraph";
 import { House } from "lucide-react";
 import CreateForm from "@/Features/Manage/Board/CreateForm";
+import { json } from "stream/consumers";
 
-const Create: React.FC<any> = ({ board, project }) => {
+
+
+const Create: React.FC<any> = ({ projects, users }) => {
     const breadcrubms = React.useMemo(
         () => [
-            { href: route("app"), label: <House className="w-6 h-6" /> },
+            { href: route("app"), label: <House className="w-5 h-5" /> },
             { href: route("manage.index"), label: "Centres d'administration" },
             { href: route("manage.board.index"), label: "Gestion des conseils scientifque" },
             { label: "Créer un conseil scientifique" },
@@ -32,8 +35,10 @@ const Create: React.FC<any> = ({ board, project }) => {
                     Cliquez sur "Créer" pour enregistrer les informations ou "Annuler"
                     pour revenir à la page précédente sans sauvegarder.
                 </Text>
+                
             </div>
-                <CreateForm board={board.id} projects={project}/>
+                <CreateForm projects={projects} presidents={users}/>
+
             </div>
         </AuthLayout>
     );

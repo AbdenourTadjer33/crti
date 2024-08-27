@@ -29,7 +29,6 @@ import { Plus, Search, SlidersHorizontal } from "lucide-react";
 import { cn } from "@/Utils/utils";
 
 const Table: React.FC<{ divisions: Division[] }> = ({ divisions }) => {
-    // const finalData = React.useMemo(() => divisions.data, [divisions.data]);
     const finalData = React.useMemo(() => divisions, [divisions]);
     const finalColumnDef = React.useMemo(() => columnDef, []);
 

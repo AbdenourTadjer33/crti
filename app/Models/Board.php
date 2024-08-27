@@ -42,9 +42,9 @@ class Board extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
-    public function project(): HasOne
+    public function project(): BelongsTo
     {
-        return $this->hasOne(Project::class, 'project_id', 'id');
+        return $this->belongsTo(Project::class, 'project_id', 'id');
     }
 
     /**

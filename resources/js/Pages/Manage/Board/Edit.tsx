@@ -6,24 +6,23 @@ import AuthLayout from "@/Layouts/AuthLayout";
 import { Head } from "@inertiajs/react";
 import { House } from "lucide-react";
 import EditForm from "@/Features/Manage/Board/EditForm";
+import { Board } from "@/types";
 
-const Edit: React.FC<{ board: any }> = ({ board }) => {
-    const breadcrubms = React.useMemo(
-        () => [
-            { href: route("app"), label: <House className="w-5 h-5" /> },
-            { href: route("manage.index"), label: "Centres d'administration" },
-            { href: route("manage.board.index"), label: "Gestion des conseils scientifique" },
-            {
-                href: route("manage.board.show", board.id),
-                label: board.abbr ?? board.name,
-            },
-            { label: "Modifier " + board.abbr || board.name },
-        ],
-        []
-    );
+
+
+
+const Edit: React.FC<any> = ({ board, projects, users }) => {
+    const breadcrubms = React.useMemo(() => [
+        { href: route("app"), label: <House className="w-5 h-5" /> },
+        { href: route("manage.index"), label: "Centres d'administration" },
+        { href: route("manage.board.index"), label: "Gestion des conseils scientifiques" },
+        { href: route("manage.board.show", board.id), label: board.abbr ?? board.name },
+        { label: `Modifier ${board.abbr || board.name}` },
+    ], [board]);
+
     return (
         <AuthLayout>
-            <Head title={"Modifier " + board.name} />
+            <Head title={`Modifier ${board.name}`} />
             <div className="space-y-4">
                 <Breadcrumb items={breadcrubms} />
 
@@ -34,14 +33,14 @@ const Edit: React.FC<{ board: any }> = ({ board }) => {
                     <Text className="sm:text-base text-sm">
                         Utilisez ce formulaire pour modifier les détails du
                         conseil scientifique <span className="font-medium">{board.name}</span>
-                        , et Cliquez sur "Sauvegarder" pour
-                        enregistrer vos changements ou "Annuler" pour revenir
-                        sans sauvegarder.{" "}
+                        . Cliquez sur "Sauvegarder" pour enregistrer vos changements ou "Annuler" pour revenir
+                        sans sauvegarder.
                     </Text>
                 </div>
-                <EditForm board={board} />
+                <EditForm board={board} projects={projects} presidents={users}/>
             </div>
         </AuthLayout>
     );
 };
+
 export default Edit;

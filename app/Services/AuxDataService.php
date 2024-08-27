@@ -64,4 +64,15 @@ class AuxDataService
     {
         return $this->forgetCache('project_domains');
     }
+
+    public function getDivisionGrade()
+    {
+        return $this->getCachedData('division_grades', 'division_grades');
+    }
+
+    public function storeDivisionGrade(string $grade)
+    {
+        return $this->storeData('division_grades', 'grade', $grade);
+    }
+
 }

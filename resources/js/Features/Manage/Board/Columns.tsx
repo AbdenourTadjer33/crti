@@ -51,23 +51,48 @@ export const columnDef = [
 
     columnHelper.display({
         id: "board",
-        header: "name",
+        header: "conseil",
         cell: ({ row }) => (
             <Link
                 href={route("manage.board.show", row.id)}
                 className="inline-flex items-center hover:text-blue-600 duration-100"
             >
                 {row.original.name}{" "}
-                {row.original.abbr ? `- ${row.original.abbr} -` : null}
                 <SquareArrowOutUpRight className="h-4 w-4 ml-1.5" />
             </Link>
         ),
     }),
 
+    columnHelper.display({
+        header: "president",
+        cell: ({ row }) => (
+            <Link
+                href={route("manage.user.show",  row.original.president.id)}
+                className="inline-flex items-center hover:text-blue-600 duration-100"
+            >
+                {row.original.president.name}{" "}
+                <SquareArrowOutUpRight className="h-4 w-4 ml-1.5" />
+            </Link>
+        ),
+    }),
+
+    columnHelper.accessor("project.name", {
+        header: "project",
+        cell: ({ row }) => (
+            <Link
+            href={route("project.show", row.original.project.code )}
+            className="inline-flex items-center hover:text-blue-600 duration-100"
+            >
+                {row.original.project.name}{" "}
+                <SquareArrowOutUpRight className="h-4 w-4 ml-1.5" />
+            </Link>
+        ),
+    }),
 
     columnHelper.accessor("userCount", {
         header: "membre",
     }),
+
 
     columnHelper.accessor("createdAt", {
         header: "créer",
