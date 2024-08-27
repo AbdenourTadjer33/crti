@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Modules\Versioning\Models\Version;
-use phpDocumentor\Reflection\Types\Null_;
+use stdClass;
 
 class Project extends Model
 {
@@ -23,12 +23,13 @@ class Project extends Model
 
     protected $autoVersioning = false;
 
-    public $versionableRelations = ['division', 'user', 'users', 'tasks', 'tasks.users'];
+    public $versionableRelations = ['division', 'division.unit', 'nature', 'domains', 'partner', 'user', 'users', 'tasks', 'tasks.users', 'existing_resources', 'requested_resources'];
 
     protected function casts(): array
     {
         return [
-            'domains' => 'array',
+            'deliverables' => 'array',
+            'estimated_amount' => 'float',
             'version_info' => 'array',
         ];
     }
@@ -39,17 +40,20 @@ class Project extends Model
      * @var array<int, string>
      */
     protected $hidden = [
+        'enabled',
         'version_info',
     ];
 
     protected static function booted(): void
     {
-        // init the project version_info attribute on creation.
+        // init the project version_info attribute on evry creation.
         static::creating(function (Project $project) {
             $project->version_info = [
                 'main' => null,
                 'creation' => [],
-                'created' => [],
+                'previous' => [],
+                'archived' => [],
+                'review' => [],
             ];
         });
     }
@@ -58,13 +62,6 @@ class Project extends Model
      * Interact with the project's name.
      */
     protected function name(): Attribute
-    {
-        return Attribute::make(
-            get: fn(?string $value) => ucfirst($value),
-        );
-    }
-
-    protected function nature(): Attribute
     {
         return Attribute::make(
             get: fn(?string $value) => ucfirst($value),
@@ -98,6 +95,25 @@ class Project extends Model
     }
 
     /**
+     * Get all domains associated with the project.
+     *
+     * This method defines a many-to-many relationship, indicating
+     * that a project can have multiple domains, and a domain
+     * can be associated with multiple projects.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function domains(): BelongsToMany
+    {
+        return $this->belongsToMany(Domain::class, 'project_domain', 'project_id', 'domain_id');
+    }
+
+    public function nature(): BelongsTo
+    {
+        return $this->belongsTo(Nature::class, 'nature_id', 'id');
+    }
+
+    /**
      * Get the division that have the project.
      *
      * This method establishes an inverse one-to-many relationship
@@ -108,6 +124,19 @@ class Project extends Model
     public function division(): BelongsTo
     {
         return $this->belongsTo(Division::class, 'division_id', 'id');
+    }
+
+    /**
+     * Get the partner associated with project.
+     *
+     * This method establishes an inverse one-to-one relationship
+     * where a project have one partner
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function partner(): BelongsTo
+    {
+        return $this->belongsTo(Partner::class, 'partner_id', 'id');
     }
 
     /**
@@ -150,10 +179,32 @@ class Project extends Model
         return $this->hasMany(Task::class, 'project_id', 'id');
     }
 
-    // public function resources(): HasMany
-    // {
-    // return $this->hasMany(Resource::class);
-    // }
+    /**
+     * Get all existing resource associated with the project.
+     *
+     * This method defines a many-to-many relationship, indicating
+     * that a project can have multiple resources, and a resource
+     * can be associated with multiple projects.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function existingResources(): BelongsToMany
+    {
+        return $this->belongsToMany(ExistingResource::class, 'project_existing_resource', 'project_id', 'resource_id');
+    }
+
+    /**
+     * Get all requested resources associated with the project.
+     *
+     * This method defines a one-to-many relationship, indicating
+     * that a project can have multiple requested resources, and a requested resource belongs to one project.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function requestedResources(): HasMany
+    {
+        return $this->hasMany(RequestedResource::class, 'project_id', 'id');
+    }
 
     /**
      * Get the board that owns the project.
@@ -170,6 +221,18 @@ class Project extends Model
 
     public function loadRelationsToVersion(array $relations): self
     {
+        $natureInstance = new \App\Models\Nature;
+        $nature = $natureInstance->newInstance([], true)
+            ->setRawAttributes($relations['nature'], true);
+
+        $domainInstance = new \App\Models\Domain;
+        $domains = Collection::make(array_map(
+            fn($domain) =>
+            $domainInstance->newInstance([], true)
+                ->setRawAttributes(Arr::except($domain, 'pivot'), true),
+            $relations['domains']
+        ));
+
         $userInstance = new \App\Models\User;
         $user = $userInstance->newInstance([], true)
             ->setRawAttributes($relations['user'], true);
@@ -207,68 +270,112 @@ class Project extends Model
             $relations['tasks']
         ));
 
+        $partnerInstance = new \App\Models\Partner;
+        $partner = $relations['partner'] ? $partnerInstance->newInstance([], true)
+            ->setRawAttributes($relations['partner'], true) : null;
+
+        $existingResourceInstance = new \App\Models\ExistingResource;
+        $existingResources = Collection::make(array_map(
+            fn($resource) =>  $existingResourceInstance->newInstance([], true)->setRawAttributes($resource, true),
+            $relations['existing_resources']
+        ));
+
+        $requestedResourceInstance = new \App\Models\RequestedResource;
+        $requestedResources = Collection::make(array_map(
+            fn($resource) => $requestedResourceInstance->newInstance([], true)->setRawAttributes($resource, true),
+            $relations['requested_resources']
+        ));
+
+        $this->setRelation('nature', $nature);
+        $this->setRelation('domains', $domains);
         $this->setRelation('division', $division);
+        $this->setRelation('partner', $partner);
         $this->setRelation('user', $user);
         $this->setRelation('users', $usersFn($relations['users']));
         $this->setRelation('tasks', $tasks);
+        $this->setRelation('existingResources', $existingResources);
+        $this->setRelation('requestedResources', $requestedResources);
 
         return $this;
     }
 
-    public function getMainVersion($getRelatedModel = true)
+    /**
+     * Get the main version of a project.
+     * 
+     * @return null|Version
+     */
+    public function getMainVersion(): ?Version
     {
-        $mainVersionId = (int) $this->version_info['main'];
+        if (!$id = (int) $this->version_info['main']) return null;
 
-        if (!$mainVersionId) return;
+        return $this->versions()->getQuery()->find($id);
+    }
 
-        $version = $this->versions()->getQuery()->where('id', $mainVersionId)->first();
-
-        return $getRelatedModel ? $version?->getModel() : $version;
+    public function getVersionMarkedAs(string $key)
+    {
+        return $this->version_info[$key];
     }
 
     /**
-     * This method return an array of version ids that are on creation
-     * @return array
+     * Edit version info by key-value pair
+     * @var string KEYS ARE: []
+     * @var int|array<int>
+     * 
+     * @return void
      */
-    public function getCreationVersions()
+    public function editVersionInfo(string $key, int|array $value)
     {
-        return $this->version_info['creation'];
+        $this->setAttribute("version_info->{$key}", $value);
     }
 
     /**
-     * This method return all versions that are under creation.
-     *
-     * @param int $userId
+     * This will move the current version to previous versions. 
+     * And ref the provided id as main version.
      */
-    // public function getCreationVersions(int $userId)
-    // {
-    // return $this->versions()->whereIn('id', $this->version_info['creation'])->where('user_id', $userId)->get();
-    // }
-
-    public function getCreatedVersions() {}
-
     public function refVersionAsMain(int $version): bool
     {
         $this->unrefVersion($version);
-        $this->setAttribute('version_info->main', $version);
+        $this->editVersionInfo('main', $version);
         return $this->save();
     }
 
     public function refVersionAsCreation(int $version): bool
     {
         $this->unrefVersion($version);
-        $creation = $this->version_info['creation'] ?? [];
-        $creation[] = $version;
-        $this->setAttribute('version_info->creation', $creation);
+        $this->editVersionInfo('creation', [
+            ...$this->version_info['creation'],
+            $version
+        ]);
         return $this->save();
     }
 
-    public function refVersionAsCreated(int $version): bool
+    public function refVersionAsReview(int $version): bool
     {
         $this->unrefVersion($version);
-        $created = $this->version_info['created'] ?? [];
-        $created[] = $version;
-        $this->setAttribute('version_info->created', $created);
+        $this->editVersionInfo('review', [
+            ...$this->version_info['review'],
+            $version,
+        ]);
+        return $this->save();
+    }
+
+    public function refVersionAsPrevious(int $version): bool
+    {
+        $this->unrefVersion($version);
+        $this->editVersionInfo('previous', [
+            ...$this->version_info['previous'],
+            $version
+        ]);
+        return $this->save();
+    }
+
+    public function refVersionAsArchived(int $version): bool
+    {
+        $this->unrefVersion($version);
+        $this->editVersionInfo('archived', [
+            ...$this->version_info['archived'],
+            $version,
+        ]);
         return $this->save();
     }
 
@@ -276,12 +383,10 @@ class Project extends Model
     {
         $versionInfo = $this->version_info;
 
-        if (isset($versionInfo['created']) && in_array($version, $versionInfo['created'])) {
-            $versionInfo['created'] = array_values(array_diff($versionInfo['created'], [$version]));
-        }
-
-        if (isset($versionInfo['creation']) && in_array($version, $versionInfo['creation'])) {
-            $versionInfo['creation'] = array_values(array_diff($versionInfo['creation'], [$version]));
+        foreach (['creation', 'review', 'previous', 'archived'] as $key) {
+            if (isset($versionInfo[$key]) && in_array($version, $versionInfo[$key])) {
+                $versionInfo[$key] = array_values(array_diff($versionInfo[$key], [$version]));
+            }
         }
 
         $this->version_info = $versionInfo;

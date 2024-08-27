@@ -7,5 +7,12 @@ return [
     "pending" => "En instance",
     "suspended" => "Suspendu",
     "rejected" => "Rejeté",
-    "completed" => "Achevé"
+    "completed" => "Achevé",
+
+
+    'to_do' => 'À faire',
+    'in_progress' => 'En cours',
+    'done' => 'Fait',
+    'suspended' => 'Suspendu',
+    'canceled' => 'Annulé',
 ];

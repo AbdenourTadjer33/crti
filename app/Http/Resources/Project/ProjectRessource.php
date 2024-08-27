@@ -19,8 +19,8 @@ class ProjectRessource extends JsonResource
             'status' => __("status.{$this->status}"),
             $this->mergeWhen($this->status !== "creation", [
                 'name' => $this->name,
-                'nature' => $this->nature,
-                'domains' => $this->domains,
+                'nature' => $this->nature?->name,
+                'domains' => $this->domains->map(fn($domain) => $domain->name),
                 'timeline' => [
                     'from' => $this->date_begin,
                     'to' => $this->date_end,

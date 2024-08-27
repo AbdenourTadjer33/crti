@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,8 +27,10 @@ class UpdateUserLastActivity
     {
         if (!Auth::check()) return;
 
+        /** @var User */
         $user = $request->user();
         $user->last_activity = now();
-        $user->save();
+
+        User::withoutTimestamps(fn () => $user->saveQuietly());
     }
 }

@@ -2,7 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Models\Division;
 use App\Models\Unit;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -17,8 +19,8 @@ class InitAppSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('project_natures')->insert(Storage::json('data/project_natures.json'));
-        DB::table('project_domains')->insert(Storage::json('data/project_domains.json'));
+        DB::table('natures')->insert(Storage::json('data/project_natures.json'));
+        DB::table('domains')->insert(Storage::json('data/project_domains.json'));
         DB::table('universities')->insert(Storage::json('data/universities.json'));
         DB::table('diplomas')->insert(Storage::json('data/diplomas.json'));
         DB::table('division_grades')->insert(Storage::json('data/division_grades.json'));
@@ -33,5 +35,7 @@ class InitAppSeeder extends Seeder
 
         $unit->divisions()->createMany(Storage::json('data/divisions.json'));
         $unit->users()->createMany(Storage::json('data/users.json'));
+
+        User::query()->first()->divisions()->attach(Division::all()->random()->id);
     }
 }

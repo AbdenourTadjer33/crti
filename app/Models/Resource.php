@@ -10,4 +10,11 @@ class Resource extends Model
     use HasFactory;
 
     protected $guarded = [];
+
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'resources';
 }

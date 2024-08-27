@@ -4,16 +4,18 @@ namespace App\Http\Controllers\Project;
 
 use App\Models\User;
 use Inertia\Inertia;
+use App\Models\Domain;
+use App\Models\Nature;
 use App\Models\Project;
 use Nette\Utils\Random;
 use App\Enums\ProjectStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Project\ProjectRessource;
+use App\Events\Project\ProjectInitialized;
 use App\Http\Requests\Project\StoreRequest;
+use App\Http\Resources\Project\ProjectRessource;
 use App\Http\Resources\Project\ProjectDetailsResource;
-use Modules\Versioning\Models\Version;
 
 class ProjectController extends Controller
 {
@@ -24,6 +26,7 @@ class ProjectController extends Controller
         $this->user = request()->user();
     }
 
+    // TO REVIEW
     public function index()
     {
         $projectsFn = function () {
@@ -62,6 +65,8 @@ class ProjectController extends Controller
             ]);
         });
 
+        event(new ProjectInitialized($this->user->id, $project->id));
+
         return $project->only('code');
     }
 
@@ -76,23 +81,15 @@ class ProjectController extends Controller
         if (!$project) return abort(404, 'Sorry, the page you are looking for could not be found.');
 
         $versionInCreationFn = function () use ($project) {
-            $versionIds = $project->getCreationVersions();
+            $versionIds = $project->getVersionMarkedAs('creation');
             if (!$versionIds) return;
 
-            $version = $project->versions()
-                ->whereIn('id', $versionIds)
-                ->where('user_id', $this->user->id)
-                ->first(['id', 'reason', 'created_at']);
-
-            return $version ? [
-                'id' => $version->id,
-                'reason' => $version->reason,
-                'createdAt' => $version->created_at,
-            ] : null;
+            $version = $project->versions()->whereIn('id', $versionIds)->where('user_id', $this->user->id)->first(['id', 'reason', 'created_at']);
+            return $version;
         };
 
         return Inertia::render('Project/Show', [
-            'project' => fn() => new ProjectDetailsResource($project->getMainVersion()),
+            'project' => fn() => new ProjectDetailsResource($project->getMainVersion()->getModel()),
             'canCreateNewVersion' => fn() => $project->canHaveNewVersions(),
             'versionInCreation' => $versionInCreationFn,
         ]);
@@ -104,18 +101,8 @@ class ProjectController extends Controller
             'value' => ['required', 'string', 'min:4', 'max: 50'],
         ]);
 
-        if ($request->routeIs('project.suggest.domain')) {
-            DB::table('domains')->insert([
-                'domain' => $request->input('value'),
-                'suggested' => true,
-            ]);
-        } else {
-            DB::table('natures')->insert([
-                'nature' => $request->input('value'),
-                'suggested' => true,
-            ]);
-        };
-        
-        return $this->success(code: 201);
+        if ($request->routeIs('project.suggest.domain')) return Domain::suggest($request->input('value'));
+
+        return Nature::suggest($request->input('value'));
     }
 }

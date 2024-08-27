@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Project;
 
+use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreRequest extends FormRequest
@@ -22,14 +23,14 @@ class StoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'division' => ['required'],
+            'division' => ['required', Rule::exists('divisions', 'id')],
         ];
     }
 
     public function messages()
     {
         return [
-            'division' => "Veuillez sélectionnez une division"
+            'division' => "sélectionnez une division"
         ];
     }
 }

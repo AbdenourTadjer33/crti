@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('resources', function (Blueprint $table) {
-            $table->float('price')->nullable()->after('state');
-            $table->boolean('by_crti')->nullable();
-            $table->foreignId('project_id')->nullable()->constrained('projects', 'id')->cascadeOnDelete();
+            $table->decimal('price', 10)->nullable()->after('state');
+            $table->boolean('by_crti')->nullable()->after('price');
+            $table->foreignId('project_id')->nullable()->after('by_crti')->constrained('projects', 'id')->cascadeOnDelete();
         });
     }
 

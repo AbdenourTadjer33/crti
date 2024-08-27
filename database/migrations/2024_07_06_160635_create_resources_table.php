@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('resources', function (Blueprint $table) {
             $table->id();
             $table->enum('type', ['existing_resource', 'requested_resource']);
+            $table->string('code')->unique()->nullable();
             $table->string('name');
             $table->longText('description')->nullable();
             $table->string('state')->nullable();
@@ -27,6 +28,5 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('resources');
-        Schema::dropIfExists('existing_resources');
     }
 };

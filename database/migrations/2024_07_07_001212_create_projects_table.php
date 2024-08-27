@@ -11,31 +11,58 @@ return new class extends Migration
      */
     public function up(): void
     {
+        Schema::create('partners', function (Blueprint $table) {
+            $table->id();
+            $table->string('organisation');
+            $table->string('sector');
+            $table->string('contact_name');
+            $table->string('contact_post');
+            $table->string('contact_phone');
+            $table->string('contact_email');
+            $table->timestamp('created_at')->useCurrent();
+        });
+
+        Schema::create('domains', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->boolean("suggested")->nullable();
+            $table->timestamp('created_at')->useCurrent();
+        });
+
+        Schema::create('natures', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->boolean('suggested')->nullable();
+            $table->timestamp('created_at')->useCurrent();
+        });
+
         Schema::create('projects', function (Blueprint $table) {
             $table->id();
-            $table->string('code', 10);
+            $table->string('code', 10)->unique()->index();
             $table->foreignId('division_id')->nullable()->constrained('divisions', 'id')->nullOnDelete();
             $table->foreignId('user_id')->nullable()->constrained('users', 'id')->nullOnDelete();
+            $table->foreignId('partner_id')->nullable()->constrained('partners', 'id')->nullOnDelete();
+            $table->foreignId('nature_id')->nullable()->constrained('natures', 'id')->nullOnDelete();
+            $table->boolean('enabled')->default(true);
             $table->string('status');
             $table->string('name')->nullable();
-            $table->string('nature')->nullable();
             $table->json('domains')->nullable();
             $table->date('date_begin')->nullable();
             $table->date('date_end')->nullable();
             $table->longText('description')->nullable();
             $table->longText('goals')->nullable();
             $table->longText('methodology')->nullable();
+            $table->decimal('estimated_amount', 10)->nullable();
+            $table->json('deliverables')->nullable();
             $table->json('version_info')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
 
-        Schema::create('requested_resources', function (Blueprint $table) {
-            $table->foreignId('resource_id')->constrained('resources', 'id')->cascadeOnDelete();
+        Schema::create('project_domain', function (Blueprint $table) {
             $table->foreignId('project_id')->constrained('projects', 'id')->cascadeOnDelete();
-            $table->float('price');
-            $table->boolean('by_partner');
-            $table->primary('resource_id');
+            $table->foreignId('domain_id')->constrained('domains', 'id')->cascadeOnDelete();
+            $table->primary(['project_id', 'domain_id']);
         });
 
         Schema::create('project_existing_resource', function (Blueprint $table) {
@@ -54,6 +81,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('project_id')->constrained('projects', 'id')->cascadeOnDelete();
             $table->string('name');
+            $table->string('status');
             $table->date('date_begin');
             $table->date('date_end');
             $table->longText('description');
@@ -79,12 +107,15 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('projects');
-        Schema::dropIfExists('requested_resources');
-        Schema::dropIfExists('project_existing_resource');
-        Schema::dropIfExists('members');
-        Schema::dropIfExists('tasks');
-        Schema::dropIfExists('task_user');
         Schema::dropIfExists('task_resource');
+        Schema::dropIfExists('task_user');
+        Schema::dropIfExists('tasks');
+        Schema::dropIfExists('members');
+        Schema::dropIfExists('project_existing_resource');
+        Schema::dropIfExists('project_domain');
+        Schema::dropIfExists('projects');
+        Schema::dropIfExists('natures');
+        Schema::dropIfExists('domains');
+        Schema::dropIfExists('partners');
     }
 };

@@ -2,10 +2,12 @@
 declare module 'ziggy-js' {
   interface RouteList {
     "sanctum.csrf-cookie": [],
-    "api.project.domain.index": [],
-    "api.project.domain.store": [],
-    "api.project.nature.index": [],
-    "api.project.nature.store": [],
+    "telescope": [
+        {
+            "name": "view",
+            "required": false
+        }
+    ],
     "app": [],
     "search.user": [],
     "manage.index": [],
@@ -259,6 +261,8 @@ declare module 'ziggy-js' {
             "required": true
         }
     ],
+    "project.suggest.nature": [],
+    "project.suggest.domain": [],
     "project.index": [],
     "project.store": [],
     "project.show": [
@@ -267,16 +271,22 @@ declare module 'ziggy-js' {
             "required": true
         }
     ],
+    "project.version.duplicate": [
+        {
+            "name": "project",
+            "required": true,
+            "binding": "code"
+        }
+    ],
     "project.version.sync": [
         {
             "name": "project",
             "required": true
-        }
-    ],
-    "project.version.duplicate": [
+        },
         {
-            "name": "project",
-            "required": true
+            "name": "version",
+            "required": true,
+            "binding": "id"
         }
     ],
     "project.version.create": [
@@ -295,21 +305,25 @@ declare module 'ziggy-js' {
     "project.version.edit": [
         {
             "name": "project",
-            "required": true
+            "required": true,
+            "binding": "code"
         },
         {
             "name": "version",
-            "required": true
+            "required": true,
+            "binding": "id"
         }
     ],
     "project.version.update": [
         {
             "name": "project",
-            "required": true
+            "required": true,
+            "binding": "code"
         },
         {
             "name": "version",
-            "required": true
+            "required": true,
+            "binding": "id"
         }
     ],
     "api.auth.check.user": [],

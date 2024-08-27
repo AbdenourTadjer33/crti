@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -12,6 +13,13 @@ class Task extends Model
     use HasFactory;
 
     protected $guarded = [];
+
+    protected function name(): Attribute
+    {
+        return Attribute::make(
+            get: fn(?string $value) => ucfirst($value),
+        );
+    }
 
     /**
      * Get the project that own this task.
