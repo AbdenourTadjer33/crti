@@ -97,4 +97,21 @@ class ProjectController extends Controller
             'versionInCreation' => $versionInCreationFn,
         ]);
     }
+
+    public function suggest(Request $request)
+    {
+        if ($request->routeIs('project.suggest.domain')) {
+            DB::table('domains')->insert([
+                'domain' => $request->input('value'),
+                'suggested' => true,
+            ]);
+        } else {
+            DB::table('natures')->insert([
+                'nature' => $request->input('value'),
+                'suggested' => true,
+            ]);
+        };
+        
+        return $this->success(code: 201);
+    }
 }
