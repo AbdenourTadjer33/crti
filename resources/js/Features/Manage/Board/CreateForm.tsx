@@ -21,27 +21,47 @@ import {
     CommandList,
     CommandShortcut,
 } from "@/Components/ui/command";
-import { LoaderCircle, Plus, X } from "lucide-react";
+import { Check, ChevronsUpDown, LoaderCircle, Plus, X } from "lucide-react";
 import { Kbd } from "@/Components/ui/kbd";
 import { Skeleton } from "@/Components/ui/skeleton";
-import Avatar from "@/Components/Avatar";
 import { isAnyKeyBeginWith } from "@/Libs/Validation/utils";
-import Field from "@/Libs/FormBuilder/components/Field";
 import { DateRange } from "react-day-picker";
-import { format } from "date-fns";
+import PeriodField from "./PeriodField";
+import SelectProjectField, { Project } from "./SelectProjectField";
+import SelectPresidentField from "./SelectPresidentField";
+import { useUpdateEffect } from "@/Hooks/use-update-effect";
+import { Avatar, AvatarFallback } from "@/Components/ui/avatar";
+import { getInitials } from "@/Utils/helper";
 
-const CreateForm: React.FC<any> = ({ board }) => {
-    const { data, setData, errors, processing, post, clearErrors } = useForm<{
-        name: string;
-        jugement_period: DateRange;
-        description: string;
-        members: { uuid: string; name: string; email: string }[];
-    }>({
-        name: "",
-        jugement_period: { from: undefined, to: undefined },
-        description: "",
-        members: [],
-    });
+interface CreateProps {
+    projects: Project[];
+    presidents: User[];
+}
+
+const CreateForm: React.FC<CreateProps> = ({ projects, presidents }) => {
+    const { data, setData, errors, processing, post, clearErrors, reset } =
+        useForm<{
+            name: string;
+            judgment_period: DateRange;
+            description: string;
+            president: string;
+            project: string;
+            members: { uuid: string; name: string; email: string }[];
+        }>({
+            name: "",
+            judgment_period: { from: undefined, to: undefined },
+            description: "",
+            project: "",
+            president: "",
+            members: [],
+        });
+
+    useUpdateEffect(() => {
+        if (!data.president) return;
+
+        const user = presidents.find((p) => p.uuid === data.president);
+        addMember(user!);
+    }, [data.president]);
 
     const addMember = (user: User) => {
         if (!data.members.some((member) => member.uuid == user.uuid)) {
@@ -63,9 +83,11 @@ const CreateForm: React.FC<any> = ({ board }) => {
 
     const submitHandler = (e: React.FormEvent) => {
         e.preventDefault();
-
-        post(route("manage.board.store", { board }), {
+        post(route("manage.board.store"), {
+            only: ["errors", "flash"],
             preserveScroll: true,
+            preserveState: true,
+            onSuccess: () => reset(),
         });
     };
 
@@ -75,8 +97,8 @@ const CreateForm: React.FC<any> = ({ board }) => {
             onSubmit={submitHandler}
         >
             <div className="grid sm:grid-cols-3 gap-4">
-                <div className="space-y-1 sm:col-span-2 col-span-3">
-                    <Label>Nom du conseil scientifique</Label>
+                <div className="space-y-1 sm:col-span-1 col-span-3">
+                    <Label required>Nom du conseil scientifique</Label>
                     <Input
                         value={data.name}
                         onChange={(e) => {
@@ -86,85 +108,77 @@ const CreateForm: React.FC<any> = ({ board }) => {
                     />
                     <InputError message={errors.name} />
                 </div>
-                <div className="space-y-1 sm:col-span-2 col-span-3">
-                    <Label>Date début/fin</Label>
-                    <Field
-                        type="calendar"
-                        mode="range"
-                        showOutsideDays={false}
-                        value={data.jugement_period}
-                        onValueChange={(value: DateRange) => {
-                            clearErrors("jugement_period");
-                            setData("jugement_period", value);
-                        }}
-                        labels={{
-                            trigger: (value) => {
-                                if (!value?.from && !value?.to) {
-                                    return "Date début/fin";
-                                }
-
-                                if (value?.from && !value?.to) {
-                                    return `De ${format(
-                                        value.from,
-                                        "dd/MM/yyy"
-                                    )}`;
-                                }
-
-                                return `De ${format(
-                                    value.from,
-                                    "dd/MM/yyy"
-                                )} à ${format(value.to, "dd/MM/yyy")}`;
-                            },
-                        }}
+                <div className="pace-y-1 sm:col-span-1 col-span-3">
+                    <Label required>Projet associé</Label>
+                    <SelectProjectField
+                        projects={projects} // Liste des projets à passer en tant que prop
+                        initialSelectedProject={data.project} // Le code du projet initialement sélectionné
+                        onProjectChange={(code) =>
+                            setData("project", code || "")
+                        } // Callback pour mettre à jour l'état avec le code du projet sélectionné
+                        error={errors.project} // Gestion des erreurs liée à la sélection du projet
                     />
-                    <InputError message={errors.jugement_period} />
+                    <InputError message={errors.project} />
                 </div>
-
-                <div className="space-y-1 col-span-3">
-                    <Label>Description</Label>
-                    <Textarea
-                        value={data.description}
-                        onChange={(e) => {
-                            clearErrors("description");
-                            setData("description", e.target.value);
-                        }}
+                <div className="space-y-1 sm:col-span-1 col-span-3">
+                    <Label required>Date début/fin</Label>
+                    <PeriodField
+                        value={data.judgment_period}
+                        setValue={(value) => setData("judgment_period", value!)}
                     />
-                    <InputError message={errors.description} />
+                    <InputError message={errors.judgment_period} />
                 </div>
-
                 <div className="space-y-1 col-span-3">
+                    <Label required>president du conseil</Label>
+                    {/* <SearchMembers
+                        members={data.president}
+                        addMember={addMember}
+                    /> */}
+                    {/* <SelectPresidentField
+                        presidents={presidents}
+                        initialSelectedPresident={data.president}
+                        onPresidentChange={(uuid) =>
+                            setData("president", uuid || "")
+                        }
+                        error={errors.president}
+                    /> */}
+                    <InputError message={errors.president} />
+                </div>
+                <div className="space-y-1 col-span-3">
+                    <Label>Membres du conseil</Label>
                     <SearchMembers
                         members={data.members}
                         addMember={addMember}
                     />
                 </div>
-                <div className="space-y-1 col-span-3"></div>
 
                 {!!data.members.length && (
-                    <div className="bg-gray-100 rounded p-2 space-y-2.5 col-span-3">
-                        {isAnyKeyBeginWith(errors, "members") && (
-                            <div className="text-red-500">
-                                Vous devez remplire tous les chames grades*
-                            </div>
-                        )}
-
+                    <div className=" rounded p-2 space-y-2.5 col-span-3">
                         {data.members.map((member, idx) => (
-                            <div key={idx} className="flex items-center gap-4">
+                            <div
+                                key={idx}
+                                className="flex items-center justify-between gap-4"
+                            >
+                                <div className="flex items-center gap-2">
+                                    <Avatar>
+                                        <AvatarFallback>
+                                            {getInitials(member.name)}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                    <div className="flex flex-col text-sm">
+                                        <span>
+                                            {member.name}{" "}
+                                            {data.president === member.uuid && (
+                                                <span className="font-medium">
+                                                    (président du conseil)
+                                                </span>
+                                            )}
+                                        </span>
+                                        <span>{member.email}</span>
+                                    </div>
+                                </div>
                                 <Button
                                     type="button"
-                                    variant="outline"
-                                    className="justify-start basis-2/5 sm:text-base text-xs"
-                                >
-                                    {member.name}
-                                </Button>
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    className="justify-start basis-3/5 sm:text-base text-xs"
-                                >
-                                    {member.email}
-                                </Button>
-                                <Button
                                     variant="destructive"
                                     className="items-center"
                                     size="sm"
@@ -179,6 +193,17 @@ const CreateForm: React.FC<any> = ({ board }) => {
                         ))}
                     </div>
                 )}
+                <div className="space-y-1 col-span-3">
+                    <Label>Description</Label>
+                    <Textarea
+                        value={data.description}
+                        onChange={(e) => {
+                            clearErrors("description");
+                            setData("description", e.target.value);
+                        }}
+                    />
+                    <InputError message={errors.description} />
+                </div>
             </div>
 
             <div className="mx-auto max-w-lg flex flex-col-reverse sm:flex-row items-center sm:gap-4 gap-2">
@@ -194,12 +219,13 @@ const CreateForm: React.FC<any> = ({ board }) => {
                     Créer
                 </Button>
             </div>
+            <pre>{JSON.stringify({ data }, null, 2)}</pre>
         </FormWrapper>
     );
 };
 
 interface SearchMemberProps {
-    members: any[];
+    members: any[] ;
     addMember: (user: User) => void;
 }
 
@@ -244,8 +270,7 @@ const SearchMembers = ({ addMember, members }: SearchMemberProps) => {
                     <CommandEmpty className="py-4">
                         {!search ? (
                             <div className="text-gray-800 font-medium text-lg">
-                                Commencez à taper pour rechercher des membres de
-                                l'équipe...
+                                Commencez à taper pour rechercher des membres
                             </div>
                         ) : isLoading ? (
                             <div className="px-2.5 space-y-4">
@@ -279,10 +304,9 @@ const SearchMembers = ({ addMember, members }: SearchMemberProps) => {
                                         className="py-2.5 grid sm:grid-cols-3 grid-cols-2 gap-4"
                                     >
                                         <div className="inline-flex items-center space-x-2">
-                                            <Avatar
-                                                size="sm"
-                                                name={user.name}
-                                            />
+                                            <Avatar>
+                                                <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+                                            </Avatar>
                                             <div>{user.name}</div>
                                         </div>
                                         <div className="hidden sm:block">

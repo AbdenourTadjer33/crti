@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Modules\Versioning\Models\Version;
 use phpDocumentor\Reflection\Types\Null_;
 
@@ -163,9 +164,9 @@ class Project extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function board(): BelongsTo
+    public function board(): HasOne
     {
-        return $this->belongsTo(Board::class, 'board_id', 'id');
+        return $this->hasOne(Board::class, 'project_id', 'id');
     }
 
     public function loadRelationsToVersion(array $relations): self

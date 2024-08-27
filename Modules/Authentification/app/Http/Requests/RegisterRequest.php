@@ -14,6 +14,7 @@ class RegisterRequest extends FormRequest
      */
     public function rules(): array
     {
+        dd($this->all());
         return [
             'fname' => ['required', 'string'],
             'lname' => ['required', 'string'],

@@ -1,6 +1,6 @@
 import Breadcrumb from "@/Components/Breadcrumb";
 import { Button, buttonVariants } from "@/Components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/Components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardSubTitle, CardTitle } from "@/Components/ui/card";
 import { Heading } from "@/Components/ui/heading";
 import { Text } from "@/Components/ui/paragraph";
 import Table from "@/Features/Manage/Board/User/Table";
@@ -25,7 +25,7 @@ const Show: React.FC<any> = ({ board }) => {
         []
     );
     return(
-             <AuthLayout>
+        <AuthLayout>
             <Head title={board.name} />
 
             <div className="space-y-4">
@@ -48,16 +48,22 @@ const Show: React.FC<any> = ({ board }) => {
                 </div>
                 <Card>
                     <CardHeader>
-                        <CardTitle>{board.abbr}</CardTitle>
+                        <CardTitle>{board.name}</CardTitle>
+                        <CardSubTitle className="text-base">
+                            <Link
+                                href={route("manage.user.show", board.president.id
+                                )}
+                            >
+                                {board.president.name + " "  + "(President)"}
+                            </Link>
+                        </CardSubTitle>
                         <CardDescription className="">
-                            <span className="font-medium">{board.name}</span>
-
-
+                            <span className="font-medium">{board.description}</span>
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <Text className="text-sm text-gray-500 dark:text-gray-400">
-                            {board.description}
+                        <Text>
+                            <span className="text-sm">Projeet en commission: </span>{board.project.name}
                         </Text>
                     </CardContent>
                     <CardFooter className="justify-end gap-2">
@@ -74,10 +80,17 @@ const Show: React.FC<any> = ({ board }) => {
                         <Button variant="destructive">Supprimer</Button>
                     </CardFooter>
                 </Card>
+                <Text className="sm:text-base text-sm">
+                    Consultez les informations complètes sur le conseil scientifique {" "}
+                    <span className=" font-medium">{board.users.name}</span>.
+                    vous trouverez une liste des membres associées à
+                    ce conseil scientifique. Vous pouvez voir les détails et accéder aux
+                    options pour le modifier ou le supprimer.
+                </Text>
                 <Table users={board.users} />
-                <pre>{JSON.stringify(board.users, null, 2)}</pre>
 
             </div>
+                <pre>{JSON.stringify(board, null, 2)}</pre>
         </AuthLayout>
 
     );

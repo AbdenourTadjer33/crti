@@ -2,10 +2,6 @@
 declare module 'ziggy-js' {
   interface RouteList {
     "sanctum.csrf-cookie": [],
-    "api.project.domain.index": [],
-    "api.project.domain.store": [],
-    "api.project.nature.index": [],
-    "api.project.nature.store": [],
     "app": [],
     "search.user": [],
     "manage.index": [],
@@ -171,28 +167,28 @@ declare module 'ziggy-js' {
         {
             "name": "user",
             "required": true,
-            "binding": "id"
+            "binding": "uuid"
         }
     ],
     "manage.user.edit": [
         {
             "name": "user",
             "required": true,
-            "binding": "id"
+            "binding": "uuid"
         }
     ],
     "manage.user.update": [
         {
             "name": "user",
             "required": true,
-            "binding": "id"
+            "binding": "uuid"
         }
     ],
     "manage.user.destroy": [
         {
             "name": "user",
             "required": true,
-            "binding": "id"
+            "binding": "uuid"
         }
     ],
     "manage.board.index": [],
@@ -309,6 +305,20 @@ declare module 'ziggy-js' {
         },
         {
             "name": "version",
+            "required": true
+        }
+    ],
+    "board.comment.store": [
+        {
+            "name": "board",
+            "required": true,
+            "binding": "id"
+        }
+    ],
+    "board.index.index": [],
+    "board.index.show": [
+        {
+            "name": "board",
             "required": true
         }
     ],

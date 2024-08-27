@@ -13,11 +13,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        if (!User::query()->where('email', 'tad.abdenour33@gmail.com')->count()) {
+        if (!User::query()->where('email', 'red.ben@gmail.com')->count()) {
             User::create([
-                'first_name' => 'Abdenour',
-                'last_name' => 'Tadjer',
-                'email' => 'tad.abdenour33@gmail.com',
+                'first_name' => 'Reda',
+                'last_name' => 'Benabbas',
+                'email' => 'red.ben@gmail.com',
                 'password' => bcrypt('password'),
                 'status' => true,
             ]);

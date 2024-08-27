@@ -13,6 +13,7 @@ class StoreRequest extends FormRequest
     public function authorize(): bool
     {
         return true;
+
     }
 
     /**
@@ -24,12 +25,20 @@ class StoreRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string',],
-            'judgment_start_date' => ['required', 'date'],
-            'judgment_end_date' => ['required', 'date'],
-            'description' => ['required', 'string'],
+
+            'judgment_period' => ['required', 'array'],
+            'judgment_period.from' => ['required', 'date'],
+            'judgment_period.to' => ['required', 'date'],
+
+            'description' => ['nullable', 'string'],
+
+            'project' => ['required', Rule::exists('projects', 'code')],
+
+            'president' => ['required', Rule::exists('users', 'uuid')],
+
             'members' => ['nullable', 'array'],
             'members.*' => ['nullable', 'array'],
-            'members.*.uuid' => ['sometimes', 'string', Rule::exists('users', 'uuid')],
+            'members.*.uuid' => ['required', 'string', Rule::exists('users', 'uuid')],
         ];
     }
 }

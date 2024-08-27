@@ -8,7 +8,6 @@ import { usePage } from "@inertiajs/react";
 import { Toaster } from "@/Components/ui/sonner";
 import { toast } from "sonner";
 
-// import { useToast } from "@/Components/ui/use-toast";
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
 

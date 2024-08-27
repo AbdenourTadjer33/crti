@@ -115,6 +115,11 @@ class User extends Authenticatable
         ]);
     }
 
+    public function getRouteKeyName()
+    {
+        return "uuid";
+    }
+
     public function scopeActive(Builder $query)
     {
         $query->where('status', true);
@@ -182,6 +187,8 @@ class User extends Authenticatable
      *
      * This method defines a one-to-many relationship, indicating
      * that a user (president) is in multiple boards, and a board has one user (president).
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function boards(): HasMany
     {

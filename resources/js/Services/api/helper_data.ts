@@ -20,7 +20,18 @@ async function addProjectNature(nature: string, config: AxiosRequestConfig = {})
     }
 }
 
+async function addProject(name: string , config: AxiosRequestConfig = {}): Promise<AxiosResponse<any, any> | undefined> {
+    try {
+        const response = await axios.post(route("api.project.store"), { name }, config);
+        return response;
+    } catch (e) {
+        const error = e as AxiosError;
+        return error.response;
+    }
+}
+
 export {
+    addProject,
     addProjectDomain,
     addProjectNature,
 }

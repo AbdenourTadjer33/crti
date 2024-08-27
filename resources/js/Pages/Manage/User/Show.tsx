@@ -9,7 +9,6 @@ import { UserCard } from "@/Features/Manage/User/UserCard";
 
 
 const Show: React.FC<any> = ({ user }) => {
-    console.log("User Data:", user);
     const breadcrumbs = [
         { href: route("app"), label: <House className="w-6 h-6" /> },
         { href: route("manage.index"), label: "Centres d'administration" },

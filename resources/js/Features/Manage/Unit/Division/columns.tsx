@@ -25,13 +25,12 @@ import {
     TooltipTrigger,
 } from "@/Components/ui/tooltip";
 import { Division } from "@/types/division";
-import { router } from "@inertiajs/react";
+import { Link, router } from "@inertiajs/react";
 import { createColumnHelper } from "@tanstack/react-table";
 import dayjs from "dayjs";
-import { ArrowRightCircle, MoreHorizontal } from "lucide-react";
+import { ArrowRightCircle, MoreHorizontal, SquareArrowOutUpRight } from "lucide-react";
 import { FaInfoCircle } from "react-icons/fa";
 import { MdDelete, MdEdit } from "react-icons/md";
-import { Link } from "@inertiajs/react";
 
 const columnHelper = createColumnHelper<Division>();
 
@@ -52,10 +51,17 @@ export const columnDef = [
         id: "division",
         header: "division",
         cell: ({ row }) => (
-            <>
+            <Link
+                href={route("manage.unit.division.show", {
+                    unit: route().params.unit as string,
+                    division: row.original.id,
+                })}
+                className="inline-flex items-center hover:text-blue-600 duration-100"
+            >
                 {row.original.name}{" "}
                 {row.original.abbr ? `- ${row.original.abbr} -` : null}
-            </>
+                <SquareArrowOutUpRight className="h-4 w-4 ml-1.5" />
+            </Link>
         ),
     }),
 
