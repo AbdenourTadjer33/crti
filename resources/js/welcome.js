@@ -8,7 +8,7 @@ window.onload = function () {
 
     const usernameEl = form.querySelector("input[name=username]");
     const usernameErrorEl = form.querySelector("#username-error");
-    const ENDPOINT = "/api/v1/auth/check-user";
+    const ENDPOINT = "/check-user";
 
     form.onsubmit = async function (e) {
         e.preventDefault();
