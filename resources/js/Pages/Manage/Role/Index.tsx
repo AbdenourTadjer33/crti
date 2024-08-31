@@ -16,6 +16,7 @@ const breadcrumbs = [
 ];
 
 const Index: React.FC<{ roles: Role[] }> = ({roles}) => {
+
     return (
         <AuthLayout>
             <Head title="Gestion de role et permission"/>

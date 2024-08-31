@@ -6,11 +6,8 @@ namespace App\Models;
 
 use Ramsey\Uuid\Uuid;
 use Laravel\Scout\Searchable;
-use Laravel\Sanctum\HasApiTokens;
-use Modules\Permission\Traits\HasRole;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Builder;
-use Modules\Permission\Traits\HasPermission;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -18,10 +15,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Spatie\Permission\Traits\HasPermissions;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use Searchable, HasFactory, HasUuids, Notifiable, HasApiTokens, HasPermission, HasRole, SoftDeletes;
+    use Searchable, HasFactory, HasUuids, Notifiable, SoftDeletes, HasPermissions, HasRoles;
 
     /**
      * The attributes that are mass assignable.

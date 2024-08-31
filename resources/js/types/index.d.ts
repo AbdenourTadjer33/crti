@@ -61,21 +61,17 @@ export type User = {
 
 export type Permission = {
     id: string;
-    model: string;
-    action: string;
-    type: number;
-    createdAt?: string;
-    updatedAt?: string;
+    name: string;
+    description: string;
 };
 
 export type Role = {
     id: string;
     name: string;
     description: string;
-    createdAt?: string;
-    updatedAt?: string;
-    permissions?: Permission[];
-    permissionIds: number[];
+    createdAt: string;
+    updatedAt: string;
+    permissions: Permission[];
 };
 
 export type Board = {

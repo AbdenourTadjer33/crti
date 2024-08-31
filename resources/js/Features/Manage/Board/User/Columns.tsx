@@ -9,10 +9,11 @@ import {
     TooltipTrigger,
 } from "@/Components/ui/tooltip";
 import { createColumnHelper } from "@tanstack/react-table";
-import dayjs from "dayjs";
 import { User } from "@/types";
 import { Link } from "@inertiajs/react";
 import { SquareArrowOutUpRight } from "lucide-react";
+import { format, formatDistanceToNow } from "date-fns";
+import { fr } from "date-fns/locale";
 
 const columnHelper = createColumnHelper<User>();
 
@@ -33,7 +34,7 @@ export const columnDef = [
         header: "nom - prenom",
         cell: ({ row }) => (
             <Link
-                href={route("manage.user.show",  row.original.uuid)}
+                href={route("manage.user.show", row.original.uuid)}
                 className="inline-flex items-center hover:text-blue-600 duration-100"
             >
                 {row.original.name}{" "}
@@ -52,10 +53,17 @@ export const columnDef = [
             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger>
-                        {dayjs(getValue()).fromNow()}
+                        {formatDistanceToNow(getValue()!, {
+                            addSuffix: true,
+                            locale: fr,
+                        })}
                     </TooltipTrigger>
                     <TooltipContent>
-                        <p>{dayjs(getValue()).format("DD-MM-YYYY HH:mm:ss")}</p>
+                        <p>
+                            {format(getValue()!, "dd MMM yyy hh:mm", {
+                                locale: fr,
+                            })}
+                        </p>
                     </TooltipContent>
                 </Tooltip>
             </TooltipProvider>

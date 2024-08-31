@@ -45,9 +45,9 @@ const Table: React.FC<{ roles: Role[] }> = ({ roles }) => {
 
         return (
             <div className="flex flex-wrap gap-2">
-                {permissions?.map((permission) => (
-                    <Badge variant="indigo" key={permission.id}>
-                        {permission.model}@{permission.action}
+                {permissions?.map((permission, idx) => (
+                    <Badge variant="indigo" key={idx}>
+                        {permission.label}
                     </Badge>
                 ))}
             </div>

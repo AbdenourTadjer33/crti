@@ -39,13 +39,13 @@ export default function AuthLayout({ children }: React.PropsWithChildren) {
                         <Dialog.DialogContent
                             onOpenAutoFocus={(e) => e.preventDefault()}
                             onCloseAutoFocus={(e) => e.preventDefault()}
-                            className="mx-auto max-w-xl grid gap-4 rounded relative overflow-hidden"
+                            className="mx-auto max-w-xl grid sm:gap-6 gap-4 rounded relative overflow-hidden"
                         >
-                            <Dialog.DialogHeader className="items-center sm:text-center">
+                            <Dialog.DialogHeader className="space-y-2.5">
                                 {info.status === "success" && (
                                     <SuccessCheckAlert />
                                 )}
-                                <Dialog.DialogTitle className="text-xl">
+                                <Dialog.DialogTitle className="text-xl text-center">
                                     {info.title}
                                 </Dialog.DialogTitle>
                                 <Dialog.DialogDescription className="text-base">
@@ -54,8 +54,11 @@ export default function AuthLayout({ children }: React.PropsWithChildren) {
                             </Dialog.DialogHeader>
 
                             <div className="flex items-center justify-center">
-                                <Button onClick={() => setDialog(false)}>
-                                    OK!
+                                <Button
+                                    onClick={() => setDialog(false)}
+                                    className="uppercase"
+                                >
+                                    ok!
                                 </Button>
                             </div>
                         </Dialog.DialogContent>

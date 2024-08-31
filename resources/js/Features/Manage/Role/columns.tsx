@@ -15,7 +15,6 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/Components/ui/tooltip";
-import dayjs from "dayjs";
 import { Delete, Edit, Info, MoreHorizontal } from "lucide-react";
 import { Role } from "@/types";
 import {
@@ -30,6 +29,8 @@ import {
     RowExpander,
     RowSelecter,
 } from "@/Components/common/data-table";
+import { format, formatDistanceToNow } from "date-fns";
+import { fr } from "date-fns/locale";
 
 const columnHelper = createColumnHelper<Role>();
 
@@ -73,10 +74,17 @@ export const columnDef = [
             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger>
-                        {dayjs(getValue()).fromNow()}
+                        {formatDistanceToNow(getValue()!, {
+                            addSuffix: true,
+                            locale: fr,
+                        })}
                     </TooltipTrigger>
                     <TooltipContent>
-                        <p>{dayjs(getValue()).format("DD-MM-YYYY HH:mm:ss")}</p>
+                        <p>
+                            {format(getValue()!, "dd MMM yyy hh:mm", {
+                                locale: fr,
+                            })}
+                        </p>
                     </TooltipContent>
                 </Tooltip>
             </TooltipProvider>
@@ -89,10 +97,17 @@ export const columnDef = [
             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger>
-                        {dayjs(getValue()).fromNow()}
+                        {formatDistanceToNow(getValue()!, {
+                            addSuffix: true,
+                            locale: fr,
+                        })}
                     </TooltipTrigger>
                     <TooltipContent>
-                        <p>{dayjs(getValue()).format("DD-MM-YYYY HH:mm:ss")}</p>
+                        <p>
+                            {format(getValue()!, "dd MMM yyy hh:mm", {
+                                locale: fr,
+                            })}
+                        </p>
                     </TooltipContent>
                 </Tooltip>
             </TooltipProvider>

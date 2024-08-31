@@ -1,17 +1,15 @@
 import { cn } from "@/Utils/utils";
 import React from "react";
 
-export function Text({
-    className,
-    ...props
-}: React.HTMLProps<HTMLParagraphElement>) {
-    return (
-        <p
-            className={cn(
-                "text-base text-gray-500 dark:text-gray-400 text-pretty",
-                className
-            )}
-            {...props}
-        />
-    );
-}
+const Text = React.forwardRef<
+    HTMLInputElement,
+    React.HTMLAttributes<HTMLInputElement>
+>(({ className, ...props }, ref) => (
+    <p
+        ref={ref}
+        className={cn("text-base text-gray-500 text-pretty", className)}
+        {...props}
+    />
+));
+
+export { Text };

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Version;
 
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Http\FormRequest;
 
 class DuplicateRequest extends FormRequest
@@ -11,7 +12,7 @@ class DuplicateRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return Gate::check('suggest.versions');   
     }
 
     /**

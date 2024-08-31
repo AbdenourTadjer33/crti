@@ -38,7 +38,7 @@ return new class extends Migration
 
         Schema::create('projects', function (Blueprint $table) {
             $table->id();
-            $table->string('code', 10)->unique()->index();
+            $table->string('code', 15)->unique()->index();
             $table->foreignId('division_id')->nullable()->constrained('divisions', 'id')->nullOnDelete();
             $table->foreignId('user_id')->nullable()->constrained('users', 'id')->nullOnDelete();
             $table->foreignId('partner_id')->nullable()->constrained('partners', 'id')->nullOnDelete();
@@ -46,7 +46,6 @@ return new class extends Migration
             $table->boolean('enabled')->default(true);
             $table->string('status');
             $table->string('name')->nullable();
-            $table->json('domains')->nullable();
             $table->date('date_begin')->nullable();
             $table->date('date_end')->nullable();
             $table->longText('description')->nullable();

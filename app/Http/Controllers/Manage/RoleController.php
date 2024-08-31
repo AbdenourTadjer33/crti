@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Manage;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Modules\Permission\Models\Role;
+use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
-use Modules\Permission\Models\Permission;
+use Spatie\Permission\Models\Permission;
 use App\Http\Resources\Manage\RoleResource;
 use App\Http\Requests\Manage\Role\StoreRequest;
 use App\Http\Requests\Manage\Role\UpdateRequest;
@@ -20,7 +20,7 @@ class RoleController extends Controller
     public function index()
     {
         return Inertia::render('Manage/Role/Index', [
-            'roles' => RoleResource::collection(Role::getRoles())
+            'roles' => RoleResource::collection(Role::with('permissions:label,description')->get())
         ]);
     }
 
@@ -29,10 +29,7 @@ class RoleController extends Controller
      */
     public function create()
     {
-        return Inertia::render('Manage/Role/Create', [
-            'permissions' => Permission::getPermissions(),
-
-        ]);
+        return Inertia::render('Manage/Role/Create', []);
     }
 
     /**
@@ -58,10 +55,7 @@ class RoleController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Role $role)
-    {
-        //
-    }
+    public function show() {}
 
     /**
      * Show the form for editing the specified resource.
@@ -102,7 +96,7 @@ class RoleController extends Controller
      */
     public function destroy(Role $role)
     {
-        if (!DB::transaction(fn () => $role->delete())) {
+        if (!DB::transaction(fn() => $role->delete())) {
             return redirect()->back()->with('alert', [
                 'status' => 'danger',
                 'message' => "something went wrong"

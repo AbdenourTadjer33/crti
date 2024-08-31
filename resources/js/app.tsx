@@ -9,6 +9,7 @@ import { capitalize } from "./Utils/helper";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Ziggy } from "./ziggy";
 import { route } from "ziggy-js";
+import AuthLayout from "./Layouts/AuthLayout";
 
 globalThis.Ziggy = Ziggy;
 globalThis.route = route;

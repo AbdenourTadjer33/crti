@@ -1,6 +1,5 @@
 import { User } from "@/types";
 import { createColumnHelper } from "@tanstack/react-table";
-import dayjs from "dayjs";
 import { Switch } from "@/Components/ui/switch";
 import { MoreHorizontal, SquareArrowOutUpRight } from "lucide-react";
 import {
@@ -25,6 +24,8 @@ import {
     RowSelecter,
 } from "@/Components/common/data-table";
 import { Link } from "@inertiajs/react";
+import { format, formatDistanceToNow } from "date-fns";
+import { fr } from "date-fns/locale";
 
 const columnHelper = createColumnHelper<User>();
 
@@ -107,13 +108,21 @@ export const columnDef = [
     columnHelper.accessor("createdAt", {
         header: "Créer le",
         cell: ({ getValue }) => {
-            const datetime = dayjs(getValue());
             return (
                 <TooltipProvider>
                     <Tooltip>
-                        <TooltipTrigger>{datetime.fromNow()}</TooltipTrigger>
+                        <TooltipTrigger>
+                            {formatDistanceToNow(getValue()!, {
+                                addSuffix: true,
+                                locale: fr,
+                            })}
+                        </TooltipTrigger>
                         <TooltipContent>
-                            <p>{datetime.format("DD-MM-YYYY HH:mm:ss")}</p>
+                            <p>
+                                {format(getValue()!, "dd MMM yyy hh:mm", {
+                                    locale: fr,
+                                })}
+                            </p>
                         </TooltipContent>
                     </Tooltip>
                 </TooltipProvider>
@@ -124,13 +133,21 @@ export const columnDef = [
     columnHelper.accessor("updatedAt", {
         header: "Modifier le",
         cell: ({ getValue }) => {
-            const datetime = dayjs(getValue());
             return (
                 <TooltipProvider>
                     <Tooltip>
-                        <TooltipTrigger>{datetime.fromNow()}</TooltipTrigger>
+                        <TooltipTrigger>
+                            {formatDistanceToNow(getValue()!, {
+                                addSuffix: true,
+                                locale: fr,
+                            })}
+                        </TooltipTrigger>
                         <TooltipContent>
-                            <p>{datetime.format("DD-MM-YYYY HH:MM:ss")}</p>
+                            <p>
+                                {format(getValue()!, "dd MMM yyy hh:mm", {
+                                    locale: fr,
+                                })}
+                            </p>
                         </TooltipContent>
                     </Tooltip>
                 </TooltipProvider>

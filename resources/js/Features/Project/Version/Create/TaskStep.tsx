@@ -240,7 +240,7 @@ const TaskStep = ({
                         </Select.Select>
                         <InputError message={errors[`tasks.${idx}.priority`]} />
                     </div>
-                    <div className="space-y-1 md:col-span-4">
+                    <div className="space-y-1 md:col-span-4 sm:col-span-2">
                         <Label required>Description</Label>
                         <Editor
                             autofocus={false}

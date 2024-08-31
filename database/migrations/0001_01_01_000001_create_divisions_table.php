@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('unit_id')->constrained('units', 'id')->cascadeOnDelete();
             $table->string('name');
-            $table->string('abbr', 10);
+            $table->string('abbr', 10)->unique()->index();
             $table->string('web_page')->nullable();
             $table->longText('description')->nullable();
             $table->timestamps();

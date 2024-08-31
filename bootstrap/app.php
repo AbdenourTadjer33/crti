@@ -16,19 +16,26 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->statefulApi();
-        $middleware->append(UpdateUserLastActivity::class);
-        $middleware->redirectGuestsTo('/');
-        $middleware->redirectUsersTo(function () {
-            return session('url.intended', '/app');
-        });
-
         $middleware->web([
             HandleInertiaRequests::class
         ]);
 
+        $middleware->statefulApi();
+
+        $middleware->append(UpdateUserLastActivity::class);
+
+        $middleware->redirectGuestsTo('/');
+
+        $middleware->redirectUsersTo(function () {
+            return session('url.intended', '/app');
+        });
+
         $middleware->convertEmptyStringsToNull([
             fn(Request $request) => $request->is('app/projects/*/versions/*/sync'),
+        ]);
+
+        $middleware->alias([
+            'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

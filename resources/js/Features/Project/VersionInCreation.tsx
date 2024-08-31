@@ -2,7 +2,6 @@ import React from "react";
 import * as Card from "@/Components/ui/card";
 import { Link } from "@inertiajs/react";
 import { buttonVariants } from "@/Components/ui/button";
-import dayjs from "dayjs";
 import { cn } from "@/Utils/utils";
 
 interface VersionInCreationProps {
@@ -11,7 +10,8 @@ interface VersionInCreationProps {
 
 const VersionInCreation: React.FC<VersionInCreationProps> = ({ version }) => {
     const displayWarning = React.useMemo(() => {
-        return dayjs().diff(dayjs(version.createdAt), "minute") > 15;
+        // return dayjs().diff(dayjs(version.createdAt), "minute") > 15;
+        return true
     }, [version.createdAt]);
 
     const href = route("project.version.edit", {

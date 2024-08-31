@@ -1,7 +1,4 @@
-import {
-    HeaderSelecter,
-    RowSelecter,
-} from "@/Components/common/data-table";
+import { HeaderSelecter, RowSelecter } from "@/Components/common/data-table";
 import {
     Tooltip,
     TooltipContent,
@@ -9,16 +6,28 @@ import {
     TooltipTrigger,
 } from "@/Components/ui/tooltip";
 import { createColumnHelper } from "@tanstack/react-table";
-import dayjs from "dayjs";
-import { Division, Unit, User } from "@/types";
-import { Button } from "@/Components/ui/button";
-import { ArrowRightCircle, MoreHorizontal, Pencil, Trash, X } from "lucide-react";
+import { User } from "@/types";
+import { MoreHorizontal, Pencil, X, Info } from "lucide-react";
 import React, { useState } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, } from "@/Components/ui/dialog";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/Components/ui/dropdown-menu";
-import { Link, router } from "@inertiajs/react";
-import { FaInfoCircle } from "react-icons/fa";
-import EditGradeModal, { Member } from "./EditGradeModal";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from "@/Components/ui/dialog";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/Components/ui/dropdown-menu";
+import { router } from "@inertiajs/react";
+import EditGradeModal from "./EditGradeModal";
+import { format, formatDistanceToNow } from "date-fns";
+import { fr } from "date-fns/locale";
+import { Button } from "@/Components/ui/button";
 
 const columnHelper = createColumnHelper<User>();
 
@@ -37,7 +46,6 @@ export const columnDef = [
 
     columnHelper.accessor("name", {
         header: "nom - prenom",
-
     }),
 
     columnHelper.accessor("email", {
@@ -48,18 +56,23 @@ export const columnDef = [
         header: "grade",
     }),
 
-
-
     columnHelper.accessor("division.addedAt", {
         header: "Ajouté le",
         cell: ({ getValue }) => (
             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger>
-                        {dayjs(getValue()).fromNow()}
+                        {formatDistanceToNow(getValue()!, {
+                            addSuffix: true,
+                            locale: fr,
+                        })}
                     </TooltipTrigger>
                     <TooltipContent>
-                        <p>{dayjs(getValue()).format("DD-MM-YYYY HH:mm:ss")}</p>
+                        <p>
+                            {format(getValue()!, "dd MMM yyy hh:mm", {
+                                locale: fr,
+                            })}
+                        </p>
                     </TooltipContent>
                 </Tooltip>
             </TooltipProvider>
@@ -67,7 +80,7 @@ export const columnDef = [
     }),
     columnHelper.display({
         id: "actions",
-        cell: ({ row }) => <Actions id={row.id} member={row.original}/>,
+        cell: ({ row }) => <Actions id={row.id} member={row.original} />,
         enableHiding: false,
     }),
 ];
@@ -78,7 +91,8 @@ interface ActionsProps {
 }
 
 const Actions: React.FC<ActionsProps> = ({ id, member }) => {
-    const [beforeDeleteModal, setBeforeDeleteModal] = React.useState<boolean>(false);
+    const [beforeDeleteModal, setBeforeDeleteModal] =
+        React.useState<boolean>(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
     const [selectedMember, setSelectedMember] = useState<User | null>(null);
 
@@ -113,12 +127,11 @@ const Actions: React.FC<ActionsProps> = ({ id, member }) => {
                     onCloseAutoFocus={(e) => e.preventDefault()}
                     loop
                 >
-                    <DropdownMenuItem asChild>
-                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild></DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => openEditModal(member)}>
-                            <Pencil className="w-4 h-4 mr-2" />
-                            modifier
+                        <Pencil className="w-4 h-4 mr-2" />
+                        modifier
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
@@ -137,7 +150,7 @@ const Actions: React.FC<ActionsProps> = ({ id, member }) => {
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle className="inline-flex items-center gap-2">
-                            <FaInfoCircle className="w-6 h-6 text-red-500 dark:text-red-600" />
+                            <Info className="w-6 h-6 text-red-500 dark:text-red-600" />
                             Etes-vous absolument sùr?
                         </DialogTitle>
                     </DialogHeader>

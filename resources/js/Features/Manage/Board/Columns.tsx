@@ -8,7 +8,6 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/Components/ui/tooltip";
-import dayjs from "dayjs";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -33,6 +32,8 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/Components/ui/dialog";
+import { format, formatDistanceToNow } from "date-fns";
+import { fr } from "date-fns/locale";
 
 const columnHelper = createColumnHelper<Board>();
 
@@ -67,7 +68,7 @@ export const columnDef = [
         header: "president",
         cell: ({ row }) => (
             <Link
-                href={route("manage.user.show",  row.original.president.id)}
+                href={route("manage.user.show", row.original.president.id)}
                 className="inline-flex items-center hover:text-blue-600 duration-100"
             >
                 {row.original.president.name}{" "}
@@ -80,8 +81,8 @@ export const columnDef = [
         header: "project",
         cell: ({ row }) => (
             <Link
-            href={route("project.show", row.original.project.code )}
-            className="inline-flex items-center hover:text-blue-600 duration-100"
+                href={route("project.show", row.original.project.code)}
+                className="inline-flex items-center hover:text-blue-600 duration-100"
             >
                 {row.original.project.name}{" "}
                 <SquareArrowOutUpRight className="h-4 w-4 ml-1.5" />
@@ -93,17 +94,23 @@ export const columnDef = [
         header: "membre",
     }),
 
-
     columnHelper.accessor("createdAt", {
         header: "créer",
         cell: ({ getValue }) => (
             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger>
-                        {dayjs(getValue()).fromNow()}
+                        {formatDistanceToNow(getValue()!, {
+                            addSuffix: true,
+                            locale: fr,
+                        })}
                     </TooltipTrigger>
                     <TooltipContent>
-                        <p>{dayjs(getValue()).format("DD-MM-YYYY HH:mm:ss")}</p>
+                        <p>
+                            {format(getValue()!, "dd MMM yyy hh:mm", {
+                                locale: fr,
+                            })}
+                        </p>
                     </TooltipContent>
                 </Tooltip>
             </TooltipProvider>
@@ -116,10 +123,17 @@ export const columnDef = [
             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger>
-                        {dayjs(getValue()).fromNow()}
+                        {formatDistanceToNow(getValue()!, {
+                            addSuffix: true,
+                            locale: fr,
+                        })}
                     </TooltipTrigger>
                     <TooltipContent>
-                        <p>{dayjs(getValue()).format("DD-MM-YYYY HH:mm:ss")}</p>
+                        <p>
+                            {format(getValue()!, "dd MMM yyy hh:mm", {
+                                locale: fr,
+                            })}
+                        </p>
                     </TooltipContent>
                 </Tooltip>
             </TooltipProvider>

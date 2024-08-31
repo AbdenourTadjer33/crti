@@ -29,6 +29,7 @@ class ProjectVersionController extends Controller implements HasMiddleware
     public static function middleware(): array
     {
         return [
+            new Middleware('permission',  only: []),
             new Middleware(HandlePrecognitiveRequests::class, only: ['store', 'update'])
         ];
     }

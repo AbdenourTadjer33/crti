@@ -36,7 +36,9 @@ function prepareData(data: Omit<ProjectForm, "creator">) {
 
 const ConfirmationStep = ({ prev }: StepperContentProps) => {
     const { uuid } = useUser("uuid");
-    const { data, processing } = React.useContext(ProjectContext);
+    const { data } = React.useContext(ProjectContext);
+    const [processing, setProcessing] = React.useState(false);
+
     const { domains, natures } = usePage<{
         domains: undefined | { id: number; name: string; suggested: boolean }[];
         natures: undefined | { id: number; name: string; suggested: boolean }[];
@@ -48,8 +50,8 @@ const ConfirmationStep = ({ prev }: StepperContentProps) => {
         const url = route("project.version.store", route().params.project);
 
         router.post(url, formData as any, {
-            preserveScroll: true,
-            preserveState: true,
+            onBefore: () => setProcessing(true),
+            onFinish: () => setProcessing(true),
         });
     };
 

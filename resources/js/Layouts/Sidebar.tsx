@@ -32,6 +32,11 @@ const Sidebar: React.FC = () => {
                                 label="Dashboard"
                             />
                             <SidebarItem
+                                href={route("workspace.index")}
+                                icon={<SquareGanttChart className="h-6 w-6" />}
+                                label="Workspace"
+                            />
+                            <SidebarItem
                                 href={route("project.index")}
                                 icon={<SquareGanttChart className="h-6 w-6" />}
                                 label="Projets"

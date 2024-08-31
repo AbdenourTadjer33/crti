@@ -1,19 +1,5 @@
 import axios from "axios";
 import { router } from "@inertiajs/react";
-import dayjs from "dayjs";
-import fr from "dayjs/locale/fr";
-import localData from "dayjs/plugin/localeData";
-import objectSupport from "dayjs/plugin/objectSupport";
-import relativeTime from "dayjs/plugin/relativeTime";
-import utc from 'dayjs/plugin/utc';
-import timezone from 'dayjs/plugin/timezone';
-
-dayjs.locale(fr);
-dayjs.extend(objectSupport);
-dayjs.extend(relativeTime);
-dayjs.extend(localData);
-dayjs.extend(utc);
-dayjs.extend(timezone);
 
 
 axios.defaults.withCredentials = true;

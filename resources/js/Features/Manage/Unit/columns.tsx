@@ -2,13 +2,13 @@ import * as React from "react";
 import { createColumnHelper } from "@tanstack/react-table";
 import { Unit } from "@/types";
 import { HeaderSelecter, RowSelecter } from "@/Components/common/data-table";
+import { format, formatDistanceToNow } from "date-fns";
 import {
     Tooltip,
     TooltipContent,
     TooltipProvider,
     TooltipTrigger,
 } from "@/Components/ui/tooltip";
-import dayjs from "dayjs";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -33,6 +33,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/Components/ui/dialog";
+import { fr } from "date-fns/locale";
 
 const columnHelper = createColumnHelper<Unit>();
 
@@ -78,10 +79,13 @@ export const columnDef = [
             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger>
-                        {dayjs(getValue()).fromNow()}
+                        {formatDistanceToNow(getValue()!, {
+                            addSuffix: true,
+                            locale: fr,
+                        })}
                     </TooltipTrigger>
                     <TooltipContent>
-                        <p>{dayjs(getValue()).format("DD-MM-YYYY HH:mm:ss")}</p>
+                        <p>{format(getValue()!, "dd MMM yyy hh:mm", {locale: fr})}</p>
                     </TooltipContent>
                 </Tooltip>
             </TooltipProvider>
@@ -94,10 +98,13 @@ export const columnDef = [
             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger>
-                        {dayjs(getValue()).fromNow()}
+                        {formatDistanceToNow(getValue()!, {
+                            addSuffix: true,
+                            locale: fr,
+                        })}
                     </TooltipTrigger>
                     <TooltipContent>
-                        <p>{dayjs(getValue()).format("DD-MM-YYYY HH:mm:ss")}</p>
+                        <p>{format(getValue()!, "dd MMM yyy hh:mm", {locale: fr})}</p>
                     </TooltipContent>
                 </Tooltip>
             </TooltipProvider>

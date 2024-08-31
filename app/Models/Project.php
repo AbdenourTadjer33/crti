@@ -2,19 +2,20 @@
 
 namespace App\Models;
 
+use stdClass;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
+use Modules\Versioning\Models\Version;
 use Illuminate\Database\Eloquent\Model;
 use Modules\Versioning\Traits\Versionable;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Modules\Versioning\Models\Version;
-use stdClass;
 
 class Project extends Model
 {
@@ -47,8 +48,12 @@ class Project extends Model
 
     protected static function booted(): void
     {
-        // init the project version_info attribute on evry creation.
+        // init the project code & version_info attribute on evry creation.
         static::creating(function (Project $project) {
+            $lastProject = static::query()->whereYear('created_at', now()->year)->latest('id')->first('code');
+            $nextSequence = $lastProject ? (int) substr($lastProject->code, -4) + 1 : 1;
+            $project->code = 'PRJ-' . now()->year . '-' . str_pad($nextSequence, 4, '0', STR_PAD_LEFT);
+
             $project->version_info = [
                 'main' => null,
                 'creation' => [],

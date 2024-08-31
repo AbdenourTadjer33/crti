@@ -245,25 +245,25 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
                         </Heading>
 
                         <pre>
-                            {JSON.stringify(project.existingResources, null, 2)}
+                            {/* {JSON.stringify(project.existingResources, null, 2)} */}
                         </pre>
                     </div>
 
-                    <div className="flex xl:flex-row flex-col xl:items-start xl:justify-between sm:gap-6 gap-4">
-                        <div className="space-y-2 flex-1 ">
-                            <Heading level={6}>
-                                Matière première, composants et petits
-                                équipements à acquérir par le CRTI
-                            </Heading>
+                    <div className="space-y-2">
+                        <Heading level={6}>
+                            Matière première, composants et petits équipements à
+                            acquérir par le CRTI
+                        </Heading>
 
-                            <ResourceTable
-                                resources={project.requestedResources.filter(
-                                    (r) => r.by_crti
-                                )}
-                            />
-                        </div>
+                        <ResourceTable
+                            resources={project.requestedResources.filter(
+                                (r) => r.by_crti
+                            )}
+                        />
+                    </div>
 
-                        <div className="space-y-2 flex-1">
+                    {project.partner && (
+                        <div className="space-y-2">
                             <Heading level={6}>
                                 Matière première, composants et petits
                                 équipements à acquérir par le partenaire
@@ -276,7 +276,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project }) => {
                                 )}
                             />
                         </div>
-                    </div>
+                    )}
 
                     <Card.Card className="p-6 space-y-6">
                         <div className="space-y-2">

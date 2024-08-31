@@ -1,7 +1,23 @@
-import Avatar from "@/Components/Avatar";
+import UserAvatar from "@/Components/common/user-hover-avatar";
 import { Button } from "@/Components/ui/button";
-import { Command, CommandEmpty, CommandGroup, CommandHeader, CommandInput, CommandItem, CommandList, CommandShortcut } from "@/Components/ui/command";
-import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/Components/ui/dialog";
+import {
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandHeader,
+    CommandInput,
+    CommandItem,
+    CommandList,
+    CommandShortcut,
+} from "@/Components/ui/command";
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/Components/ui/dialog";
 import { Kbd } from "@/Components/ui/kbd";
 import { Skeleton } from "@/Components/ui/skeleton";
 import { useDebounce } from "@/Hooks/use-debounce";
@@ -142,10 +158,7 @@ const SearchMembers = ({
                                         className="py-2.5 grid sm:grid-cols-3 grid-cols-2 gap-4"
                                     >
                                         <div className="inline-flex items-center space-x-2">
-                                            <Avatar
-                                                size="sm"
-                                                name={user.name}
-                                            />
+                                            <UserAvatar user={user} />
                                             <div>{user.name}</div>
                                         </div>
                                         <div className="hidden sm:block">

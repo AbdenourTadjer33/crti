@@ -1,5 +1,5 @@
 import React from "react";
-import { useForm } from "@inertiajs/react";
+import { router, useForm } from "@inertiajs/react";
 import { useMutation } from "@tanstack/react-query";
 import { useValidation } from "@/Libs/Validation";
 import { ProjectForm } from "@/types/form";
@@ -30,36 +30,42 @@ interface FormProps {
 }
 
 const Form: React.FC<FormProps> = ({ versionId, version, params }) => {
-    console.log(version);
     const projectId = React.useMemo(() => route().params.project as string, []);
-    const { data, setData, errors, clearErrors, processing, setError } =
-        useForm<Data>(
-            version ?? {
-                name: "",
-                nature: "",
-                domains: [],
-                timeline: { from: undefined, to: undefined },
-                description: "",
-                goals: "",
-                methodology: "",
-                is_partner: false,
-                partner: {
-                    organisation: "",
-                    sector: "",
-                    contact_name: "",
-                    contact_post: "",
-                    contact_email: "",
-                    contact_phone: "",
-                },
-                deliverables: [],
-                estimated_amount: "",
-                members: [useUser("uuid", "name", "email")],
-                resources: [],
-                resources_crti: [],
-                resources_partner: [],
-                tasks: [],
-            }
-        );
+    const {
+        data,
+        setData,
+        errors,
+        clearErrors,
+        processing,
+        setError,
+        isDirty,
+    } = useForm<Data>(
+        version ?? {
+            name: "",
+            nature: "",
+            domains: [],
+            timeline: { from: undefined, to: undefined },
+            description: "",
+            goals: "",
+            methodology: "",
+            is_partner: false,
+            partner: {
+                organisation: "",
+                sector: "",
+                contact_name: "",
+                contact_post: "",
+                contact_email: "",
+                contact_phone: "",
+            },
+            deliverables: [],
+            estimated_amount: "",
+            members: [useUser("uuid", "name", "email")],
+            resources: [],
+            resources_crti: [],
+            resources_partner: [],
+            tasks: [],
+        }
+    );
 
     const { validate, validating } = useValidation({
         url: route("project.version.store", projectId),
@@ -133,7 +139,9 @@ const Form: React.FC<FormProps> = ({ versionId, version, params }) => {
             ),
     });
 
-    useUpdateEffect(() => mutate(), [debouncedValue]);
+    useUpdateEffect(() => {
+        isDirty && mutate();
+    }, [debouncedValue]);
 
     return (
         <FormWrapper className="space-y-4 sm:space-y-6">

@@ -110,29 +110,25 @@ declare module 'ziggy-js' {
     "manage.permission.show": [
         {
             "name": "permission",
-            "required": true,
-            "binding": "id"
+            "required": true
         }
     ],
     "manage.permission.edit": [
         {
             "name": "permission",
-            "required": true,
-            "binding": "id"
+            "required": true
         }
     ],
     "manage.permission.update": [
         {
             "name": "permission",
-            "required": true,
-            "binding": "id"
+            "required": true
         }
     ],
     "manage.permission.destroy": [
         {
             "name": "permission",
-            "required": true,
-            "binding": "id"
+            "required": true
         }
     ],
     "manage.role.index": [],
@@ -141,8 +137,7 @@ declare module 'ziggy-js' {
     "manage.role.show": [
         {
             "name": "role",
-            "required": true,
-            "binding": "id"
+            "required": true
         }
     ],
     "manage.role.edit": [
@@ -281,7 +276,8 @@ declare module 'ziggy-js' {
     "project.version.sync": [
         {
             "name": "project",
-            "required": true
+            "required": true,
+            "binding": "code"
         },
         {
             "name": "version",
@@ -340,7 +336,34 @@ declare module 'ziggy-js' {
             "required": true
         }
     ],
-    "api.auth.check.user": [],
+    "workspace.index": [],
+    "workspace.project": [
+        {
+            "name": "project",
+            "required": true,
+            "binding": "code"
+        }
+    ],
+    "workspace.calendar": [
+        {
+            "name": "project",
+            "required": true
+        }
+    ],
+    "workspace.kanban": [
+        {
+            "name": "project",
+            "required": true,
+            "binding": "code"
+        }
+    ],
+    "workspace.suggested.version": [
+        {
+            "name": "project",
+            "required": true
+        }
+    ],
+    "check.user": [],
     "register.create": [],
     "register.store": [],
     "register.created": [],

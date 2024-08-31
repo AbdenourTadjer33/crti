@@ -1,31 +1,28 @@
 import React from "react";
-import { Head, Link, router } from "@inertiajs/react";
+import { Head, router } from "@inertiajs/react";
 import AuthLayout from "@/Layouts/AuthLayout";
 import Breadcrumb from "@/Components/common/breadcrumb";
 import { Heading } from "@/Components/ui/heading";
 import { Text } from "@/Components/ui/paragraph";
-import ConfirmNewProjectCreation from "@/Features/Project/ConfirmNewProjectCreation";
-import {
-    ArrowRightCircle,
-    ChevronDown,
-    GitMerge,
-    House,
-    Search,
-} from "lucide-react";
+import { House } from "lucide-react";
 import { TableWrapper } from "@/Components/ui/table";
-import { Input } from "@/Components/ui/input";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuTrigger,
-} from "@/Components/ui/dropdown-menu";
-import { Button } from "@/Components/ui/button";
-import { Badge } from "@/Components/ui/badge";
-import dayjs from "dayjs";
 import { BaseProject, Project } from "@/types/project";
-import { Avatar, AvatarFallback } from "@/Components/ui/avatar";
-import { Card } from "@/Components/ui/card";
-import { getInitials } from "@/Utils/helper";
+import { Skeleton } from "@/Components/ui/skeleton";
+
+function wait(duration: number) {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve, duration);
+    });
+}
+
+const ConfirmNewProjectCreation = React.lazy(
+    () => import("@/Features/Project/ConfirmNewProjectCreation")
+);
+const ProjectInCreationCard = React.lazy(
+    () => import("@/Features/Project/ProjectInCreationCard")
+);
+
+const DataView = React.lazy(() => import("@/Features/Project/data-view"));
 
 const breadcrumbs = [
     { href: route("app"), label: <House className="w-5 h-5" /> },
@@ -34,19 +31,26 @@ const breadcrumbs = [
 
 interface ProjectIndexProps {
     userDivisions?: [];
-    data: {
-        projectInCreation: BaseProject[];
-        projects: Project[];
-    };
+    projectsInCreation: BaseProject[];
+    projects: Project[];
+    canCreateProjects: boolean;
 }
 
-const Index: React.FC<ProjectIndexProps> = ({ userDivisions, data }) => {
-    const { projectInCreation, projects } = React.useMemo(() => {
-        return {
-            projectInCreation: data.projectInCreation,
-            projects: data.projects,
-        };
-    }, [data]);
+const Index: React.FC<ProjectIndexProps> = ({
+    projects,
+    projectsInCreation,
+    userDivisions,
+    canCreateProjects,
+}) => {
+    const displayCreationProjectSection = React.useMemo(
+        () => projectsInCreation.length || canCreateProjects,
+        [projectsInCreation.length, canCreateProjects]
+    );
+
+    const displayMainProjectSection = React.useMemo(
+        () => !!projects.length,
+        []
+    );
 
     return (
         <>
@@ -61,74 +65,81 @@ const Index: React.FC<ProjectIndexProps> = ({ userDivisions, data }) => {
                     </Heading>
 
                     <Text className="text-sm sm:text-base">
-                        Découvrez et gérez l'ensemble des projets en cours et
-                        terminés. Accédez aux détails de chaque projet, suivez
-                        les progrès, et collaborez avec les membres de votre
-                        équipe pour atteindre les objectifs fixés. Cette page
-                        vous offre une vue d'ensemble claire et structurée de
-                        tous les projets associés à votre division ou
-                        organisation
+                        Découvrez l'ensemble des projets en cours et terminés.
+                        Accédez aux détails de chaque projet, suivez les
+                        progrès, et collaborez avec les membres de votre équipe
+                        pour atteindre les objectifs fixés. Cette page vous
+                        offre une vue d'ensemble claire et structurée de tous
+                        les projets associés à votre division ou organisation
                     </Text>
                 </div>
 
-                <TableWrapper className="shadow-none p-2 overflow-x-auto snap-mandatory snap-x scrollbar-thumb-gray-400 scrollbar-track-gray-200 scrollbar-thin">
-                    <ul className="flex gap-2">
-                        <li className="shrink-0 w-full max-w-xs snap-center">
-                            <ConfirmNewProjectCreation
-                                onTriggerPressed={() =>
-                                    userDivisions ||
-                                    router.reload({ only: ["userDivisions"] })
-                                }
-                                divisions={userDivisions}
-                            />
-                        </li>
-
-                        {projectInCreation.map((project, idx) => (
-                            <li key={idx} className="shrink-0 snap-center">
-                                <ProjectInCreationCard project={project} />
-                            </li>
-                        ))}
-                    </ul>
-                </TableWrapper>
-
-                {!!projects.length && (
-                    <>
-                        <div className="flex items-center justify-stretch md:justify-between gap-2">
-                            <div className="relative flex-1 lg:max-w-lg ">
-                                <Input
-                                    className="pl-10 w-full"
-                                    placeholder="Filtrer les Projets..."
-                                />
-                                <Search className="h-5 w-5 absolute left-2 top-1/2 -translate-y-1/2 text-gray-500" />
-                            </div>
-
-                            <div className="flex items-center gap-3">
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger
-                                        className="hidden lg:flex"
-                                        asChild
+                {displayCreationProjectSection && (
+                    <TableWrapper className="shadow-none p-2 overflow-x-auto snap-mandatory snap-x scrollbar-thumb-gray-400 scrollbar-track-gray-200 scrollbar-thin">
+                        <ul className="flex gap-2 min-h-24">
+                            {canCreateProjects && (
+                                <li className="shrink-0 w-full max-w-xs snap-center">
+                                    <React.Suspense
+                                        fallback={
+                                            <Skeleton className="h-full w-full" />
+                                        }
                                     >
-                                        <Button
-                                            variant="outline"
-                                            className="justify-between gap-4"
-                                        >
-                                            Sort by activity
-                                            <ChevronDown className="h-5 w-5" />
-                                        </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent></DropdownMenuContent>
-                                </DropdownMenu>
-                            </div>
-                        </div>
+                                        <ConfirmNewProjectCreation
+                                            onTriggerPressed={() =>
+                                                userDivisions ||
+                                                router.reload({
+                                                    only: ["userDivisions"],
+                                                })
+                                            }
+                                            divisions={userDivisions}
+                                        />
+                                    </React.Suspense>
+                                </li>
+                            )}
 
-                        <ul className="flex items-center justify-start flex-wrap gap-3">
-                            {projects.map((project, idx) => (
-                                <li key={idx}>
-                                    <ProjectCard project={project} />
+                            {projectsInCreation.map((project, idx) => (
+                                <li
+                                    key={idx}
+                                    className="shrink-0 block h-full w-full max-w-sm snap-center"
+                                >
+                                    <React.Suspense
+                                        fallback={
+                                            <Skeleton className="flex w-full h-24" />
+                                        }
+                                    >
+                                        <ProjectInCreationCard
+                                            project={project}
+                                        />
+                                    </React.Suspense>
                                 </li>
                             ))}
                         </ul>
-                    </>
+                    </TableWrapper>
+                )}
+
+                {displayMainProjectSection && (
+                    <React.Suspense
+                        fallback={
+                            <>
+                                <div className="h-10 flex justify-between *:!bg-gray-200">
+                                    <Skeleton className="w-full max-w-lg" />
+                                    <Skeleton className="w-full max-w-xs" />
+                                </div>
+                                <div className="grid grid-cols-3 gap-4 *:!bg-gray-200">
+                                    <Skeleton className="w-full h-28" />
+                                    <Skeleton className="w-full h-28" />
+                                    <Skeleton className="w-full h-28" />
+                                    <Skeleton className="w-full h-28" />
+                                    <Skeleton className="w-full h-28" />
+                                    <Skeleton className="w-full h-28" />
+                                    <Skeleton className="w-full h-28" />
+                                    <Skeleton className="w-full h-28" />
+                                </div>
+                            </>
+                        }
+                    >
+                        <DataView projects={projects} />
+                    </React.Suspense>
                 )}
             </div>
         </>
@@ -138,157 +149,6 @@ const Index: React.FC<ProjectIndexProps> = ({ userDivisions, data }) => {
 // @ts-ignore
 Index.layout = (page) => {
     return <AuthLayout children={page} />;
-};
-
-const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
-    const { code, status, name, nature, division, members, createdAt } =
-        project;
-
-    const [relativeTime, setRelativeTime] = React.useState(
-        dayjs(createdAt).fromNow()
-    );
-
-    React.useEffect(() => {
-        const updateRelativeTime = () => {
-            setRelativeTime(dayjs(project.createdAt).fromNow());
-        };
-
-        const resourceCreatedAt = dayjs(project.createdAt);
-
-        const interval = setInterval(() => {
-            updateRelativeTime();
-
-            const now = dayjs();
-            const isWithinOneHour = now.diff(resourceCreatedAt, "hour") < 1;
-
-            if (!isWithinOneHour) {
-                clearInterval(interval);
-            }
-        }, 60000);
-
-        // Initial update
-        updateRelativeTime();
-
-        return () => clearInterval(interval);
-    }, []);
-
-    const href = route("project.show", code);
-    return (
-        <Link
-            href={href}
-            className="bg-white p-4 rounded shadow border hover:border-gray-300 transition-colors duration-100 flex items-center justify-between gap-4"
-        >
-            <div>
-                <div className="space-y-1">
-                    <Text className="text-gray-800 text-lg font-medium">
-                        {name}
-                    </Text>
-
-                    <Text>{nature}</Text>
-                </div>
-
-                <div className="mt-2.5 flex -space-x-1.5">
-                    {members.map((member) => (
-                        <Avatar key={member.uuid}>
-                            <AvatarFallback>
-                                {getInitials(member.name)}
-                            </AvatarFallback>
-                        </Avatar>
-                    ))}
-                </div>
-                <Text className="mt-2.5 inline-flex items-center text-sm">
-                    Créer {relativeTime}
-                    <GitMerge className="shrink-0 mx-1 h-4 w-4 text-gray-700" />
-                    <Badge variant="blue">{division.name}</Badge>
-                </Text>
-            </div>
-            <Button
-                variant="ghost"
-                className="transition hover:text-primary-700 duration-150 ease-in"
-            >
-                <ArrowRightCircle className="h-6 w-6" />
-            </Button>
-        </Link>
-    );
-};
-
-const ProjectInCreationCard: React.FC<{ project: BaseProject }> = ({
-    project,
-}) => {
-    const { code, status, division, createdAt, updatedAt } = project;
-    const href = route("project.version.create", code);
-
-    const [relativeTime, setRelativeTime] = React.useState(
-        dayjs(project.createdAt).fromNow()
-    );
-
-    React.useEffect(() => {
-        const updateRelativeTime = () => {
-            setRelativeTime(dayjs(project.createdAt).fromNow());
-        };
-
-        const resourceCreatedAt = dayjs(project.createdAt);
-
-        const interval = setInterval(() => {
-            updateRelativeTime();
-
-            const now = dayjs();
-            const isWithinOneHour = now.diff(resourceCreatedAt, "hour") < 1;
-
-            if (!isWithinOneHour) {
-                clearInterval(interval);
-            }
-        }, 60000);
-
-        // Initial update
-        updateRelativeTime();
-
-        return () => clearInterval(interval);
-    }, []);
-
-    return (
-        <Link href={href}>
-            <Card className="p-4 space-y-1 transition-all hover:border-primary-700 border-2 hover:bg-gray-50 duration-150">
-                <div className="flex items-center justify-between gap-4">
-                    <Text className="text-sm">{`Code: ${project.code}`}</Text>
-
-                    <Badge>{project.status}</Badge>
-                </div>
-                <div className="flex items-center gap-0.5">
-                    <GitMerge className="mx-1 h-4 w-4 text-gray-700" />
-                    <Badge variant="blue" className="whitespace-nowrap">
-                        {project.division.name}
-                    </Badge>
-                </div>
-                <Text>{`Créer ${relativeTime}`}</Text>
-            </Card>
-        </Link>
-    );
-
-    return (
-        <Link
-            href={href}
-            className="bg-white h-full p-4 rounded shadow border hover:border-gray-300 transition-colors duration-100 flex items-center justify-between"
-        >
-            <div className="space-y-1">
-                <Text>#{code}</Text>
-                <Text className="inline-flex items-center gap-1.5">
-                    Status: <Badge>{status}</Badge>
-                </Text>
-                <Text className="inline-flex items-center text-sm">
-                    Créer {relativeTime}
-                    <GitMerge className="mx-1 h-4 w-4 text-gray-700" />
-                    <Badge variant="blue">{division.name}</Badge>
-                </Text>
-            </div>
-            <Button
-                variant="ghost"
-                className="transition hover:text-primary-700 duration-150 ease-in"
-            >
-                <ArrowRightCircle className="h-6 w-6" />
-            </Button>
-        </Link>
-    );
 };
 
 export default Index;

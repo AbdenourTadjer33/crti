@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Project;
 
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreRequest extends FormRequest
@@ -12,7 +13,7 @@ class StoreRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return Gate::check('create.projects');
     }
 
     /**

@@ -5,7 +5,7 @@ import ProjectDetails from "@/Features/Project/ProjectDetails";
 import { Heading } from "@/Components/ui/heading";
 import { Text } from "@/Components/ui/paragraph";
 import { Project } from "@/types/project";
-import { Head } from "@inertiajs/react";
+import { Head, usePage } from "@inertiajs/react";
 import { House } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import { Skeleton } from "@/Components/ui/skeleton";
@@ -42,7 +42,6 @@ const Show: React.FC<ProjectShowProps> = ({
     }, [versionInCreation]);
 
     const [confirmModal, setConfirmModal] = React.useState(false);
-
     return (
         <>
             <Head title={project.name} />

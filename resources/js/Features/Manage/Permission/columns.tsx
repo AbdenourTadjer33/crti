@@ -6,7 +6,6 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/Components/ui/tooltip";
-import dayjs from "dayjs";
 import { Permission } from "@/types";
 import Actions from "./actions";
 
@@ -42,60 +41,13 @@ export const columnDef = [
         header: "id",
     }),
 
-    columnHelper.accessor("model", {
-        header: "model",
-    }),
-
-    columnHelper.accessor("action", {
-        header: "action",
-    }),
-
     columnHelper.display({
         id: "permission",
         header: "permission",
         cell: ({ row }) => (
             <>
-                {row.original.model}@{row.original.action}
             </>
         ),
-    }),
-
-    columnHelper.accessor("type", {
-        header: "type",
-    }),
-
-    columnHelper.accessor("createdAt", {
-        header: "créer le",
-        cell: ({ getValue }) => {
-            const datetime = dayjs(getValue());
-            return (
-                <TooltipProvider>
-                    <Tooltip>
-                        <TooltipTrigger>{datetime.fromNow()}</TooltipTrigger>
-                        <TooltipContent>
-                            <p>{datetime.format("DD-MM-YYYY HH:mm:ss")}</p>
-                        </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-            );
-        },
-    }),
-
-    columnHelper.accessor("updatedAt", {
-        header: "modifier le",
-        cell: ({ getValue }) => {
-            const datetime = dayjs(getValue());
-            return (
-                <TooltipProvider>
-                    <Tooltip>
-                        <TooltipTrigger>{datetime.fromNow()}</TooltipTrigger>
-                        <TooltipContent>
-                            <p>{datetime.format("DD-MM-YYYY HH:mm:ss")}</p>
-                        </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-            );
-        },
     }),
 
     columnHelper.display({

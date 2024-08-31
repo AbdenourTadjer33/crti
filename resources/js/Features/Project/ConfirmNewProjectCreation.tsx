@@ -26,7 +26,7 @@ const ConfirmNewProjectCreation: React.FC<{
             mutationFn: async (data) => {
                 return createProject(data);
             },
-            onSuccess: () => router.reload({ only: ["data"] }),
+            onSuccess: () => router.reload({ only: ["projectsInCreation"] }),
         });
 
     if (isDesktop) {

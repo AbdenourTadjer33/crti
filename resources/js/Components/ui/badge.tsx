@@ -12,8 +12,9 @@ const badgeVariants = cva("font-medium rounded px-2.5 py-0.5", {
             purple: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300",
         },
         size: {
-            default: "text-xs",
+            xs: "text-xs",
             sm: "text-sm",
+            default: "text-base",
         },
     },
     defaultVariants: {
