@@ -2,53 +2,40 @@ import AuthLayout from "@/Layouts/AuthLayout";
 import { Head, Link } from "@inertiajs/react";
 import { Heading } from "@/Components/ui/heading";
 import { Text } from "@/Components/ui/paragraph";
-import { useEffect } from "react";
-import { Board } from "@/types";
-import { BoardPresidentCard } from "@/Features/Board/BoardPresidentCard";
+import { Board, Pagination } from "@/types";
 import Table from "@/Features/Board/Table";
-
+import { House } from "lucide-react";
+import Breadcrumb from "@/Components/common/breadcrumb";
 
 interface BoardsProps {
-    boardsAsMember: Board[];
-    boardsAsPresident: Board[];
+    boards: Board[];
 }
+const breadcrumbs = [
+    { href: route("board.index"), label: <House className="w-5 h-5" /> },
+    { label: "Espace conseil scientifique" },
+];
 
-export default function Boards({ boardsAsMember, boardsAsPresident }: BoardsProps) {
-
+const Index: React.FC<BoardsProps> = ({ boards }) => {
     return (
         <AuthLayout>
             <Head title="board" />
-
             <div className="space-y-4">
+                <Breadcrumb items={breadcrumbs} MAX_ITEMS={2} />
                 <div className="flex sm:flex-row flex-col justify-between sm:items-center gap-4">
                     <div className="space-y-2">
                         <Heading level={3} className="font-medium">
                             Espace conseil scientifique
                         </Heading>
-
                         <Text className={"max-w-7xl"}>
-                            Votre modèle de tableau de bord de gestion d'accées.
+                            Voici la liste de tout les  conseils scientifiques auxquels vous appartenez.
                         </Text>
                     </div>
                 </div>
                 <div className="space-y-4">
-                    <Heading level={4}>Président du conseil</Heading>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {boardsAsPresident.map((board) => (
-                                <BoardPresidentCard
-                                    key={board.id}w
-                                    board={board}
-                                />
-                            ))}
-                    </div>
-                    <pre>{JSON.stringify(boardsAsPresident, null, 2)}</pre>
-                </div>
-                <div className="space-y-4">
-                    <Heading level={4}>Membre de conseil</Heading>
-                    {/* <Table boards={}/> */}
-                    <pre>{JSON.stringify(boardsAsMember, null, 2)}</pre>
+                    <Table boards={boards} />
                 </div>
             </div>
         </AuthLayout>
     );
-}
+};
+export default Index;

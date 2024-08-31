@@ -111,11 +111,13 @@ const Actions = ({ id }: { id: string }) => {
 
     const deleteHandler = () => {
         router.delete(
-            route("manage.unit.division.destroy", { unit: id, division: id }),
+            route("manage.unit.division.destroy", {
+                unit: route().params.unit,
+                division: id,
+            }),
             {
                 preserveScroll: true,
                 preserveState: true,
-                only: ["flash", "divisions"],
                 onSuccess: () => setBeforeDeleteModal(false),
             }
         );

@@ -45,7 +45,8 @@ class Division extends Model
     {
         return $this->belongsToMany(User::class, 'division_user', 'division_id', 'user_id')
             ->withTimestamps()
-            ->withPivot('grade');
+            ->withPivot(['division_grade_id'])
+            ->using(DivisionUser::class);
     }
 
     /**

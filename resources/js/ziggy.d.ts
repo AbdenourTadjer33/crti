@@ -281,7 +281,8 @@ declare module 'ziggy-js' {
     "project.version.sync": [
         {
             "name": "project",
-            "required": true
+            "required": true,
+            "binding": "code"
         },
         {
             "name": "version",
@@ -333,8 +334,8 @@ declare module 'ziggy-js' {
             "binding": "id"
         }
     ],
-    "board.index.index": [],
-    "board.index.show": [
+    "board.index": [],
+    "board.show": [
         {
             "name": "board",
             "required": true

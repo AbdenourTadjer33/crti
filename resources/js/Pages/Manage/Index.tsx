@@ -38,9 +38,9 @@ const breadcrumbs = [
     { label: "Centre d'administration" },
 ];
 
-export default function Manage() {
+const Index = () => {
     return (
-        <AuthLayout>
+        <>
             <Head title="Centre d'administration" />
 
             <div className="space-y-4">
@@ -75,6 +75,14 @@ export default function Manage() {
                     ))}
                 </div>
             </div>
-        </AuthLayout>
+        </>
     );
 }
+
+
+// @ts-ignore
+Index.layout = (page) => {
+    return <AuthLayout children={page} />;
+};
+
+export default Index;

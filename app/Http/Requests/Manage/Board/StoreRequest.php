@@ -24,13 +24,9 @@ class StoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string',],
-
             'judgment_period' => ['required', 'array'],
-            'judgment_period.from' => ['required', 'date'],
-            'judgment_period.to' => ['required', 'date'],
-
-            'description' => ['nullable', 'string'],
+            'judgment_period.from' => ['required', 'date', 'after_or_equal:today'],
+            'judgment_period.to' => ['required', 'date', 'after_or_equal:today'],
 
             'project' => ['required', Rule::exists('projects', 'code')],
 

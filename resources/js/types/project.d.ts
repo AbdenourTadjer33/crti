@@ -12,6 +12,7 @@ type BaseProject = {
     code: string;
     _status: "creation"
     status: string;
+    name: string;
     createdAt: string;
     updatedAt: string;
     division: Pick<Division, "id" | "name" | "abbr">;

@@ -6,26 +6,24 @@ use App\Models\Unit;
 use App\Models\User;
 use Inertia\Inertia;
 use App\Models\Division;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Manage\DivisionResource;
 use App\Http\Requests\Manage\Division\StoreDivisionRequest;
 use App\Http\Requests\Manage\Division\UpdateDivisionRequest;
 use App\Http\Resources\Manage\UnitResource;
-use App\Http\Resources\UserDivisionsResource;
-use App\Services\AuxDataService;
 
 class UnitDivisionController extends Controller
 {
     /**
      * Show the form for creating a new resource.
      */
-    public function create(AuxDataService $auxDataService, Unit $unit)
+    public function create(Unit $unit)
     {
+
         return Inertia::render('Manage/Unit/Division/Create', [
             "unit" => $unit,
-            'grades' => Inertia::lazy(fn() => collect($auxDataService->getDivisionGrade())->map(fn($grade) => $grade->grade)),
+            'grades' => DB::table('division_grades')->get(['id', 'name']),
         ]);
     }
 
@@ -34,30 +32,37 @@ class UnitDivisionController extends Controller
      */
     public function store(StoreDivisionRequest $request, Unit $unit)
     {
-        /** @var Division */
-        $division = $unit->divisions()->create([
-            'name' => $request->input('name'),
-            'abbr' => $request->input('abbr'),
-            'description' => $request->input('description'),
-        ]);
+        $division = DB::transaction(function () use ($request, $unit) {
+            /** @var Division */
+            $division = $unit->divisions()->create([
+                'name' => $request->input('name'),
+                'abbr' => $request->input('abbr'),
+                'description' => $request->input('description'),
+                'webpage' => $request->input('webpage'),
+            ]);
 
-        $members = collect($request->members)->mapWithKeys(function ($member) {
-            return [$member['uuid'] => $member['grade'] ?? null];
+            $members = collect($request->input('members', []))->mapWithKeys(function ($member) {
+                return [$member['uuid'] => ["division_grade_id" => $member['grade']]];
+            });
+
+            $users = User::whereIn('uuid', $members->keys())->get(['id', 'uuid']);
+
+            $pivotData = $users->mapWithKeys(function ($user) use ($members) {
+                return [$user->id =>  $members[$user->uuid]];
+            });
+
+            $division->users()->attach($pivotData);
+
+            return $division;
         });
 
-        $users = User::withTrashed()->whereIn('uuid', $members->keys())->get(['id', 'uuid']);
-
-        $pivotData = $users->mapWithKeys(function ($user) use ($members) {
-            return [$user->id => ['grade' => $members[$user->uuid]]];
-        });
-
-        $division->users()->attach($pivotData);
 
         return redirect()->route('manage.unit.division.show', [
             'unit' => $unit->id,
-            'division' => $division->id])->with('alert', [
+            'division' => $division->id
+        ])->with('alert', [
             'status' => 'succes',
-            'message' => 'Division mise a jour avec succes'
+            'message' => 'Division créer avec succes'
         ]);
     }
 
@@ -68,20 +73,20 @@ class UnitDivisionController extends Controller
     {
         return Inertia::render('Manage/Unit/Division/Show', [
             'unit' => new UnitResource($unit->load('divisions')),
-            'division' => new DivisionResource($division->load('users')),
+            'division' => new DivisionResource($division->load(['users'])),
         ]);
     }
-
 
     /**
      * Show the form for editing the specified resource.
      */
     public function edit(Unit $unit, Division $division)
     {
-        $division->load('users');
         return Inertia::render('Manage/Unit/Division/Edit', [
             'unit' => $unit,
-            'division' => $division,
+            'division' => $division->load('users'),
+            'grades' => DB::table('division_grades')->get(['id', 'name']),
+
         ]);
     }
 
@@ -94,43 +99,43 @@ class UnitDivisionController extends Controller
             $division->update([
                 'name' => $request->input('name'),
                 'abbr' => $request->input('abbr'),
-                'description' => $request->input('description')
+                'description' => $request->input('description'),
+                'webpage' => $request->input('webpage')
             ]);
 
             $members = collect($request->input('members', []))->mapWithKeys(function ($member) {
-                return [$member['uuid'] => $member['grade'] ?? null];
+                return [$member['uuid'] => ["division_grade_id" => $member['grade']]];
             });
 
-            $users = User::withTrashed()->whereIn('uuid', $members->keys())->get(['id', 'uuid']);
+            $users = User::whereIn('uuid', $members->keys())->get(['id', 'uuid']);
 
             $pivotData = $users->mapWithKeys(function ($user) use ($members) {
-                return [$user->id => ['grade' => $members[$user->uuid]]];
+                return [$user->id => $members[$user->uuid]];
             });
 
             $division->users()->sync($pivotData);
         });
+
         return redirect()->route('manage.unit.division.show', [
             'unit' => $unit->id,
-            'division' => $division->id])->with('alert', [
+            'division' => $division->id
+        ])->with('alert', [
             'status' => 'succes',
             'message' => 'Division mise a jour avec succes'
         ]);
     }
 
-
-
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Unit $unit, Division $division)
+    public function destroy($unit, Division $division)
     {
         DB::transaction(function () use ($division) {
             $division->users()->detach();
-
             $division->delete();
         });
 
-        return redirect()->route('manage.unit.division.index', [
+        return redirect()->route('manage.unit.show', [
             'unit' => $unit,
         ])->with('alert', [
             'status' => 'success',

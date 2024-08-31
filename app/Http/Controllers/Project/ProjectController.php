@@ -73,7 +73,7 @@ class ProjectController extends Controller
     public function show(Request $request)
     {
         /** @var Project */
-        $project = Project::query()
+            $project = Project::query()
             ->where('code', $request->route('project'))
             ->whereNot('status', ProjectStatus::creation->name)
             ->first(['id', 'code', 'status', 'version_info']);

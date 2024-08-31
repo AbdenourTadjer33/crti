@@ -12,7 +12,7 @@ import { createColumnHelper } from "@tanstack/react-table";
 import dayjs from "dayjs";
 import { User } from "@/types";
 import { Link } from "@inertiajs/react";
-import { SquareArrowOutUpRight } from "lucide-react";
+import UserAvatar from "@/Components/common/user-hover-avatar";
 
 const columnHelper = createColumnHelper<User>();
 
@@ -32,13 +32,16 @@ export const columnDef = [
     columnHelper.accessor("name", {
         header: "nom - prenom",
         cell: ({ row }) => (
-            <Link
-                href={route("manage.user.show",  row.original.uuid)}
-                className="inline-flex items-center hover:text-blue-600 duration-100"
-            >
-                {row.original.name}{" "}
-                <SquareArrowOutUpRight className="h-4 w-4 ml-1.5" />
-            </Link>
+            <div className="inline-flex items-center gap-2">
+                <UserAvatar user={row.original}/>
+                <Link
+                    href={route("manage.user.show",  row.original.uuid)}
+                    className="hover:text-blue-600 duration-100"
+                >
+                    {row.original.name}
+                </Link>
+            </div>
+
         ),
     }),
 

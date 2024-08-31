@@ -1,4 +1,3 @@
-import Avatar from "@/Components/Avatar";
 import { Button } from "@/Components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandHeader, CommandInput, CommandItem, CommandList, CommandShortcut } from "@/Components/ui/command";
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/Components/ui/dialog";

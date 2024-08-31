@@ -74,5 +74,8 @@
         "vaul": "^0.9.1",
         "vite": "^5.4.2",
         "ziggy-js": "^2.2.1"
+    },
+    "dependencies": {
+        "react-resizable-panels": "^2.1.1"
     }
 }

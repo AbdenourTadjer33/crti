@@ -50,12 +50,12 @@ export const columnDef = [
 
     columnHelper.accessor("name", {
         header: "Nom prénom",
-        cell: ({ row }) => (
+        cell: ({ row, getValue }) => (
             <Link
-                href={route("manage.user.show", row.original.id)}
+                href={route("manage.user.show", { user: row.id })}
                 className="inline-flex items-center hover:text-blue-600 duration-100"
             >
-                {row.original.name}{" "}
+                {getValue()}{" "}
                 <SquareArrowOutUpRight className="h-4 w-4 ml-1.5" />
             </Link>
         ),

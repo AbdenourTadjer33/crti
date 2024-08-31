@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Board;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Board\BoardResource;
+use App\Http\Resources\Project\ProjectDetailsResource;
+use App\Models\Board;
+use App\Models\Project;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -25,9 +28,6 @@ class BoardController extends Controller
     {
         /** @var User */
 
-        // $boardsAsPresident = BoardFeedbackResource::collection(
-
-
         return Inertia::render('Board/Index', [
             'boards' => fn() => BoardResource::collection($this->user->onBoards()->with('users:id,uuid,first_name,last_name,email')->get()),
         ]);
@@ -36,8 +36,14 @@ class BoardController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Request $request, Board $board)
     {
-        //
+        $project = Project::query()->where('code', $board->project->code)->first()->getMainVersion()->getModel();
+
+
+        return Inertia::render('Board/Show', [
+            'project' => fn() => new ProjectDetailsResource($project),
+            'board' => fn() => new BoardResource($board)
+        ]);
     }
 }

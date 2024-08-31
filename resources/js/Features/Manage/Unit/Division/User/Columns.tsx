@@ -12,12 +12,11 @@ import { createColumnHelper } from "@tanstack/react-table";
 import dayjs from "dayjs";
 import { Division, Unit, User } from "@/types";
 import { Button } from "@/Components/ui/button";
-import { ArrowRightCircle, MoreHorizontal, Pencil, Trash, X } from "lucide-react";
+import {  MoreHorizontal, Pencil,  X } from "lucide-react";
 import React, { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, } from "@/Components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/Components/ui/dropdown-menu";
 import { Link, router } from "@inertiajs/react";
-import { FaInfoCircle } from "react-icons/fa";
 import EditGradeModal, { Member } from "./EditGradeModal";
 
 const columnHelper = createColumnHelper<User>();
@@ -36,7 +35,7 @@ export const columnDef = [
     }),
 
     columnHelper.accessor("name", {
-        header: "nom - prenom",
+        header: "nom prenom",
 
     }),
 
@@ -137,7 +136,6 @@ const Actions: React.FC<ActionsProps> = ({ id, member }) => {
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle className="inline-flex items-center gap-2">
-                            <FaInfoCircle className="w-6 h-6 text-red-500 dark:text-red-600" />
                             Etes-vous absolument sùr?
                         </DialogTitle>
                     </DialogHeader>

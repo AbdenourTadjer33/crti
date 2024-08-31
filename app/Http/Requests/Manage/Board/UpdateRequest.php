@@ -23,20 +23,17 @@ class UpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string',],
-
             'judgment_period' => ['required', 'array'],
             'judgment_period.from' => ['required', 'date'],
             'judgment_period.to' => ['required', 'date'],
 
-            'description' => ['nullable', 'string'],
-
             'project' => ['required', Rule::exists('projects', 'code')],
 
             'president' => ['required', Rule::exists('users', 'uuid')],
+
             'members' => ['nullable', 'array'],
             'members.*' => ['nullable', 'array'],
-            'members.*.uuid' => ['sometimes', 'string', Rule::exists('users', 'uuid')],
+            'members.*.uuid' => ['required', 'string', Rule::exists('users', 'uuid')],
         ];
     }
 }

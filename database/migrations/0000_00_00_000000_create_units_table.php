@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('abbr', 10);
-            $table->string('web_page')->nullable();
+            $table->string('webpage')->nullable();
             $table->longText('description')->nullable();
             $table->string('address');
             $table->timestamps();

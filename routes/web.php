@@ -69,5 +69,5 @@ Route::prefix('/app')->middleware(['auth'])->group(function () {
     Route::resource('projects.versions', ProjectVersionController::class)->only(['create', 'store', 'edit', 'update'])->names('project.version');
 
     Route::post('/boards/{board}/comments', BoardPostComment::class)->name('board.comment.store');
-    Route::resource('boards', BoardController::class)->only('index', 'show')->names('board.index');
+    Route::resource('boards', BoardController::class)->only('index', 'show')->names('board');
 });

@@ -33,6 +33,8 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/Components/ui/dialog";
+import { format } from "date-fns";
+import UserAvatar from "@/Components/common/user-hover-avatar";
 
 const columnHelper = createColumnHelper<Board>();
 
@@ -45,7 +47,7 @@ export const columnDef = [
         enableSorting: false,
     }),
 
-    columnHelper.accessor("id", {
+    columnHelper.accessor("code", {
         header: "id",
     }),
 
@@ -54,10 +56,10 @@ export const columnDef = [
         header: "conseil",
         cell: ({ row }) => (
             <Link
-                href={route("manage.board.show", row.id)}
+                href={route("manage.board.show", row.original.code)}
                 className="inline-flex items-center hover:text-blue-600 duration-100"
             >
-                {row.original.name}{" "}
+                {row.original.name}
                 <SquareArrowOutUpRight className="h-4 w-4 ml-1.5" />
             </Link>
         ),
@@ -66,15 +68,18 @@ export const columnDef = [
     columnHelper.display({
         header: "president",
         cell: ({ row }) => (
-            <Link
-                href={route("manage.user.show",  row.original.president.id)}
-                className="inline-flex items-center hover:text-blue-600 duration-100"
-            >
-                {row.original.president.name}{" "}
-                <SquareArrowOutUpRight className="h-4 w-4 ml-1.5" />
-            </Link>
+            <div className="flex gap-2 items-center">
+                <UserAvatar user={row.original.president} />
+                <Link
+                    href={route("manage.user.show",  row.original.president.uuid)}
+                    className="inline-flex items-center gap-2 hover:text-blue-600 duration-100"
+                >
+                    {row.original.president.name}
+                </Link>
+            </div>
         ),
     }),
+
 
     columnHelper.accessor("project.name", {
         header: "project",
@@ -89,29 +94,28 @@ export const columnDef = [
         ),
     }),
 
-    columnHelper.accessor("userCount", {
-        header: "membre",
+
+    columnHelper.display({
+        header: "membres",
+        cell: ({row}) => <div className="flex items-center -space-x-2 start">
+            {row.original.users?.map((user) => (
+                <UserAvatar key={user.uuid} user={user}/>
+            ))}
+        </div>
+    }),
+
+    columnHelper.accessor("judgment_period", {
+        header: "periode de jugement",
+        cell: ({ getValue }) =>
+            `Du ${format(getValue().from, "dd MMM yyy")} au ${format(
+                getValue().to,
+                "dd MMM yyy"
+            )}`,
     }),
 
 
     columnHelper.accessor("createdAt", {
         header: "créer",
-        cell: ({ getValue }) => (
-            <TooltipProvider>
-                <Tooltip>
-                    <TooltipTrigger>
-                        {dayjs(getValue()).fromNow()}
-                    </TooltipTrigger>
-                    <TooltipContent>
-                        <p>{dayjs(getValue()).format("DD-MM-YYYY HH:mm:ss")}</p>
-                    </TooltipContent>
-                </Tooltip>
-            </TooltipProvider>
-        ),
-    }),
-
-    columnHelper.accessor("updatedAt", {
-        header: "modifier",
         cell: ({ getValue }) => (
             <TooltipProvider>
                 <Tooltip>
