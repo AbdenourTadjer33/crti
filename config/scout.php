@@ -204,6 +204,27 @@ return [
                     'query_by' => 'first_name,last_name,email'
                 ],
             ],
+            \App\Models\Project::class => [
+                'collection-schema' => [
+                    'fields' => [
+                        [
+                            'name' => 'id',
+                            'type' => 'string',
+                        ],
+                        [
+                            'name' => 'code',
+                            'type' => 'string',
+                        ],
+                        [
+                            'name' => 'name',
+                            'type' => 'string',
+                        ],
+                        [
+                            ''
+                        ],
+                    ]
+                ],
+            ],
         ],
     ],
 

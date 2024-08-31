@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Nature;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Nette\Utils\Random;
 
@@ -21,8 +22,7 @@ class ProjectFactory extends Factory
             'code' => Random::generate(),
             'status' => "creation",
             'name' => implode(' ', fake()->words()),
-            'nature' => 'str',
-            'domains' => [],
+            'nature_id' => Nature::all()->random()->id,
             'date_begin' => now()->addWeek(),
             'date_end' => now()->addYears(3),
             'description' => fake()->text(),

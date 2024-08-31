@@ -19,7 +19,7 @@ class UnitController extends Controller
     {
 
         return Inertia::render('Manage/Unit/Index', [
-            'units' => fn () => UnitResource::collection(Unit::withCount('divisions')->paginate(15)),
+            'units' => fn() => UnitResource::collection(Unit::withCount('divisions')->paginate(15)),
         ]);
     }
 
@@ -40,6 +40,7 @@ class UnitController extends Controller
             return Unit::create([
                 'name' => $request->input('name'),
                 'abbr' => $request->input('abbr'),
+                'webpage' => $request->input('webpage'),
                 'description' => $request->input('description'),
                 'address' => $request->input('address'),
             ]);
@@ -80,6 +81,7 @@ class UnitController extends Controller
             return $unit->update([
                 'name' => $request->input('name'),
                 'abbr' => $request->input('abbr'),
+                'webpage' => $request->input('webpage'),
                 'description' => $request->input('description'),
                 'address' => $request->input('address'),
             ]);

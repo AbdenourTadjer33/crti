@@ -24,6 +24,11 @@ class Board extends Model
         );
     }
 
+    public function getRouteKeyName()
+    {
+        return "code";
+    }
+
     /**
      * Get all boards.
      *

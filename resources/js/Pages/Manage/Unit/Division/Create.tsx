@@ -7,7 +7,7 @@ import { Text } from "@/Components/ui/paragraph";
 import CreateForm from "@/Features/Manage/Unit/Division/CreateForm";
 import { House } from "lucide-react";
 
-const Create: React.FC<any> = ({ unit }) => {
+const Create: React.FC<any> = ({ unit, grades }) => {
     const breadcrubms = React.useMemo(
         () => [
             { href: route("app"), label: <House className="w-6 h-6" /> },
@@ -21,6 +21,7 @@ const Create: React.FC<any> = ({ unit }) => {
         ],
         []
     );
+
     return (
         <AuthLayout>
             <Head title="Créer devision" />
@@ -32,13 +33,16 @@ const Create: React.FC<any> = ({ unit }) => {
                         Créer une nouvelle division pour {unit.name}
                     </Heading>
                     <Text className="sm:text-base text-sm">
-                        Utilisez ce formulaire pour ajouter une nouvelle division au sein de l'unité <span className=" font-medium">{unit.name}</span>.
-                        Cliquez sur "Créer" pour enregistrer les informations
-                        ou "Annuler" pour revenir à la page précédente sans sauvegarder.
+                        Utilisez ce formulaire pour ajouter une nouvelle
+                        division au sein de l'unité{" "}
+                        <span className=" font-medium">{unit.name}</span>.
+                        Cliquez sur "Créer" pour enregistrer les informations ou
+                        "Annuler" pour revenir à la page précédente sans
+                        sauvegarder.
                     </Text>
                 </div>
 
-                <CreateForm unit={unit.id} />
+                <CreateForm unit={unit.id} grades={grades} />
             </div>
         </AuthLayout>
     );

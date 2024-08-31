@@ -73,7 +73,7 @@ Route::prefix('/app')->middleware(['auth', 'permission:access.application'])->gr
     Route::resource('projects.versions', ProjectVersionController::class)->only(['create', 'store', 'edit', 'update'])->names('project.version');
 
     Route::post('/boards/{board}/comments', BoardPostComment::class)->name('board.comment.store');
-    Route::resource('boards', BoardController::class)->only('index', 'show')->names('board.index');
+    Route::resource('boards', BoardController::class)->only('index', 'show')->names('board');
 });
 
 Route::prefix('/workspace')->as('workspace.')->middleware(['auth', 'permission:access.workspace'])->group(function () {

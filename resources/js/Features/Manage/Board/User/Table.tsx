@@ -5,7 +5,6 @@ import {
     useReactTable,
 } from "@tanstack/react-table";
 import { TableWrapper } from "@/Components/ui/table";
-// import { MdSearch } from "react-icons/md";
 import { Input } from "@/Components/ui/input";
 import DataTable from "@/Components/common/data-table";
 import {
@@ -53,7 +52,6 @@ const Table: React.FC<{ users: User[] }> = ({ users }) => {
                                 <TooltipTrigger asChild>
                                     <DropdownMenuTrigger asChild>
                                         <Button variant="ghost">
-                                            <IoMdOptions className="ww-5 h-5" />
                                         </Button>
                                     </DropdownMenuTrigger>
                                 </TooltipTrigger>
@@ -93,7 +91,6 @@ const Table: React.FC<{ users: User[] }> = ({ users }) => {
                     </DropdownMenu>
                 </div>
             </div>
-
             <DataTable
                 options={{
                     table,

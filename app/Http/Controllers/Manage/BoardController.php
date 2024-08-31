@@ -2,18 +2,20 @@
 
 namespace App\Http\Controllers\Manage;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Manage\Board\StoreRequest;
-use App\Http\Requests\Manage\Board\UpdateRequest;
-use App\Http\Resources\Manage\BoardResource;
-use App\Http\Resources\Manage\UserResource;
-use App\Http\Resources\Project\ProjectDetailsResource;
+use Carbon\Carbon;
+use App\Models\User;
+use Inertia\Inertia;
 use App\Models\Board;
 use App\Models\Project;
-use App\Models\User;
-use Carbon\Carbon;
+use Nette\Utils\Random;
 use Illuminate\Support\Facades\DB;
-use Inertia\Inertia;
+use App\Http\Controllers\Controller;
+use App\Http\Resources\Manage\UserResource;
+use App\Http\Resources\Manage\BoardResource;
+use App\Http\Requests\Manage\Board\StoreRequest;
+use App\Http\Requests\Manage\Board\UpdateRequest;
+use App\Http\Resources\Project\ProjectDetailsResource;
+use App\Http\Resources\Project\ProjectRessource;
 
 class BoardController extends Controller
 {
@@ -23,7 +25,7 @@ class BoardController extends Controller
     public function index()
     {
         return Inertia::render('Manage/Board/Index', [
-            'boards' => fn() => BoardResource::collection(Board::withCount('users')->with('project:id,code,name')->paginate(15)),
+            'boards' => fn () => BoardResource::collection(Board::withCount('users')->with('project:id,code,name')->paginate(15)),
         ]);
     }
 
@@ -32,13 +34,9 @@ class BoardController extends Controller
      */
     public function create()
     {
+
         return Inertia::render('Manage/Board/Create', [
-            'projects' => ProjectDetailsResource::collection(Project::where('status', 'new')->get()),
-            // 'users' => User::all()->map(fn(User $user) => [
-            //     'uuid' => $user->uuid,
-            //     'name' => $user->first_name . " " . $user->last_name,
-            //     'email' => $user->email,
-            // ])
+            'projects' => fn () => ProjectRessource::collection(Project::where('status', 'new')->get())
         ]);
     }
 
@@ -47,24 +45,25 @@ class BoardController extends Controller
      */
     public function store(StoreRequest $request)
     {
-        DB::transaction(function () use ($request) {
+        $board = DB::transaction(function () use ($request) {
             $board = Board::create([
-                'name' => $request->input('name'),
-                'description' => $request->input('description'),
-                'judgment_start_date' => Carbon::parse($request->input('judgment_period.from'))->format('Y-m-d'),
-                'judgment_end_date' => Carbon::parse($request->input('judgment_period.to'))->format('Y-m-d'),
+                'code' => Random::generate(),
+                'judgment_start_date' => $request->input('judgment_period.from'),
+                'judgment_end_date' => $request->input('judgment_period.to'),
                 'user_id' => User::query()->where('uuid', $request->input('president'))->value('id'),
-                'project_id' => Project::where('code', $request->input('project'))->value('id'),
+                'project_id' => Project::query()->where('code', $request->input('project'))->value('id'),
             ]);
+
             $members = $request->input('members', []);
+
             $userIds = User::whereIn('uuid', array_column($members, 'uuid'))->pluck('id')->toArray();
+
             $board->users()->attach($userIds);
 
             return $board;
         });
 
-
-        return redirect()->route('manage.board.index')->with('alert', [
+        return redirect()->route('manage.board.show', ['board' => $board->id ])->with('alert', [
             'status' => 'success',
             'message' => 'Board créé avec succès.'
         ]);
@@ -75,6 +74,8 @@ class BoardController extends Controller
      */
     public function show(Board $board)
     {
+        $project =  Project::query()->where('code', $board->project->code)->first();
+
         return Inertia::render('Manage/Board/Show', [
             'board' => new BoardResource($board->load('users')),
         ]);
@@ -87,8 +88,7 @@ class BoardController extends Controller
     {
         return Inertia::render('Manage/Board/Edit', [
             'board' => new BoardResource($board->load('users')),
-            'projects' => ProjectDetailsResource::collection(Project::where('status', 'new')->get()),
-            'users' => UserResource::collection(User::all())
+            'projects' => ProjectRessource::collection(Project::where('status', 'new')->get()),
         ]);
     }
 
@@ -97,23 +97,19 @@ class BoardController extends Controller
      */
     public function update(UpdateRequest $request, Board $board)
     {
-
-        // dd($request->all());
-
         DB::transaction(function () use ($request, $board) {
             $board->update([
-                'name' => $request->input('name'),
-                'description' => $request->input('description'),
-                'judgment_start_date' => Carbon::parse($request->input('judgment_period.from'))->format('Y-m-d'),
-                'judgment_end_date' => Carbon::parse($request->input('judgment_period.to'))->format('Y-m-d'),
+                'judgment_start_date' => $request->input('judgment_period.from'),
+                'judgment_end_date' => $request->input('judgment_period.to'),
                 'user_id' => User::where('uuid', $request->input('president'))->value('id'),
-                'project_id' => Project::where('code', $request->input('project'))->value('id'),
+                'project_id' => Project::query()->where('code', $request->input('project'))->value('id'),
             ]);
 
             $members = $request->input('members', []);
             $userIds = User::whereIn('uuid', array_column($members, 'uuid'))->pluck('id')->toArray();
 
             $board->users()->sync($userIds);
+            return $board;
         });
 
         return redirect()->route('manage.board.show', [

@@ -13,6 +13,7 @@ const EditForm: React.FC<any> = ({ unit }) => {
         abbr: unit.abbr || "",
         description: unit.description || "",
         address: unit.address || "",
+        webpage: unit.webpage || "",
     });
 
     const submitHandler = (e: React.FormEvent) => {
@@ -29,8 +30,8 @@ const EditForm: React.FC<any> = ({ unit }) => {
             onSubmit={submitHandler}
         >
             <div className="grid sm:grid-cols-3 gap-4">
-                <div className="space-y-1 sm:col-span-2 col-span-3">
-                    <Label>Nom de l'unité</Label>
+                <div className="space-y-1 sm:col-span-1 col-span-3">
+                    <Label required>Nom de l'unité</Label>
                     <Input
                         value={data.name}
                         onChange={(e) => setData("name", e.target.value)}
@@ -39,7 +40,7 @@ const EditForm: React.FC<any> = ({ unit }) => {
                 </div>
 
                 <div className="space-y-1 sm:col-span-1 col-span-3">
-                    <Label>Abréviation</Label>
+                    <Label required>Abréviation</Label>
                     <Input
                         value={data.abbr}
                         onChange={(e) => setData("abbr", e.target.value)}
@@ -47,8 +48,19 @@ const EditForm: React.FC<any> = ({ unit }) => {
                     <InputError message={errors.abbr} />
                 </div>
 
+
+                <div className="space-y-1 sm:col-span-1 col-span-3">
+                    <Label>Page web</Label>
+                    <Input
+                        value={data.webpage}
+                        onChange={(e) => setData("webpage", e.target.value)}
+                    />
+                    <InputError message={errors.webpage} />
+                </div>
+
+
                 <div className="space-y-1 col-span-3">
-                    <Label>Adresse</Label>
+                    <Label required>Adresse</Label>
                     <Input
                         value={data.address}
                         onChange={(e) => setData("address", e.target.value)}
@@ -78,7 +90,7 @@ const EditForm: React.FC<any> = ({ unit }) => {
                     </Link>
                 </Button>
 
-                <Button className="w-full" disabled={processing}>
+                <Button variant="primary" className="w-full">
                     Sauvegarder
                 </Button>
             </div>

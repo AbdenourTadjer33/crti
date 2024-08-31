@@ -1,31 +1,47 @@
 import Breadcrumb from "@/Components/common/breadcrumb";
 import { Button, buttonVariants } from "@/Components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardSubTitle, CardTitle } from "@/Components/ui/card";
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardSubTitle,
+    CardTitle,
+} from "@/Components/ui/card";
 import { Heading } from "@/Components/ui/heading";
 import { Text } from "@/Components/ui/paragraph";
 import Table from "@/Features/Manage/Board/User/Table";
 import AuthLayout from "@/Layouts/AuthLayout";
+import { Board } from "@/types";
 import { Head, Link } from "@inertiajs/react";
 import { House } from "lucide-react";
-import React from "react"
+import React from "react";
 
-const Show: React.FC<any> = ({ board }) => {
+interface BoardsProps {
+    board: Board;
+}
+
+const Show: React.FC<BoardsProps> = ({ board }) => {
     const breadcrumbs = React.useMemo(
         () => [
             { href: route("app"), label: <House className="w-5 h-5" /> },
             { href: route("manage.index"), label: "Centres d'administration" },
             {
-                href: route("manage.board.index", route().params.board as string),
+                href: route(
+                    "manage.board.index",
+                    route().params.board as string
+                ),
                 label: "Gestion des conseils scientifique",
             },
             {
-                label: board.abbr ?? board.name,
+                label: board.name,
             },
         ],
         []
     );
-    return(
-        <AuthLayout>
+    return (
+        <>
             <Head title={board.name} />
 
             <div className="space-y-4">
@@ -34,15 +50,17 @@ const Show: React.FC<any> = ({ board }) => {
                 <div className="flex sm:flex-row flex-col justify-between sm:items-end gap-4">
                     <div className="space-y-2">
                         <Heading level={3} className="font-medium">
-                            {board.name} {board.abbr && "-" + board.abbr + "-"}
+                            {board.name}
                         </Heading>
 
                         <Text className="sm:text-base text-sm">
-                            Consultez les informations complètes sur le conseil scientifique {" "}
+                            Consultez les informations complètes sur le conseil
+                            scientifique{" "}
                             <span className=" font-medium">{board.name}</span>.
-                            vous trouverez une liste des membres associées à
-                            ce conseil scientifique. Vous pouvez voir les détails et accéder aux
-                            options pour le modifier ou le supprimer.
+                            vous trouverez une liste des membres associées à ce
+                            conseil scientifique. Vous pouvez voir les détails
+                            et accéder aux options pour le modifier ou le
+                            supprimer.
                         </Text>
                     </div>
                 </div>
@@ -51,19 +69,26 @@ const Show: React.FC<any> = ({ board }) => {
                         <CardTitle>{board.name}</CardTitle>
                         <CardSubTitle className="text-base">
                             <Link
-                                href={route("manage.user.show", board.president.id
+                                href={route(
+                                    "manage.user.show",
+                                    board.president.uuid
                                 )}
                             >
-                                {board.president.name + " "  + "(President)"}
+                                {board.president.name + " " + "(President)"}
                             </Link>
                         </CardSubTitle>
                         <CardDescription className="">
-                            <span className="font-medium">{board.description}</span>
+                            <span className="font-medium">
+                                {board.description}
+                            </span>
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
                         <Text>
-                            <span className="text-sm">Projeet en commission: </span>{board.project.name}
+                            <span className="text-sm">
+                                Projeet en commission:{" "}
+                            </span>
+                            {board.project.name}
                         </Text>
                     </CardContent>
                     <CardFooter className="justify-end gap-2">
@@ -80,20 +105,16 @@ const Show: React.FC<any> = ({ board }) => {
                         <Button variant="destructive">Supprimer</Button>
                     </CardFooter>
                 </Card>
-                <Text className="sm:text-base text-sm">
-                    Consultez les informations complètes sur le conseil scientifique {" "}
-                    <span className=" font-medium">{board.users.name}</span>.
-                    vous trouverez une liste des membres associées à
-                    ce conseil scientifique. Vous pouvez voir les détails et accéder aux
-                    options pour le modifier ou le supprimer.
-                </Text>
                 <Table users={board.users} />
-
             </div>
-                <pre>{JSON.stringify(board, null, 2)}</pre>
-        </AuthLayout>
-
+            <pre>{JSON.stringify(board, null, 2)}</pre>
+        </>
     );
-}
+};
+
+// @ts-ignore
+Show.layout = (page) => {
+    return <AuthLayout children={page} />;
+};
 
 export default Show;

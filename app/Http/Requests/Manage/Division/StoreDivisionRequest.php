@@ -25,11 +25,12 @@ class StoreDivisionRequest extends FormRequest
         return [
             'name' => ['required', 'string',],
             'abbr' => ['required', 'string'],
-            'description' => ['required', 'string'],
+            'description' => ['nullable', 'string'],
             'members' => ['nullable', 'array'],
             'members.*' => ['nullable', 'array'],
-            'members.*.uuid' => ['sometimes', 'string', Rule::exists('users', 'uuid')],
-            'members.*.grade' => ['sometimes', 'string'],
+            'members.*.uuid' => ['required', 'string', Rule::exists('users', 'uuid')],
+            'members.*.grade' => ['required'],
+            'webpage' => ['nullable', 'url'],
         ];
     }
 }

@@ -1,78 +1,66 @@
 import * as React from "react";
 import { FormWrapper } from "@/Components/ui/form";
-import { Link, useForm, usePage } from "@inertiajs/react";
 import { Button } from "@/Components/ui/button";
 import { Label } from "@/Components/ui/label";
-import { Input } from "@/Components/ui/input";
 import { InputError } from "@/Components/ui/input-error";
-import { Textarea } from "@/Components/ui/textarea";
-import { User } from "@/types";
-import { useDebounce } from "@/Hooks/use-debounce";
-import { useEventListener } from "@/Hooks/use-event-listener";
-import { searchUsers } from "@/Services/api/users";
-import { skipToken, useQuery } from "@tanstack/react-query";
-import { LoaderCircle, Plus, X } from "lucide-react";
-import {
-    Command,
-    CommandEmpty,
-    CommandGroup,
-    CommandHeader,
-    CommandInput,
-    CommandItem,
-    CommandList,
-    CommandShortcut,
-} from "@/Components/ui/command";
-import { Skeleton } from "@/Components/ui/skeleton";
-import { Kbd } from "@/Components/ui/kbd";
-import { MemberBoard } from "@/types/member";
-import PeriodField from "./PeriodField";
-import SelectProjectField, { Project } from "./SelectProjectField";
-import SelectPresidentField from "./SelectPresidentField";
-import { Avatar, AvatarFallback } from "@/Components/ui/avatar";
-import { getInitials } from "@/Utils/helper";
+import { Board, User } from "@/types";
+import {  useQuery } from "@tanstack/react-query";
+import * as Card from "@/Components/ui/card";
+import { format, isBefore, startOfToday } from "date-fns";
+import { useUpdateEffect } from "@/Hooks/use-update-effect";
+import UserAvatar from "@/Components/common/user-hover-avatar";
+import { DateRange } from "react-day-picker";
+import { SearchProjects, SearchUsers } from "./CreateForm";
+import * as  Select from "@/Components/ui/select";
+import { Calendar } from "@/Components/ui/calendar";
+import { X } from "lucide-react";
+import { Link, router, useForm } from "@inertiajs/react";
 
-interface EditFormProps {
-    board: any;
-    projects: Project[];
-    presidents: any[]
+
+function prepareData(data: any) {
+    const formData: any = { ...data };
+
+    if (formData.judgment_period.from) {
+        formData.judgment_period.from = format(
+            formData.judgment_period.from,
+            "yyyy-MM-dd"
+        );
+    }
+
+    if (formData.judgment_period.to) {
+        formData.judgment_period.to = format(
+            formData.judgment_period.to,
+            "yyyy-MM-dd"
+        );
+    }
+
+    return formData;
 }
 
-const EditForm: React.FC<EditFormProps> = ({ board, projects, presidents }) => {
-    const { data, setData, errors, processing, put, clearErrors } = useForm({
-        name: board.name || "",
-        project: board.project.code || "",
-        judgment_period: board.judgment_period,
-        description: board.description || "",
-        president: board.president || "",
-        members:
-            board.users.map((user: any) => ({
-                uuid: user.uuid,
-                name: `${user.first_name} ${user.last_name}`,
-                email: user.email,
-            })) || [],
+const EditForm: React.FC<any> = ({ board }) => {
+    const { data: boardData, isLoading } = useQuery({
+        queryKey: ["board-details", board],
+        queryFn: () => getBoardDetails(board),
     });
+    const { data, setData, errors, processing, clearErrors, reset, setError } =
+        useForm({
+            judgment_period: { from: board.judgment_period.from, to: board.judgment_period.to } || { from: undefined, to: undefined },
+            project: board.project.code || "mi94pwcdca",
+            president: board.president.uuid || "",
+            members: board.users || [],
+        });
 
-    const submitHandler = (e: React.FormEvent) => {
-        e.preventDefault();
 
-        put(
-            route("manage.board.update", {
-                board: board.id,
-            }),
-            {
-                preserveScroll: true,
-            }
-        );
-    };
+    React.useEffect(() => {
+        if (boardData) {
+            setData(prepareData(boardData));
+        }
+    }, [boardData]);
 
-    const addMember = (user: MemberBoard) => {
-        if (
-            !data.members.some(
-                (member: MemberBoard) => member.uuid == user.uuid
-            )
-        ) {
+    const addMember = (user: User) => {
+        if (!data.members.some((member) => member.uuid == user.uuid)) {
             setData((data) => {
-                data.members.push({ ...user});
+                data.members.push({ ...user });
                 return { ...data };
             });
         }
@@ -81,252 +69,179 @@ const EditForm: React.FC<EditFormProps> = ({ board, projects, presidents }) => {
     const removeMember = (uuid: string) => {
         setData((data) => {
             const members = data.members;
-            const idx = members.findIndex(
-                (member: any) => member.uuid === uuid
-            );
+            const idx = members.findIndex((member) => member.uuid === uuid);
             members.splice(idx, 1);
             return { ...data, members };
         });
     };
 
+    const handleDateRangeChange = (range: DateRange | undefined) => {
+        const today = startOfToday();
+
+        if (range) {
+            const { from, to } = range;
+            const validFrom = from && isBefore(from, today) ? today : from;
+            const validTo = to && isBefore(to, today) ? undefined : to;
+
+            setData("judgment_period", { from: validFrom, to: validTo });
+        } else {
+            setData("judgment_period", undefined!);
+        }
+    };
+
+    const submitHandler = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        router.put(route("manage.board.update", board.code), prepareData(data), {
+            onError: (errors) => setError(errors as any),
+            preserveScroll: "errors",
+            onSuccess: () => reset(),
+        });
+    };
+
+    useUpdateEffect(() => {
+        if (!data.president) return;
+
+        const user = data.members.find((p) => p.uuid === data.president);
+        if (!user) setData("president", "");
+    }, [JSON.stringify(data.members)]);
+
     return (
         <FormWrapper
-            className="space-y-4 md:space-y-8"
+            className="space-y-4 md:space-y-6"
             onSubmit={submitHandler}
         >
-            <div className="grid grid-cols-3 gap-4">
-                <div className="space-y-1 sm:col-span-1 col-span-3">
-                    <Label>Nom du conseil</Label>
-                    <Input
-                        value={data.name}
-                        onChange={(e) => setData("name", e.target.value)}
+            <div className="flex md:flex-row flex-col lg:gap-10 md:gap-5 gap-4">
+                <div className="space-y-1 flex-1">
+                    <Label required>Projet associé</Label>
+                    <SearchProjects selectedProject={data.project} />
+                    <InputError message={errors["project"]} />
+                </div>
+                <div className="space-y-1">
+                    <Label required>Periode de jugement</Label>
+                    <Calendar
+                        mode="range"
+                        showOutsideDays={false}
+                        selected={data.judgment_period}
+                        onSelect={handleDateRangeChange}
+                        className="flex p-0"
+                        classNames={{
+                            months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0 border rounded-md p-4",
+                        }}
                     />
-                    <InputError message={errors.name} />
+                    <InputError message={errors.judgment_period} />
                 </div>
-                <div className="space-y-1 col-span-1">
-                    <div className="space-y-1 col-span-3">
-                        <Label required>Projet associé</Label>
-                        <SelectProjectField
-                            projects={projects}
-                            initialSelectedProject={data.project}
-                            onProjectChange={(code) => setData("project", code || "")}
-                            error={errors.project}
-                        />
-                        <InputError message={errors.project} />
-                    </div>
-                </div>
+            </div>
 
-                <div className="space-y-1 sm:col-span-1 col-span-3">
-                    <div className="space-y-1">
-                        <Label required>Date début/fin</Label>
-                        <PeriodField
-                            value={data.judgment_period}
-                            setValue={(value) =>
-                                setData("judgment_period", value!)
-                            }
-                        />
-                        <InputError message={errors.judgment_period} />
-                    </div>
-                </div>
-                <div className="space-y-1 col-span-3">
-                    <Label required>president du conseil</Label>
-                    <SelectPresidentField
-                        presidents={presidents}
-                        initialSelectedPresident={data.president.uuid}
-                        onPresidentChange={(uuid) => setData("president", uuid || "")}
-                        error={errors.president}
-                    />
-                    <InputError message={errors.president} />
-                </div>
-
-                <div className="space-y-1 col-span-3">
-                    <SearchMembers
-                        members={data.members}
-                        addMember={addMember}
-                        removeMember={removeMember}
-                    />
-                </div>
-
-                {!!data.members.length && (
-                    <div className="bg-gray-100 rounded p-2 space-y-2.5 col-span-3">
-                        {data.members.map(
-                            (member: MemberBoard, idx: number) => (
+            <div className="space-y-1">
+                <Label required>Membres du conseil</Label>
+                <div className="flex md:flex-row flex-col justify-between items-start lg:gap-10 md:gap-5 gap-0">
+                    <SearchUsers addMember={addMember} />
+                    <Card.Card className="flex-1 w-full md:rounded-t-lg rounded-t-none">
+                        <Card.CardHeader>
+                            <Card.CardTitle>Membres du conseil</Card.CardTitle>
+                        </Card.CardHeader>
+                        <Card.CardContent className="grid gap-6">
+                            {data.members.map((member) => (
                                 <div
                                     key={member.uuid}
-                                    className="flex items-center gap-4"
+                                    className="flex items-center justify-between space-x-4"
                                 >
+                                    <div className="flex items-center space-x-4">
+                                        <UserAvatar user={member} />
+                                        <div>
+                                            <p className="text-sm font-medium leading-none">
+                                                {member.name}{" "}
+                                                {member.uuid ===
+                                                    data.president && (
+                                                    <span className="font-semibold">
+                                                        (Président)
+                                                    </span>
+                                                )}
+                                            </p>
+                                            <p className="text-sm text-gray-600">
+                                                {member.email}
+                                            </p>
+                                        </div>
+                                    </div>
                                     <Button
-                                        type="button"
-                                        variant="outline"
-                                        className="justify-start basis-2/5 sm:text-base text-xs"
-                                    >
-                                        {member.name}
-                                    </Button>
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        className="justify-start basis-3/5 sm:text-base text-xs"
-                                    >
-                                        {member.email}
-                                    </Button>
-
-                                    <Button
-                                        variant="destructive"
-                                        className="items-center"
+                                        variant="ghost"
                                         size="sm"
                                         onClick={() =>
                                             removeMember(member.uuid)
                                         }
                                     >
-                                        <X className="h-4 w-4 sm:mr-2" />
-                                        <span className="hidden sm:block">
-                                            Supprimer
-                                        </span>
+                                        <X className="h-5 w-5" />
                                     </Button>
                                 </div>
-                            )
+                            ))}
+                        </Card.CardContent>
+                        {!!data.members.length && (
+                            <Card.CardFooter className="flex-col items-start space-y-1">
+                                <Label required>Président du conseil</Label>
+                                <Select.Select
+                                    value={data.president}
+                                    onValueChange={(uuid) => {
+                                        clearErrors("president");
+                                        setData("president", uuid);
+                                    }}
+                                >
+                                    <Select.SelectTrigger>
+                                        {!data.president
+                                            ? "Select pre"
+                                            : data.members.find(
+                                                  (m) =>
+                                                      m.uuid === data.president
+                                              )?.name}
+                                    </Select.SelectTrigger>
+                                    <Select.SelectContent>
+                                        <Select.SelectGroup>
+                                            {!!data.members.length ? (
+                                                data.members.map((member) => (
+                                                    <Select.SelectItem
+                                                        key={member.uuid}
+                                                        value={member.uuid}
+                                                    >
+                                                        {member.name}
+                                                    </Select.SelectItem>
+                                                ))
+                                            ) : (
+                                                <div className="p-2.5 text-sm">
+                                                    Veuillez séléctionnez les
+                                                    membres de consiel tout
+                                                    d'abord!
+                                                </div>
+                                            )}
+                                        </Select.SelectGroup>
+                                    </Select.SelectContent>
+                                </Select.Select>
+                                <InputError message={errors["president"]} />
+                            </Card.CardFooter>
                         )}
-                    </div>
-                )}
-                <div className="space-y-1 col-span-3">
-                    <Label>Description</Label>
-                    <Textarea
-                        value={data.description}
-                        onChange={(e) => setData("description", e.target.value)}
-                    />
-                    <InputError message={errors.description} />
+                    </Card.Card>
                 </div>
+                <InputError message={errors["members"]} />
             </div>
 
             <div className="mx-auto max-w-lg flex flex-col-reverse sm:flex-row items-center sm:gap-4 gap-2">
-                <Button variant="destructive" className="w-full" asChild>
-                    <Link href={route("manage.board.show", board.id)}>
-                        Annuler
-                    </Link>
+                <Button
+                    variant="destructive"
+                    disabled={processing}
+                    className="w-full"
+                    asChild
+                >
+                    <Link href={route("manage.board.index")}>Annuler</Link>
                 </Button>
                 <Button disabled={processing} className="w-full">
-                    Sauvegarder
+                    Créer
                 </Button>
             </div>
-            <pre>{JSON.stringify(data, null, 2)}</pre>
+            <pre>{JSON.stringify(data, null ,2)}</pre>
         </FormWrapper>
-    );
-};
-
-interface SearchMemberProps {
-    members: User[];
-    addMember: (user: User) => void;
-    removeMember: (uuid: string) => void;
+    )
 }
 
-const SearchMembers = ({
-    addMember,
-    members,
-    removeMember,
-}: SearchMemberProps) => {
-    const [search, setSearch] = React.useState("");
-    const debouncedValue = useDebounce(search, 300);
-    const commandInputRef = React.useRef<HTMLInputElement>(null);
-
-    useEventListener("keydown", (e) => {
-        if (e.code === "KeyK" && e.ctrlKey) {
-            e.preventDefault();
-            commandInputRef.current && commandInputRef.current.focus();
-        }
-    });
-
-    const { data, isFetching, isLoading, isError, isSuccess } = useQuery({
-        queryKey: ["search-users", debouncedValue],
-        queryFn: debouncedValue
-            ? async ({ signal }) => searchUsers(debouncedValue, { signal })
-            : skipToken,
-    });
-
-    return (
-        <div className="rounded-lg border dark:border-gray-500">
-            <Command loop shouldFilter={false} className="outline-none">
-                <CommandHeader>
-                    <CommandInput
-                        ref={commandInputRef}
-                        value={search}
-                        onValueChange={setSearch}
-                        placeholder="Rechercher..."
-                    />
-                    {isFetching && (
-                        <LoaderCircle className="animate-spin mr-2" />
-                    )}
-                    <CommandShortcut>
-                        <Kbd>ctrl+K</Kbd>
-                    </CommandShortcut>
-                </CommandHeader>
-                <CommandList>
-                    <CommandEmpty className="py-4">
-                        {!search ? (
-                            <div className="text-gray-800 font-medium text-lg">
-                                Commencez à taper pour rechercher des membres de
-                                l'équipe...
-                            </div>
-                        ) : isLoading ? (
-                            <div className="px-2.5 space-y-4">
-                                {Array.from({ length: 3 }, (_, idx) => idx).map(
-                                    (_, idx) => (
-                                        <div
-                                            key={idx}
-                                            className="flex items-center gap-4"
-                                        >
-                                            <Skeleton className="h-12 w-12 rounded-full" />
-                                            <Skeleton className="h-12 w-full rounded" />
-                                        </div>
-                                    )
-                                )}
-                            </div>
-                        ) : isError ? (
-                            <>erreur</>
-                        ) : (
-                            <>Aucun resultat trouvé.</>
-                        )}
-                    </CommandEmpty>
-                    {isSuccess && (
-                        <CommandGroup className="p-0">
-                            {data.map((user) =>
-                                members.some(
-                                    (member) => member.uuid == user.uuid
-                                ) ? null : (
-                                    <CommandItem
-                                        key={user.uuid}
-                                        value={user.uuid}
-                                        className="py-2.5 grid sm:grid-cols-3 grid-cols-2 gap-4"
-                                    >
-                                        <div className="inline-flex items-center space-x-2">
-                                            <Avatar>
-                                                <AvatarFallback>
-                                                    {getInitials(user.name)}
-                                                </AvatarFallback>
-                                            </Avatar>
-                                            <div>{user.name}</div>
-                                        </div>
-                                        <div className="hidden sm:block">
-                                            {user.email}
-                                        </div>
-                                        <div className="flex justify-end">
-                                            <Button
-                                                type="button"
-                                                className="justify-between items-center"
-                                                onClick={() => addMember(user)}
-                                            >
-                                                Ajouter
-                                                <Plus className="h-4 w-4 ml-2" />
-                                            </Button>
-                                        </div>
-                                    </CommandItem>
-                                )
-                            )}
-                        </CommandGroup>
-                    )}
-                </CommandList>
-            </Command>
-        </div>
-    );
-};
-
 export default EditForm;
+    function getBoardDetails(board: Board): any {
+        throw new Error("Function not implemented.");
+    }

@@ -32,7 +32,7 @@ const Table: React.FC<{ boards: PaginationType<Board> }> = ({ boards }) => {
         columns: finalColumnDef,
         data: finalData ?? [],
         getCoreRowModel: getCoreRowModel(),
-        getRowId: (row) => row.id,
+        getRowId: (row) => row.code,
         getRowCanExpand: () => true,
         getExpandedRowModel: getExpandedRowModel(),
         manualPagination: true,

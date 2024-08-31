@@ -17,7 +17,7 @@ const breadcrumbs = [
 
 const Index: React.FC<{ boards: Pagination<Board> }> = ({ boards }) => {
     return (
-        <AuthLayout>
+        <>
             <Head title="Gestion des conseils scientifique" />
 
             <div className="space-y-4">
@@ -46,8 +46,13 @@ const Index: React.FC<{ boards: Pagination<Board> }> = ({ boards }) => {
                 <Table boards={boards} />
             </div>
             <pre>{JSON.stringify({boards}, null, 2)}</pre>
-        </AuthLayout>
+        </>
     );
+};
+
+// @ts-ignore
+Index.layout = (page) => {
+    return <AuthLayout children={page} />;
 };
 
 export default Index;

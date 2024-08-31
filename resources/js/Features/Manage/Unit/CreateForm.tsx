@@ -11,6 +11,7 @@ const CreateForm = () => {
     const { data, setData, errors, processing, post, clearErrors } = useForm({
         name: "",
         abbr: "",
+        webpage: "",
         description: "",
         address: "",
         divisions: [],
@@ -31,8 +32,8 @@ const CreateForm = () => {
             onSubmit={submitHandler}
         >
             <div className="grid grid-cols-3 gap-4">
-                <div className="space-y-1 sm:col-span-2 col-span-3">
-                    <Label>Nom de l'unité</Label>
+                <div className="space-y-1 sm:col-span-1 col-span-3">
+                    <Label required>Nom de l'unité</Label>
                     <Input
                         onChange={(e) => {
                             clearErrors("name");
@@ -44,7 +45,7 @@ const CreateForm = () => {
                 </div>
 
                 <div className="space-y-1 sm:col-span-1 col-span-3">
-                    <Label>Abréviation</Label>
+                    <Label required>Abréviation</Label>
                     <Input
                         value={data.abbr}
                         onChange={(e) => {
@@ -55,8 +56,20 @@ const CreateForm = () => {
                     <InputError message={errors.abbr} />
                 </div>
 
+                <div className="space-y-1 sm:col-span-1 col-span-3">
+                    <Label>Page web</Label>
+                    <Input
+                        value={data.webpage}
+                        onChange={(e) => {
+                            clearErrors("webpage");
+                            setData("webpage", e.target.value);
+                        }}
+                    />
+                    <InputError message={errors.webpage} />
+                </div>
+
                 <div className="space-y-1 col-span-3">
-                    <Label>Adresse</Label>
+                    <Label required>Adresse</Label>
                     <Input
                         value={data.address}
                         onChange={(e) => {
@@ -84,7 +97,9 @@ const CreateForm = () => {
                 <Button variant="destructive" className="w-full" asChild>
                     <Link href={route("manage.unit.index")}>Annuler</Link>
                 </Button>
-                <Button className="w-full">Créer</Button>
+                <Button variant="primary" className="w-full">
+                    Créer
+                </Button>
             </div>
         </FormWrapper>
     );

@@ -44,8 +44,6 @@ const Index: React.FC<{ users: Pagination<User> }> = ({ users }) => {
                 </div>
 
                 <Table users={users} />
-            <pre>{JSON.stringify({ users }, null, 2)}</pre>
-
             </div>
         </AuthLayout>
     );

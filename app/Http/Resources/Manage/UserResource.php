@@ -17,7 +17,7 @@ class UserResource extends JsonResource
     {
         return [
             'uuid' => $this->uuid,
-            'name' => $this->last_name . ' ' . $this->first_name,
+            'name' => $this->first_name . ' ' . $this->last_name,
             'dob' => $this->dob,
             'sex' => $this->sex,
             'status' => $this->status,
@@ -28,7 +28,7 @@ class UserResource extends JsonResource
             'deletedAt' => $this->deleted_at,
             'divisions' => UserDivisionsResource::collection($this->whenLoaded('divisions')),
             'division' => $this->whenPivotLoaded('division_user', fn () => [
-                'grade' => $this->pivot->grade,
+                'grade' => $this->pivot->grade->name,
                 'addedAt' => $this->pivot->created_at,
             ]),
             'board' => $this->whenPivotLoaded('board_user', fn () => [

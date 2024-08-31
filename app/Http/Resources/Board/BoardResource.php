@@ -2,8 +2,10 @@
 
 namespace App\Http\Resources\Board;
 
+use App\Http\Resources\Project\ProjectMemberResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+
 class BoardResource extends JsonResource
 {
     /**
@@ -15,7 +17,8 @@ class BoardResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'name' => $this->name,
+            'name' => "comission". " " .$this->code,
+            'code' => $this->code,
             'judgment_period' => [
                 'from' => $this->judgment_start_date,
                 'to' => $this->judgment_end_date,
@@ -27,14 +30,25 @@ class BoardResource extends JsonResource
                 'id' => $this->user->id,
                 'uuid' => $this->user->uuid,
                 'name' => $this->user->last_name . ' ' . $this->user->first_name,
+
             ],
-            // 'users' => UserResource::collection($this->whenLoaded('users')),
+            'users' => $this->users->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'uuid' => $user->uuid,
+                    'name' => $user->first_name . ' ' . $user->last_name,
+                    'email' => $user->email,
+                    'comment' => $user->pivot->comment,
+                    'isFavorable' => (bool) $user->pivot->is_favorable,
+                    'updatedAt' => $user->pivot->updated_at
+                ];
+            }),
             'userCount' => $this->when($this->users_count !== null, $this->users_count),
             'project' => [
                 'code' => $this->project?->code,
                 'name' => $this->project?->name,
                 'status' => $this->project?->status,
-                'Nature' => $this->project->nature
+                'nature' => $this->project->nature,
             ],
 
         ];

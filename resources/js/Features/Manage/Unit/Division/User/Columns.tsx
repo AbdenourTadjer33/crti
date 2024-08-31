@@ -45,7 +45,8 @@ export const columnDef = [
     }),
 
     columnHelper.accessor("name", {
-        header: "nom - prenom",
+        header: "nom prenom",
+
     }),
 
     columnHelper.accessor("email", {

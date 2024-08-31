@@ -329,8 +329,8 @@ declare module 'ziggy-js' {
             "binding": "id"
         }
     ],
-    "board.index.index": [],
-    "board.index.show": [
+    "board.index": [],
+    "board.show": [
         {
             "name": "board",
             "required": true

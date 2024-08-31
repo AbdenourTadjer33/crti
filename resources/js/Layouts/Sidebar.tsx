@@ -5,6 +5,7 @@ import {
     PieChart,
     MonitorCog,
     SquareGanttChart,
+    Scale,
 } from "lucide-react";
 import { AuthLayoutContext } from "@/Contexts/auth-layout-context";
 import { addAttributesToChildren } from "@/Utils/utils";
@@ -14,8 +15,6 @@ const Sidebar: React.FC = () => {
         React.useContext(AuthLayoutContext);
 
     const hideSidebarFn = () => setSidebarState("hidden");
-
-
 
     return (
         <>
@@ -40,6 +39,11 @@ const Sidebar: React.FC = () => {
                                 href={route("project.index")}
                                 icon={<SquareGanttChart className="h-6 w-6" />}
                                 label="Projets"
+                            />
+                            <SidebarItem
+                                href={route("board.index")}
+                                icon={<Scale className="h-6 w-6" />}
+                                label="Espace commission"
                             />
                             <SidebarItem
                                 href={route("manage.index")}

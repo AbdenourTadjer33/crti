@@ -7,7 +7,7 @@ import { Text } from "@/Components/ui/paragraph";
 import EditForm from "@/Features/Manage/Unit/Division/EditForm";
 import { House } from "lucide-react";
 
-const Edit: React.FC<any> = ({ division, unit }) => {
+const Edit: React.FC<any> = ({ division, unit, grades }) => {
     const breadcrubms = React.useMemo(
         () => [
             { href: route("app"), label: <House className="w-6 h-6" /> },
@@ -42,7 +42,7 @@ const Edit: React.FC<any> = ({ division, unit }) => {
                     ou "Annuler" pour revenir sans sauvegarder.
                     </Text>
                 </div>
-                <EditForm unit={unit} division={division} />
+                <EditForm unit={unit} division={division} grades={grades} />
             </div>
         </AuthLayout>
     );

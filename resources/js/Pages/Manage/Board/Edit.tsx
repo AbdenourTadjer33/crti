@@ -8,20 +8,23 @@ import { House } from "lucide-react";
 import EditForm from "@/Features/Manage/Board/EditForm";
 import { Board } from "@/types";
 
-
-
-
-const Edit: React.FC<any> = ({ board, projects, users }) => {
-    const breadcrubms = React.useMemo(() => [
-        { href: route("app"), label: <House className="w-5 h-5" /> },
-        { href: route("manage.index"), label: "Centres d'administration" },
-        { href: route("manage.board.index"), label: "Gestion des conseils scientifiques" },
-        { href: route("manage.board.show", board.id), label: board.abbr ?? board.name },
-        { label: `Modifier ${board.abbr || board.name}` },
-    ], [board]);
+const Edit: React.FC<any> = ({ board }) => {
+    const breadcrubms = React.useMemo(
+        () => [
+            { href: route("app"), label: <House className="w-5 h-5" /> },
+            { href: route("manage.index"), label: "Centres d'administration" },
+            {
+                href: route("manage.board.index"),
+                label: "Gestion des conseils scientifiques",
+            },
+            { href: route("manage.board.show", board.code), label: board.name },
+            { label: `Modifier ${board.name}` },
+        ],
+        [board]
+    );
 
     return (
-        <AuthLayout>
+        <>
             <Head title={`Modifier ${board.name}`} />
             <div className="space-y-4">
                 <Breadcrumb items={breadcrubms} />
@@ -32,15 +35,21 @@ const Edit: React.FC<any> = ({ board, projects, users }) => {
                     </Heading>
                     <Text className="sm:text-base text-sm">
                         Utilisez ce formulaire pour modifier les détails du
-                        conseil scientifique <span className="font-medium">{board.name}</span>
-                        . Cliquez sur "Sauvegarder" pour enregistrer vos changements ou "Annuler" pour revenir
-                        sans sauvegarder.
+                        conseil scientifique{" "}
+                        <span className="font-medium">{board.name}</span>.
+                        Cliquez sur "Sauvegarder" pour enregistrer vos
+                        changements ou "Annuler" pour revenir sans sauvegarder.
                     </Text>
                 </div>
-                <EditForm board={board} projects={projects} presidents={users}/>
+                <EditForm board={board} />
             </div>
-        </AuthLayout>
+        </>
     );
+};
+
+// @ts-ignore
+Edit.layout = (page) => {
+    return <AuthLayout children={page} />;
 };
 
 export default Edit;

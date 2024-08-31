@@ -8,6 +8,8 @@ async function searchUsers(query: string, config: AxiosRequestConfig = {}): Prom
 }
 
 
+
+
 export const updateGrade = async (userId: number, grade: string) => {
     try {
       const response = await axios.put("", { grade });

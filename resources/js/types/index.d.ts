@@ -77,6 +77,7 @@ export type Role = {
 export type Board = {
     id?: number;
     name: string;
+    code: string;
     description?: string;
     user: User[];
     userCount?: number;
@@ -87,18 +88,23 @@ export type Board = {
     },
     president:
     {
-        id: number;
-        uuid: string;
-        name: string
+        uuid: UUID;
+        name: string;
+        email: string;
 
     },
     users?: {
-        uuid: string;
+        uuid: UUID;
         name: string;
-        isFavorable?: boolean
+        email: string;
+        comment: string;
+        isFavorable: boolean;
     }[]
-    judgment_start_date: string;
-    judgment_end_date: string;
+    judgment_period:
+    {
+        from: string;
+        to: string;
+    }
     createdAt?: string;
     updatedAt?: string;
 };

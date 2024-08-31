@@ -7,15 +7,11 @@ use App\Models\User;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Modules\Permission\Models\Role;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Manage\User\StoreRequest;
 use App\Http\Resources\Manage\BoardResource;
-use App\Http\Resources\Manage\DivisionResource;
-use Modules\Permission\Models\Permission;
 use App\Http\Resources\Manage\UserResource as ManageUserResource;
 use App\Models\Board;
-use App\Models\Division;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller

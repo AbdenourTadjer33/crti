@@ -16,14 +16,14 @@ return new class extends Migration
             $table->foreignId('unit_id')->constrained('units', 'id')->cascadeOnDelete();
             $table->string('name');
             $table->string('abbr', 10)->unique()->index();
-            $table->string('web_page')->nullable();
+            $table->string('webpage')->nullable();
             $table->longText('description')->nullable();
             $table->timestamps();
         });
 
         schema::create('division_grades', function (Blueprint $table) {
             $table->id();
-            $table->string('grade');
+            $table->string('name');
             $table->timestamp('created_at')->useCurrent();
         });
 
@@ -31,8 +31,8 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users', 'id')->cascadeOnDelete();
             $table->foreignId('division_id')->constrained('divisions', 'id')->cascadeOnDelete();
             $table->foreignId('division_grade_id')->nullable()->constrained('division_grades', 'id')->nullOnDelete();
-            $table->string('grade')->nullable();
             $table->timestamps();
+
             $table->primary(['user_id', 'division_id']);
         });
     }
