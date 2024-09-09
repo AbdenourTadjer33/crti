@@ -10,8 +10,8 @@ return [
     "completed" => "Achevé",
 
 
-    'to_do' => 'À faire',
-    'in_progress' => 'En cours',
+    'todo' => 'À faire',
+    'inprogress' => 'En cours',
     'done' => 'Fait',
     'suspended' => 'Suspendu',
     'canceled' => 'Annulé',

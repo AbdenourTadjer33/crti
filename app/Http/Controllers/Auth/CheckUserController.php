@@ -16,7 +16,7 @@ class CheckUserController extends Controller
         ]);
 
         /** @var User */
-        $user = User::withTrashed()->where('email', $request->input('username'))->select('status')->first();
+        $user = User::where('email', $request->input('username'))->select('status')->first();
 
         if (!$user) {
             return $this->error(404);

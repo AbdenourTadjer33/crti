@@ -4,18 +4,18 @@ import { Button } from "@/Components/ui/button";
 import { Label } from "@/Components/ui/label";
 import { InputError } from "@/Components/ui/input-error";
 import { Board, User } from "@/types";
-import {  useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import * as Card from "@/Components/ui/card";
 import { format, isBefore, startOfToday } from "date-fns";
 import { useUpdateEffect } from "@/Hooks/use-update-effect";
 import UserAvatar from "@/Components/common/user-hover-avatar";
 import { DateRange } from "react-day-picker";
-import { SearchProjects, SearchUsers } from "./CreateForm";
-import * as  Select from "@/Components/ui/select";
+import { ProjectCard, SearchProjects, SearchUsers } from "./CreateForm";
+import * as Select from "@/Components/ui/select";
 import { Calendar } from "@/Components/ui/calendar";
 import { X } from "lucide-react";
 import { Link, router, useForm } from "@inertiajs/react";
-
+import { Project } from "@/types/project";
 
 function prepareData(data: any) {
     const formData: any = { ...data };
@@ -34,28 +34,24 @@ function prepareData(data: any) {
         );
     }
 
+    if (formData.project?.code) {
+        formData.project = formData.project.code;
+    }
+
     return formData;
 }
 
 const EditForm: React.FC<any> = ({ board }) => {
-    const { data: boardData, isLoading } = useQuery({
-        queryKey: ["board-details", board],
-        queryFn: () => getBoardDetails(board),
-    });
     const { data, setData, errors, processing, clearErrors, reset, setError } =
         useForm({
-            judgment_period: { from: board.judgment_period.from, to: board.judgment_period.to } || { from: undefined, to: undefined },
-            project: board.project.code || "mi94pwcdca",
-            president: board.president.uuid || "",
-            members: board.users || [],
+            judgment_period: {
+                from: board.judgment_period.from,
+                to: board.judgment_period.to,
+            },
+            project: board.project,
+            president: board.president,
+            members: board.users,
         });
-
-
-    React.useEffect(() => {
-        if (boardData) {
-            setData(prepareData(boardData));
-        }
-    }, [boardData]);
 
     const addMember = (user: User) => {
         if (!data.members.some((member) => member.uuid == user.uuid)) {
@@ -89,14 +85,23 @@ const EditForm: React.FC<any> = ({ board }) => {
         }
     };
 
+    const selectProject = (project: Project) => {
+        clearErrors("project");
+        setData("project", project);
+    };
+
     const submitHandler = (e: React.FormEvent) => {
         e.preventDefault();
 
-        router.put(route("manage.board.update", board.code), prepareData(data), {
-            onError: (errors) => setError(errors as any),
-            preserveScroll: "errors",
-            onSuccess: () => reset(),
-        });
+        router.put(
+            route("manage.board.update", board.code),
+            prepareData(data),
+            {
+                onError: (errors) => setError(errors as any),
+                preserveScroll: "errors",
+                onSuccess: () => reset(),
+            }
+        );
     };
 
     useUpdateEffect(() => {
@@ -114,7 +119,21 @@ const EditForm: React.FC<any> = ({ board }) => {
             <div className="flex md:flex-row flex-col lg:gap-10 md:gap-5 gap-4">
                 <div className="space-y-1 flex-1">
                     <Label required>Projet associé</Label>
-                    <SearchProjects selectedProject={data.project} />
+
+                    {data.project ? (
+                        <Card.Card className="p-2">
+                            <ProjectCard
+                                project={data.project}
+                                selected={true}
+                                unselectProject={() =>
+                                    setData("project", undefined)
+                                }
+                            />
+                        </Card.Card>
+                    ) : (
+                        <SearchProjects selectProject={selectProject} />
+                    )}
+
                     <InputError message={errors["project"]} />
                 </div>
                 <div className="space-y-1">
@@ -128,6 +147,7 @@ const EditForm: React.FC<any> = ({ board }) => {
                         classNames={{
                             months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0 border rounded-md p-4",
                         }}
+                        disabled={{ before: new Date() }}
                     />
                     <InputError message={errors.judgment_period} />
                 </div>
@@ -135,7 +155,7 @@ const EditForm: React.FC<any> = ({ board }) => {
 
             <div className="space-y-1">
                 <Label required>Membres du conseil</Label>
-                <div className="flex md:flex-row flex-col justify-between items-start lg:gap-10 md:gap-5 gap-0">
+                <div className="flex md:flex-row flex-col justify-between items-start md:gap-4 gap-">
                     <SearchUsers addMember={addMember} />
                     <Card.Card className="flex-1 w-full md:rounded-t-lg rounded-t-none">
                         <Card.CardHeader>
@@ -232,16 +252,19 @@ const EditForm: React.FC<any> = ({ board }) => {
                 >
                     <Link href={route("manage.board.index")}>Annuler</Link>
                 </Button>
-                <Button disabled={processing} className="w-full">
-                    Créer
+                <Button
+                    disabled={processing}
+                    variant="primary"
+                    className="w-full"
+                >
+                    Modifier
                 </Button>
             </div>
-            <pre>{JSON.stringify(data, null ,2)}</pre>
         </FormWrapper>
-    )
-}
+    );
+};
 
 export default EditForm;
-    function getBoardDetails(board: Board): any {
-        throw new Error("Function not implemented.");
-    }
+function getBoardDetails(board: Board): any {
+    throw new Error("Function not implemented.");
+}

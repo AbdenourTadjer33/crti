@@ -52,7 +52,7 @@ const Projects: React.FC<{ projects: Project[] }> = ({ projects }) => {
 
     useUpdateEffect(() => {
         router.get(
-            "/workspace",
+            route("workspace.index"),
             { status: selectedStatus, sort },
             {
                 only: ["projects"],
@@ -254,21 +254,9 @@ const Projects: React.FC<{ projects: Project[] }> = ({ projects }) => {
             </div>
 
             <ul
-                className="flex data-[display=list]:flex-col data-[display=grid]:flex-row *:w-full md:data-[display=grid]:*:max-w-md flex-wrap gap-4"
+                className="flex data-[display=list]:flex-col data-[display=grid]:flex-row *:w-full md:data-[display=grid]:*:max-w-sm flex-wrap gap-2"
                 data-display={mode}
             >
-                {projects.map((project, idx) => (
-                    <li key={idx} data-display={mode}>
-                        <ProjectCard project={project} />
-                    </li>
-                ))}
-
-                {projects.map((project, idx) => (
-                    <li key={idx} data-display={mode}>
-                        <ProjectCard project={project} />
-                    </li>
-                ))}
-
                 {projects.map((project, idx) => (
                     <li key={idx} data-display={mode}>
                         <ProjectCard project={project} />

@@ -31,6 +31,6 @@ class UpdateUserLastActivity
         $user = $request->user();
         $user->last_activity = now();
 
-        User::withoutTimestamps(fn () => $user->saveQuietly());
+        User::withoutTimestamps(fn() => $user->saveQuietly());
     }
 }

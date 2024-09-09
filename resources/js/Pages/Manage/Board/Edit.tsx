@@ -6,7 +6,6 @@ import AuthLayout from "@/Layouts/AuthLayout";
 import { Head } from "@inertiajs/react";
 import { House } from "lucide-react";
 import EditForm from "@/Features/Manage/Board/EditForm";
-import { Board } from "@/types";
 
 const Edit: React.FC<any> = ({ board }) => {
     const breadcrubms = React.useMemo(
@@ -17,26 +16,26 @@ const Edit: React.FC<any> = ({ board }) => {
                 href: route("manage.board.index"),
                 label: "Gestion des conseils scientifiques",
             },
-            { href: route("manage.board.show", board.code), label: board.name },
-            { label: `Modifier ${board.name}` },
+            { href: route("manage.board.show", board.code), label: board.code },
+            { label: `Modifier ${board.code}` },
         ],
         [board]
     );
 
     return (
         <>
-            <Head title={`Modifier ${board.name}`} />
+            <Head title={`Modifier ${board.code}`} />
             <div className="space-y-4">
                 <Breadcrumb items={breadcrubms} />
 
                 <div className="space-y-2">
                     <Heading level={3} className="font-medium">
-                        Modifier {board.name}
+                        Modifier {board.code}
                     </Heading>
                     <Text className="sm:text-base text-sm">
                         Utilisez ce formulaire pour modifier les détails du
                         conseil scientifique{" "}
-                        <span className="font-medium">{board.name}</span>.
+                        <span className="font-medium">{board.code}</span>.
                         Cliquez sur "Sauvegarder" pour enregistrer vos
                         changements ou "Annuler" pour revenir sans sauvegarder.
                     </Text>

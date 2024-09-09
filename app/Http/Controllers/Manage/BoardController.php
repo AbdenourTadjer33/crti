@@ -2,21 +2,20 @@
 
 namespace App\Http\Controllers\Manage;
 
-use Carbon\Carbon;
+use App\Enums\ProjectStatus;
 use App\Models\User;
 use Inertia\Inertia;
 use App\Models\Board;
 use App\Models\Project;
-use Nette\Utils\Random;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Manage\UserResource;
 use App\Http\Resources\Manage\BoardResource;
 use App\Http\Requests\Manage\Board\StoreRequest;
 use App\Http\Requests\Manage\Board\UpdateRequest;
-use App\Http\Resources\Project\ProjectDetailsResource;
-use App\Http\Resources\Project\ProjectRessource;
+use App\Http\Resources\Manage\Board\BoardOnEditResource;
+use App\Jobs\Project\UpdateProjectStatusJob;
 
+// need permission
 class BoardController extends Controller
 {
     /**
@@ -24,8 +23,17 @@ class BoardController extends Controller
      */
     public function index()
     {
+        $boardsFn = function () {
+            $boards = Board::with([
+                'project:id,code,name',
+                'users:id,uuid,first_name,last_name,email',
+            ])->latest()->paginate(15);
+
+            return BoardResource::collection($boards);
+        };
+
         return Inertia::render('Manage/Board/Index', [
-            'boards' => fn () => BoardResource::collection(Board::withCount('users')->with('project:id,code,name')->paginate(15)),
+            'boards' => $boardsFn,
         ]);
     }
 
@@ -34,10 +42,7 @@ class BoardController extends Controller
      */
     public function create()
     {
-
-        return Inertia::render('Manage/Board/Create', [
-            'projects' => fn () => ProjectRessource::collection(Project::where('status', 'new')->get())
-        ]);
+        return Inertia::render('Manage/Board/Create', []);
     }
 
     /**
@@ -47,7 +52,6 @@ class BoardController extends Controller
     {
         $board = DB::transaction(function () use ($request) {
             $board = Board::create([
-                'code' => Random::generate(),
                 'judgment_start_date' => $request->input('judgment_period.from'),
                 'judgment_end_date' => $request->input('judgment_period.to'),
                 'user_id' => User::query()->where('uuid', $request->input('president'))->value('id'),
@@ -60,10 +64,14 @@ class BoardController extends Controller
 
             $board->users()->attach($userIds);
 
+            UpdateProjectStatusJob::dispatch($board->project_id, ProjectStatus::review->name)
+                ->delay(now()->diffInSeconds($board->judgment_start_date))
+                ->afterCommit();
+
             return $board;
         });
 
-        return redirect()->route('manage.board.show', ['board' => $board->id ])->with('alert', [
+        return redirect()->route('manage.board.show', ['board' => $board->code])->with('alert', [
             'status' => 'success',
             'message' => 'Board créé avec succès.'
         ]);
@@ -74,8 +82,6 @@ class BoardController extends Controller
      */
     public function show(Board $board)
     {
-        $project =  Project::query()->where('code', $board->project->code)->first();
-
         return Inertia::render('Manage/Board/Show', [
             'board' => new BoardResource($board->load('users')),
         ]);
@@ -86,22 +92,30 @@ class BoardController extends Controller
      */
     public function edit(Board $board)
     {
+        if ($board->hasJudgmentPeriodPassed() || $board->isOnJudgmentPeriod()) {
+            return abort(403);
+        }
+
         return Inertia::render('Manage/Board/Edit', [
-            'board' => new BoardResource($board->load('users')),
-            'projects' => ProjectRessource::collection(Project::where('status', 'new')->get()),
+            'board' => new BoardOnEditResource($board->load(['users:id,uuid,first_name,last_name,email', 'project:id,nature_id,user_id,division_id,code,name,created_at'])),
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+    // NOT FINISHED
     public function update(UpdateRequest $request, Board $board)
     {
+        if ($board->hasJudgmentPeriodPassed() || $board->isOnJudgmentPeriod()) {
+            return redirect()->back()->with('alert', [
+                'status' => 'error',
+                'message' => 'Vous pouvez pas effectuer cette action'
+            ]);
+        }
+
         DB::transaction(function () use ($request, $board) {
             $board->update([
                 'judgment_start_date' => $request->input('judgment_period.from'),
                 'judgment_end_date' => $request->input('judgment_period.to'),
-                'user_id' => User::where('uuid', $request->input('president'))->value('id'),
+                'user_id' => User::query()->where('uuid', $request->input('president'))->value('id'),
                 'project_id' => Project::query()->where('code', $request->input('project'))->value('id'),
             ]);
 
@@ -109,6 +123,8 @@ class BoardController extends Controller
             $userIds = User::whereIn('uuid', array_column($members, 'uuid'))->pluck('id')->toArray();
 
             $board->users()->sync($userIds);
+
+
             return $board;
         });
 
@@ -120,8 +136,23 @@ class BoardController extends Controller
         ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id) {}
+    // NOT FINISHED
+    public function destroy(Board $board)
+    {
+        if ($board->hasJudgmentPeriodPassed() || $board->isOnJudgmentPeriod()) {
+            return redirect()->back()->with('alert', [
+                'status' => 'error',
+                'message' => 'Vous ne pouvez pas supprimer ce conseil. Si vous le souhaitez, vous pouvez l\'archiver.'
+            ]);
+        }
+
+        $board->delete();
+
+        return redirect(route('manage.board.index'))->with('alert', [
+            'status' => 'success',
+            'message' => 'Le conseil est supprimé avec succès.'
+        ]);
+    }
+
+    public function archive() {}
 }

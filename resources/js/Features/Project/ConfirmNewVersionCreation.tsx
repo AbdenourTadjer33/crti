@@ -181,7 +181,7 @@ const CreateNewVersion: React.FC<CreateNewVersionProps> = ({
                     {error.response.data.message}
                 </Text>
 
-                <Button className="w-full" onClick={closeAndResetFn}>
+                <Button variant="outline" className="w-full" onClick={closeAndResetFn}>
                     Fermer
                 </Button>
             </>
@@ -196,7 +196,7 @@ const CreateNewVersion: React.FC<CreateNewVersionProps> = ({
                     version
                 </Text>
 
-                <Button className="w-full" onClick={closeAndResetFn}>
+                <Button variant="outline" className="w-full" onClick={closeAndResetFn}>
                     réessayez plus tard
                 </Button>
             </>
@@ -267,7 +267,7 @@ const CreateNewVersion: React.FC<CreateNewVersionProps> = ({
                     </div>
                 </Button>
                 <Button
-                    variant="default"
+                    variant="primary"
                     className="w-full items-center"
                     onClick={onCreate}
                     disabled={isPending}

@@ -28,7 +28,6 @@ interface RowExpanderProps {
 }
 
 export default function DataTable({ options }: { options: DataTableOptions }) {
-    console.log();
     return (
         <>
             <Table.Table>
@@ -94,15 +93,14 @@ export default function DataTable({ options }: { options: DataTableOptions }) {
                                     options.noDataPlaceholder
                                 ) : (
                                     <div className="text-lg text-center">
-                                        no data found
+                                        Aucune donnée trouvée
                                     </div>
                                 )}
                             </Table.TableCell>
                         </Table.TableRow>
                     )}
                 </Table.TableBody>
-
-                <Table.TableFooter>
+                {/* <Table.TableFooter>
                     {options.table.getFooterGroups().map((footerGroup, idx) => (
                         <Table.TableRow key={idx}>
                             {footerGroup.headers.map((footer) => (
@@ -120,7 +118,7 @@ export default function DataTable({ options }: { options: DataTableOptions }) {
                             ))}
                         </Table.TableRow>
                     ))}
-                </Table.TableFooter>
+                </Table.TableFooter> */}
             </Table.Table>
             {options.pagination &&
                 options.pagination.meta.per_page <
@@ -162,7 +160,11 @@ function RowSelecter({ row }: RowSelecterProps) {
 
 function RowExpander({ row }: RowExpanderProps) {
     return row.getCanExpand() ? (
-        <Button variant="ghost" onClick={row.getToggleExpandedHandler()}>
+        <Button
+            variant="ghost"
+            onClick={row.getToggleExpandedHandler()}
+            className="h-8 w-8 p-0"
+        >
             {row.getIsExpanded() ? (
                 <ChevronDown className="w-5 h-5" />
             ) : (

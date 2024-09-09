@@ -86,14 +86,9 @@ export type Board = {
         code: string;
         name: string,
     },
-    president:
-    {
-        uuid: UUID;
-        name: string;
-        email: string;
-
-    },
-    users?: {
+    president: UUID,
+    decision?: boolean;
+    users: {
         uuid: UUID;
         name: string;
         email: string;

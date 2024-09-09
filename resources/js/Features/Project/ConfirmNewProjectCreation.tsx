@@ -171,7 +171,7 @@ const CreateNewProject: React.FC<CreateNewProjectProps> = ({
                     Une erreur est sourvenu lors de création de projet.
                 </Text>
 
-                <Button className="w-full" onClick={closeAndResetFn}>
+                <Button variant="outline" className="w-full" onClick={closeAndResetFn}>
                     réessayez plus tard
                 </Button>
             </>
@@ -255,7 +255,7 @@ const CreateNewProject: React.FC<CreateNewProjectProps> = ({
                     Annuler
                 </Button>
                 <Button
-                    variant="default"
+                    variant="primary"
                     className="w-full items-center"
                     onClick={onCreate}
                     disabled={isPending}

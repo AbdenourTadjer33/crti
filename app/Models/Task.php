@@ -23,10 +23,10 @@ class Task extends Model
 
     /**
      * Get the project that own this task.
-     * 
+     *
      * this method establishes an invert one-to-many relationship
      * where a task belongs to a single project.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function project(): BelongsTo
@@ -36,9 +36,9 @@ class Task extends Model
 
     /**
      * Get all users associated with the task (the assigned members).
-     * 
-     * This method defines a many-to-many relationship, indicating 
-     * that a task can be assigned to multiple users, and a user 
+     *
+     * This method defines a many-to-many relationship, indicating
+     * that a task can be assigned to multiple users, and a user
      * can have multiple tasks assigned to them.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany

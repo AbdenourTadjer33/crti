@@ -6,6 +6,7 @@ import {
     MonitorCog,
     SquareGanttChart,
     Scale,
+    FolderKanban,
 } from "lucide-react";
 import { AuthLayoutContext } from "@/Contexts/auth-layout-context";
 import { addAttributesToChildren } from "@/Utils/utils";
@@ -19,7 +20,7 @@ const Sidebar: React.FC = () => {
     return (
         <>
             <aside
-                className="fixed top-0 left-0 min-h-full pt-16 border-r border-gray-200 data-[state=hidden]:hidden data-[state=open]:w-64 w-16 data-[sidebar=open]:animate-in data-[sidebar=open]:slide-in-from-left-0 data-[sidebar=close]:animate-out data-[sidebar=close]:slide-out-to-right-0 duration-200"
+                className="fixed top-0 left-0 min-h-full pt-16 border-r bg-white border-gray-200 md:block hidden data-[state=hidden]:hidden data-[state=open]:w-64 w-16 data-[sidebar=open]:animate-in data-[sidebar=open]:slide-in-from-left-0 data-[sidebar=close]:animate-out data-[sidebar=close]:slide-out-to-right-0 duration-200"
                 data-state={sidebarState}
             >
                 <div className="overflow-y-auto p-2 h-full">
@@ -32,7 +33,7 @@ const Sidebar: React.FC = () => {
                             />
                             <SidebarItem
                                 href={route("workspace.index")}
-                                icon={<SquareGanttChart className="h-6 w-6" />}
+                                icon={<FolderKanban className="h-6 w-6" />}
                                 label="Workspace"
                             />
                             <SidebarItem
@@ -54,14 +55,14 @@ const Sidebar: React.FC = () => {
                         { "data-state": sidebarState }
                     )}
                 </div>
-                <button
+                {/* <button
                     className="absolute bottom-0 right-2 p-2 rounded-full inline-flex hover:bg-white"
                     onClick={hideSidebarFn}
                 >
                     <ChevronLeft className="h-6 w-6" />
-                </button>
+                </button> */}
             </aside>
-            <div className="fixed top-1/2">
+            <div className="fixed top-1/2 md:block hidden">
                 <SidebarToggler />
             </div>
         </>

@@ -43,7 +43,6 @@ return new class extends Migration
             $table->foreignId('user_id')->nullable()->constrained('users', 'id')->nullOnDelete();
             $table->foreignId('partner_id')->nullable()->constrained('partners', 'id')->nullOnDelete();
             $table->foreignId('nature_id')->nullable()->constrained('natures', 'id')->nullOnDelete();
-            $table->boolean('enabled')->default(true);
             $table->string('status');
             $table->string('name')->nullable();
             $table->date('date_begin')->nullable();
@@ -84,7 +83,7 @@ return new class extends Migration
             $table->date('date_begin');
             $table->date('date_end');
             $table->longText('description');
-            $table->string('priority');
+            $table->string('priority')->nullable();
             $table->timestamps();
         });
 

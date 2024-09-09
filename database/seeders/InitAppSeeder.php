@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Unit;
 use App\Models\User;
 use App\Models\Division;
+use App\Models\ExistingResource;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
@@ -21,6 +22,12 @@ class InitAppSeeder extends Seeder
      */
     public function run(): void
     {
+        foreach (Storage::json('data/resources.json') as $resource) {
+            ExistingResource::query()->create([
+                ...$resource,
+                "state" => true
+            ]);
+        }
 
         $permissions = [];
         foreach (Storage::json('data/permissions.json') as $permission) {
@@ -46,7 +53,7 @@ class InitAppSeeder extends Seeder
         $unit = Unit::query()->create([
             'name' => 'Centre de Recherche en Technologies Industrielles',
             'abbr' => 'CRTI',
-            'web_page' => 'https://crti.dz/',
+            'webpage' => 'https://crti.dz/',
             'description' => null,
             'address' => 'CRTI P.O.Box 64, Cheraga 16014 Alger, Algerie',
         ]);

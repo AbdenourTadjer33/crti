@@ -13,7 +13,7 @@ class UpdateRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string',],
-            'abbr' => ['nullable', 'string'],
+            'abbr' => ['required', 'string'],
             'description' => ['nullable', 'string'],
             'address' => ['required', 'string'],
             'webpage' => ['nullable', 'url'],

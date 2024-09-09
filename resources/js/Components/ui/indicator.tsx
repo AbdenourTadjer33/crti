@@ -12,6 +12,7 @@ export function Indicator({
         gray: "bg-gray-200",
         dark: "bg-gray-900",
         blue: "bg-blue-600",
+        yellow: "bg-yellow-500",
         green: "bg-green-500",
         red: "bg-red-500",
         purple: "bg-purple-500",

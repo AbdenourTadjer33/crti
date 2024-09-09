@@ -17,7 +17,7 @@ class ProjectVersionResource extends JsonResource
         return [
             'name' => $this->name,
             'nature' => (string) $this->nature->id,
-            'domains' => $this->domains->map(fn ($domain) => (string) $domain->id),
+            'domains' => $this->domains->map(fn($domain) => (string) $domain->id),
             'timeline' => [
                 'from' => $this->date_begin,
                 'to' => $this->date_end,
@@ -49,12 +49,12 @@ class ProjectVersionResource extends JsonResource
                 'users' => $task->users->map(fn($user) => $user->uuid),
             ]),
             'resources' => $this->existingResources,
-            'resources_crti' => $this->requestedResources->filter(fn($resource) => $resource->by_crti)->map(fn($resource) => [
+            'resources_crti' => $this->requestedResources->filter(fn($resource) => $resource->by_crti)->values()->map(fn($resource) => [
                 'name' => $resource->name,
                 'description' => $resource->description ?? "",
                 'price' => $resource->price,
             ]),
-            'resources_partner' => $this->requestedResources->filter(fn($resource) => !$resource->by_crti)->map(fn($resource) => [
+            'resources_partner' => $this->requestedResources->filter(fn($resource) => !$resource->by_crti)->values()->map(fn($resource) => [
                 'name' => $resource->name,
                 'description' => $resource->description ?? "",
                 'price' => $resource->price,

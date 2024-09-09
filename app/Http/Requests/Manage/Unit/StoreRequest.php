@@ -14,7 +14,7 @@ class StoreRequest extends FormRequest
         return [
             'name' => ['required', 'string',],
             'abbr' => ['required', 'string'],
-            'description' => ['required', 'string'],
+            'description' => ['nullable', 'string'],
             'address' => ['required', 'string'],
             'webpage' => ['nullable', 'url'],
         ];

@@ -4,8 +4,8 @@ namespace App\Enums;
 
 enum TaskStatus
 {
-    case to_do;
-    case in_progress;
+    case todo;
+    case progress;
     case done;
     case suspended;
     case canceled;

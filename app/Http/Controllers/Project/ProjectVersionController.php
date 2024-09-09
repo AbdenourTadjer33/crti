@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Modules\Versioning\Models\Version;
 use App\Events\Project\NewVersionSuggested;
+use App\Events\Project\SuggestedVersionAccepted;
+use App\Events\Project\SuggestedVersionRejected;
 use App\Http\Requests\Version\StoreRequest;
 use App\Http\Requests\Version\CreateRequest;
 use App\Http\Requests\Version\UpdateRequest;
@@ -49,7 +51,7 @@ class ProjectVersionController extends Controller implements HasMiddleware
             ->where('code', $request->route('project'))
             ->first();
 
-        if (!$project || !$project->isFirstVersion($project->versions_count)) return abort(404);
+        if (!$project || !$project->isFirstVersion($project->versions_count)) return abort(403);
 
         $versionFn = function () use ($project) {
             $version = $project->currentVersion();
@@ -57,7 +59,6 @@ class ProjectVersionController extends Controller implements HasMiddleware
             if (!$version) {
                 $version = $project->versions()->create([
                     'model_data' => serialize([]),
-                    'reason' => 'creating the project first version',
                     'user_id' => $this->user->id,
                 ]);
 
@@ -83,11 +84,13 @@ class ProjectVersionController extends Controller implements HasMiddleware
      * Finnaly reference this current version as the main project version.
      * Send success response to the user
      */
-    public function store(StoreRequest $request, Project $project)
+    public function store(StoreRequest $request)
     {
-        if (!$project->isFirstVersion($project->loadCount('versions')->versions_count)) {
+        $project = $this->user->projects()->where('code', $request->route('project'))->withCount('versions')->first();
+
+        if (!$project || !$project->isFirstVersion($project->versions_count)) {
             return abort(403);
-        };
+        }
 
         DB::transaction(function () use ($request, $project) {
             if ($request->input('is_partner')) {
@@ -117,7 +120,7 @@ class ProjectVersionController extends Controller implements HasMiddleware
 
             $project->domains()->attach($request->input('domains'));
 
-            $members = User::withoutTrashed()->whereIn('uuid', collect($request->members)->map(fn($m) => $m['uuid']))->get(['id', 'uuid']);
+            $members = User::whereIn('uuid', collect($request->members)->map(fn($m) => $m['uuid']))->get(['id', 'uuid']);
 
             $project->users()->attach($members->pluck('id'));
 
@@ -134,7 +137,7 @@ class ProjectVersionController extends Controller implements HasMiddleware
                 /** @var Task */
                 $task = $project->tasks()->create([
                     'name' => $request->input("tasks.{$i}.name"),
-                    'status' => 'to_do',
+                    'status' => 'todo',
                     'date_begin' => $request->input("tasks.{$i}.timeline.from"),
                     'date_end' => $request->input("tasks.{$i}.timeline.to"),
                     'description' => $request->input("tasks.{$i}.description"),
@@ -160,7 +163,6 @@ class ProjectVersionController extends Controller implements HasMiddleware
                     'existingResources:id,code,name,description,state',
                     'requestedResources:id,project_id,name,description,price,by_crti',
                 ])->toArray()),
-                'reason' => "This represent the project main version",
                 'user_id' => $this->user->id,
             ]);
 
@@ -213,12 +215,16 @@ class ProjectVersionController extends Controller implements HasMiddleware
         ]);;
     }
 
-    // mark this coming version as refused.
-    public function refuse(Request $request, Project $project, Version $version) {}
-
     // mark this coming version as accepted
-    public function accept(Request $request, Project $project, Version $version)
+    public function accept(Request $request, $project)
     {
+        /** @var \App\Models\Project */
+        $project = $this->user->projects()->where('code', $request->route('project'))->first();
+
+        if (!$project || !in_array($request->route('version'), [...$project->getVersionMarkedAs('review'), ...$project->getVersionMarkedAs('creation')])) return abort(403);
+
+        $version = $project->versions()->where('id', $request->route('version'))->first();
+
         DB::transaction(function () use ($project, $version) {
             $data = unserialize($version->model_data);
 
@@ -249,7 +255,7 @@ class ProjectVersionController extends Controller implements HasMiddleware
 
             $project->domains()->sync(data_get($data, 'domains'));
 
-            $members = User::withoutTrashed()->whereIn('uuid', collect(data_get($data, 'members'))->map(fn($m) => $m['uuid']))->get(['id', 'uuid']);
+            $members = User::whereIn('uuid', collect(data_get($data, 'members'))->map(fn($m) => $m['uuid']))->get(['id', 'uuid']);
 
             $project->users()->sync($members->pluck('id'));
 
@@ -269,7 +275,7 @@ class ProjectVersionController extends Controller implements HasMiddleware
             for ($i = 0; $i < count(data_get($data, 'tasks')); $i++) {
                 $task = $project->tasks()->create([
                     'name' => data_get($data, "tasks.{$i}.name"),
-                    'status' => 'to_do',
+                    'status' => 'todo',
                     'date_begin' => data_get($data, "tasks.{$i}.timeline.from"),
                     'date_end' => data_get($data, "tasks.{$i}.timeline.to"),
                     'description' => data_get($data, "tasks.{$i}.description"),
@@ -303,32 +309,61 @@ class ProjectVersionController extends Controller implements HasMiddleware
             $project->refVersionAsPrevious($previousMainVersionId);
         });
 
-        // Determine the type of action performed
+        event(new SuggestedVersionAccepted());
+
+        $message = [
+            'status' => 'success',
+            'title' => 'Version suggérée acceptée',
+            'message' => "La version suggérée a été acceptée avec succès et est maintenant la version active du projet.",
+        ];
+
         if ($project->user_id === $version->user_id) {
             $message = [
                 'status' => 'success',
                 'title' => 'Modification du projet réussie',
                 'message' => 'Les modifications ont été enregistrées avec succès pour la version actuelle du projet.',
             ];
-        } else {
-            $message = [
-                'status' => 'success',
-                'title' => 'Version suggérée acceptée',
-                'message' => "La version suggérée a été acceptée avec succès et est maintenant la version active du projet.",
-            ];
         }
 
-        return redirect(route('project.show', ['project' => $project->code]))->with('info', $message);
+        if (count($project->getVersionMarkedAs('review'))) {
+            return redirect(route('workspace.suggested.version.index', ['project' => $project->code]))->with('info', $message);
+        }
+
+        return redirect(route('workspace.project', ['project' => $project->code]))->with('alert', $message);
+    }
+
+    public function reject(Request $request)
+    {
+        /** @var \App\Models\Project */
+        $project = $this->user->projects()->where('code', $request->route('project'))->first();
+
+        if (!$project || !in_array($request->route('version'), $project->getVersionMarkedAs('review'))) return abort(403);
+
+        $project->refVersionAsArchived($request->route('version'));
+
+        event(new SuggestedVersionRejected());
+
+        $message = [
+            'status' => 'succes',
+            'title' => 'Version suggéréé rejete',
+            'message' => "La version n'est pas accepté",
+        ];
+
+        if (count($project->getVersionMarkedAs('review'))) {
+            return redirect(route('workspace.suggested.version.index', ['project', $project->code]))->with('alert', $message);
+        }
+
+        return redirect(route('workspace.project', ['project' => $project->code]))->with('info', $message);
     }
 
     /**
      * Get the right version to duplicate.
      * Duplicate the version by editing some data like the reason & the creator of this version.
-     * Reference this version as under creation. 
+     * Reference this version as under creation.
      */
     public function duplicate(DuplicateRequest $request, Project $project)
     {
-        if (!$project->canHaveNewVersions()) {
+        if (!$project->canHaveNewVersions() && !$this->user->can('suggest.versions')) {
             return abort(403);
         }
 
@@ -339,7 +374,7 @@ class ProjectVersionController extends Controller implements HasMiddleware
         if ($versionIds && $project->versions()->whereIn('id', $versionIds)->where('user_id', $this->user->id)->count()) {
             // Send an error back to the user
             throw new HttpResponseException(
-                $this->error(code: 409, message: "You already have a version in creation mode. Please complete or discard it before creating a new one."),
+                $this->error(code: 409, message: "Vous disposez déjà d'une version en mode création. Veuillez la compléter ou la supprimer avant d'en créer une nouvelle."),
             );
         }
 
@@ -364,6 +399,7 @@ class ProjectVersionController extends Controller implements HasMiddleware
         return ['project' =>  $project->code, 'version' => $version->id];
     }
 
+    // CHECK IF IS THE APPROPRIATE USER THAT ARE MAKING THE REQUEST!
     public function sync(Request $request, string $project, Version $version)
     {
         $version->update([
@@ -374,40 +410,24 @@ class ProjectVersionController extends Controller implements HasMiddleware
     }
 }
 
-if (!function_exists('array_diff_recursive')) {
-    function array_diff_recursive($array1, $array2)
-    {
-        $result = [];
-        foreach ($array1 as $key => $value) {
-            if (is_array($value)) {
-                if (!isset($array2[$key]) || !is_array($array2[$key])) {
-                    $result[$key] = $value;
-                } else {
-                    $recursiveDiff = array_diff_recursive($value, $array2[$key]);
-                    if (!empty($recursiveDiff)) {
-                        $result[$key] = $recursiveDiff;
-                    }
-                }
-            } elseif (!array_key_exists($key, $array2) || $array2[$key] !== $value) {
-                $result[$key] = $value;
-            }
-        }
-        return $result;
-    }
-}
-
-if (!function_exists('convertEmptyStringsToNull')) {
-    function convertEmptyStringsToNull(array $array)
-    {
-        foreach ($array as $key => $value) {
-            if (is_array($value)) {
-                // Recursively process the nested array
-                $array[$key] = convertEmptyStringsToNull($value);
-            } elseif (is_string($value) && trim($value) === '') {
-                // Convert empty string to null
-                $array[$key] = null;
-            }
-        }
-        return $array;
-    }
-}
+// if (!function_exists('array_diff_recursive')) {
+//     function array_diff_recursive($array1, $array2)
+//     {
+//         $result = [];
+//         foreach ($array1 as $key => $value) {
+//             if (is_array($value)) {
+//                 if (!isset($array2[$key]) || !is_array($array2[$key])) {
+//                     $result[$key] = $value;
+//                 } else {
+//                     $recursiveDiff = array_diff_recursive($value, $array2[$key]);
+//                     if (!empty($recursiveDiff)) {
+//                         $result[$key] = $recursiveDiff;
+//                     }
+//                 }
+//             } elseif (!array_key_exists($key, $array2) || $array2[$key] !== $value) {
+//                 $result[$key] = $value;
+//             }
+//         }
+//         return $result;
+//     }
+// }

@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests\Manage\Board;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Models\Project;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
+use Illuminate\Foundation\Http\FormRequest;
 
 class StoreRequest extends FormRequest
 {
@@ -13,7 +15,6 @@ class StoreRequest extends FormRequest
     public function authorize(): bool
     {
         return true;
-
     }
 
     /**

@@ -9,7 +9,7 @@ import { Button } from "@/Components/ui/button";
 import { useDebounce } from "@/Hooks/use-debounce";
 import { skipToken, useQuery } from "@tanstack/react-query";
 import { searchExistingResources } from "@/Services/api/resources";
-import { ChevronDown } from "lucide-react";
+import { ArrowRight, ChevronDown, X } from "lucide-react";
 import { Input } from "@/Components/ui/input";
 import { Textarea } from "@/Components/ui/textarea";
 import { Label } from "@/Components/ui/label";
@@ -18,6 +18,9 @@ import { Heading } from "@/Components/ui/heading";
 import { Progress } from "@/Components/ui/infinate-progress";
 import { Text } from "@/Components/ui/paragraph";
 import { InputError } from "@/Components/ui/input-error";
+import ReadMore from "@/Components/common/read-more";
+import { setDate } from "date-fns";
+import * as Tooltip from "@/Components/ui/tooltip";
 
 const ResourceForm = ({
     next,
@@ -26,7 +29,7 @@ const ResourceForm = ({
     markStepAsSuccess,
     clearStepError,
 }: StepperContentProps) => {
-    const { data, processing, validate, clearErrors, setError } =
+    const { data, setData, processing, validate, clearErrors, setError } =
         React.useContext(CreateProjectContext);
 
     const goNext = () => {
@@ -60,7 +63,32 @@ const ResourceForm = ({
                     projet.
                 </Heading>
 
-                <ResourceSelecter />
+                <ResourceSelecter
+                    resources={data.resources}
+                    addResource={(resource) => {
+                        if (
+                            data.resources.some((r) => r.code === resource.code)
+                        ) {
+                            alert("Cette resource est deja ajouté!");
+                            return;
+                        }
+
+                        setData((data) => {
+                            data.resources.push(resource);
+                            return { ...data };
+                        });
+                    }}
+                    removeResource={(code) => {
+                        const index = data.resources.findIndex(
+                            (r) => r.code === code
+                        );
+
+                        setData((data) => {
+                            data.resources.splice(index, 1);
+                            return { ...data };
+                        });
+                    }}
+                />
             </div>
 
             <div className="sm:space-y-6 space-y-4">
@@ -107,29 +135,23 @@ const ResourceForm = ({
     );
 };
 
-const ResourceSelecter = () => {
-    const {} = React.useContext(CreateProjectContext);
+const ResourceSelecter = ({ addResource, removeResource, resources }) => {
     const [search, setSearch] = React.useState("");
     const debouncedValue = useDebounce(search, 300);
     const searchInputRef = React.useRef<HTMLInputElement>(null);
 
-    const {
-        data: resources,
-        isFetching,
-        isLoading,
-        isError,
-        isSuccess,
-    } = useQuery({
+    const { data, isFetching, isLoading, isError, isSuccess } = useQuery({
         queryKey: ["search-existing-resources", debouncedValue],
         queryFn: debouncedValue
             ? async ({ signal }) =>
                   searchExistingResources(debouncedValue, { signal })
             : skipToken,
+        placeholderData: (previousData) => previousData,
     });
 
     return (
-        <div>
-            <Card.Card className="relative flex-1 w-full md:min-h-56 md:rounded-b-lg md:border-b border-b-0 rounded-b-none overflow-hidden">
+        <div className="flex md:flex-row flex-col justify-between items-start lg:gap-8 md:gap-4 gap-0">
+            <Card.Card className="relative flex-1 w-full md:min-h-96 md:rounded-b-lg md:border-b border-b-0 rounded-b-none overflow-hidden">
                 <div
                     className="absolute top-0 left-0 right-0 h-0.5 bg-indigo-50 hidden data-[pending=true]:block"
                     data-pending={isFetching || isLoading}
@@ -145,8 +167,55 @@ const ResourceSelecter = () => {
                 </Card.CardHeader>
                 <Card.CardContent className="space-y-2 md:max-h-[30rem] max-h-[20rem] overflow-y-auto snap-mandatory snap-y scrollbar-thumb-gray-400 scrollbar-track-gray-200 scrollbar-thin">
                     {isSuccess ? (
-                        resources.length ? (
-                            <></>
+                        data.length ? (
+                            data.map((resource, idx) => (
+                                <Card.Card
+                                    key={idx}
+                                    className="p-4 w-full space-y-2"
+                                >
+                                    <div className="flex justify-between items-center gap-4">
+                                        <Card.CardTitle className="text-base">
+                                            {resource.name}
+                                        </Card.CardTitle>
+                                        <Card.CardSubTitle className="text-sm">
+                                            {resource.code}
+                                        </Card.CardSubTitle>
+                                    </div>
+
+                                    <div className="flex justify-between gap-4">
+                                        {resource.description && (
+                                            <ReadMore
+                                                text={resource.description}
+                                                charLimit={100}
+                                                readMoreText="...Lire plus"
+                                                readLessText="...Lire moins"
+                                            />
+                                        )}
+
+                                        <Tooltip.TooltipProvider>
+                                            <Tooltip.Tooltip>
+                                                <Tooltip.TooltipTrigger asChild>
+                                                    <Button
+                                                        variant="ghost"
+                                                        className="self-end"
+                                                        onClick={() =>
+                                                            addResource({
+                                                                code: resource.code,
+                                                                name: resource.name,
+                                                            })
+                                                        }
+                                                    >
+                                                        <ArrowRight className="h-5 w-5 md:rotate-0 rotate-90" />
+                                                    </Button>
+                                                </Tooltip.TooltipTrigger>
+                                                <Tooltip.TooltipContent>
+                                                    Ajouter la ressource
+                                                </Tooltip.TooltipContent>
+                                            </Tooltip.Tooltip>
+                                        </Tooltip.TooltipProvider>
+                                    </div>
+                                </Card.Card>
+                            ))
                         ) : (
                             <Text>Aucun résultat trouvé</Text>
                         )
@@ -162,6 +231,37 @@ const ResourceSelecter = () => {
                             la resource.
                         </Text>
                     )}
+                </Card.CardContent>
+            </Card.Card>
+
+            <Card.Card className="flex-1 w-full md:rounded-t-lg rounded-t-none">
+                <Card.CardHeader>
+                    <Card.CardTitle>Ressources séléctionner</Card.CardTitle>
+                </Card.CardHeader>
+                <Card.CardContent className="space-y-2 md:max-h-[30rem] max-h-[20rem] overflow-y-auto snap-mandatory snap-y scrollbar-thumb-gray-400 scrollbar-track-gray-200 scrollbar-thin">
+                    {resources.map((resource, idx) => (
+                        <Card.Card
+                            key={idx}
+                            className="p-4 flex items-center justify-between"
+                        >
+                            <div className="flex flex-col">
+                                <Card.CardSubTitle className="text-sm font-normal">
+                                    {resource.code}
+                                </Card.CardSubTitle>
+                                <Card.CardTitle className="text-base font-medium">
+                                    {resource.name}
+                                </Card.CardTitle>
+                            </div>
+
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                onClick={() => removeResource(resource.code)}
+                            >
+                                <X />
+                            </Button>
+                        </Card.Card>
+                    ))}
                 </Card.CardContent>
             </Card.Card>
         </div>

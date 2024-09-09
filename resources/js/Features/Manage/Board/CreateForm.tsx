@@ -8,7 +8,7 @@ import { useDebounce } from "@/Hooks/use-debounce";
 import { User } from "@/types";
 import { skipToken, useQuery } from "@tanstack/react-query";
 import { searchUsers } from "@/Services/api/users";
-import { ArrowRight, X } from "lucide-react";
+import { ArrowRight, Dot, GitMerge, X } from "lucide-react";
 import { DateRange } from "react-day-picker";
 import { useUpdateEffect } from "@/Hooks/use-update-effect";
 import { Avatar, AvatarFallback } from "@/Components/ui/avatar";
@@ -21,7 +21,13 @@ import { Text } from "@/Components/ui/paragraph";
 import UserAvatar from "@/Components/common/user-hover-avatar";
 import * as Select from "@/Components/ui/select";
 import { Calendar } from "@/Components/ui/calendar";
-import { format, isBefore, startOfToday } from "date-fns";
+import { format, formatDistanceToNow, isBefore, startOfToday } from "date-fns";
+import { searchProjects } from "@/Services/api/projects";
+import { Badge } from "@/Components/ui/badge";
+import * as Tooltip from "@/Components/ui/tooltip";
+import { fr } from "date-fns/locale";
+import { Project } from "@/types/project";
+import ProjectBadge from "@/Components/common/project-badge";
 
 function prepareData(data: any) {
     const formData: any = { ...data };
@@ -40,22 +46,26 @@ function prepareData(data: any) {
         );
     }
 
+    if (formData.project?.code) {
+        formData.project = formData.project.code;
+    }
+
     return formData;
 }
 
 const CreateForm: React.FC = () => {
-    const { data, setData, errors, processing, clearErrors, reset, setError } =
-        useForm<{
-            judgment_period: DateRange;
-            president: string;
-            project: string;
-            members: Pick<User, "uuid" | "name" | "email">[];
-        }>({
-            judgment_period: { from: undefined, to: undefined },
-            project: "",
-            president: "",
-            members: [],
-        });
+    const [processing, setProcessing] = React.useState(false);
+    const { data, setData, errors, clearErrors, reset, setError } = useForm<{
+        judgment_period: DateRange;
+        president: string;
+        project?: Project;
+        members: Pick<User, "uuid" | "name" | "email">[];
+    }>({
+        judgment_period: { from: undefined, to: undefined },
+        project: undefined,
+        president: "",
+        members: [],
+    });
 
     const addMember = (user: User) => {
         if (!data.members.some((member) => member.uuid == user.uuid)) {
@@ -82,11 +92,16 @@ const CreateForm: React.FC = () => {
             const { from, to } = range;
             const validFrom = from && isBefore(from, today) ? today : from;
             const validTo = to && isBefore(to, today) ? undefined : to;
-
+            clearErrors("judgment_period");
             setData("judgment_period", { from: validFrom, to: validTo });
         } else {
             setData("judgment_period", undefined!);
         }
+    };
+
+    const selectProject = (project: Project) => {
+        clearErrors("project");
+        setData("project", project);
     };
 
     const submitHandler = (e: React.FormEvent) => {
@@ -96,6 +111,8 @@ const CreateForm: React.FC = () => {
             onError: (errors) => setError(errors as any),
             preserveScroll: "errors",
             onSuccess: () => reset(),
+            onBefore: () => setProcessing(true),
+            onFinish: () => setProcessing(false),
         });
     };
 
@@ -111,12 +128,26 @@ const CreateForm: React.FC = () => {
             className="space-y-4 md:space-y-6"
             onSubmit={submitHandler}
         >
-            <div className="flex md:flex-row flex-col lg:gap-10 md:gap-5 gap-4">
+            <div className="flex flex-wrap gap-4">
                 <div className="space-y-1 flex-1">
                     <Label required>Projet associé</Label>
-                    <SearchProjects />
+
+                    {data.project ? (
+                        <Card.Card className="p-2">
+                            <ProjectCard
+                                project={data.project}
+                                selected={true}
+                                unselectProject={() =>
+                                    setData("project", undefined)
+                                }
+                            />
+                        </Card.Card>
+                    ) : (
+                        <SearchProjects selectProject={selectProject} />
+                    )}
                     <InputError message={errors["project"]} />
                 </div>
+
                 <div className="space-y-1">
                     <Label required>Periode de judgment</Label>
                     <Calendar
@@ -126,8 +157,9 @@ const CreateForm: React.FC = () => {
                         onSelect={handleDateRangeChange}
                         className="flex p-0"
                         classNames={{
-                            months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0 border rounded-md p-4",
+                            months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0 border rounded-md shadow p-4",
                         }}
+                        disabled={{ before: new Date() }}
                     />
                     <InputError message={errors.judgment_period} />
                 </div>
@@ -135,7 +167,7 @@ const CreateForm: React.FC = () => {
 
             <div className="space-y-1">
                 <Label required>Membres du conseil</Label>
-                <div className="flex md:flex-row flex-col justify-between items-start lg:gap-10 md:gap-5 gap-0">
+                <div className="flex md:flex-row flex-col justify-between items-start md:gap-4 gap-0">
                     <SearchUsers addMember={addMember} />
                     <Card.Card className="flex-1 w-full md:rounded-t-lg rounded-t-none">
                         <Card.CardHeader>
@@ -188,7 +220,7 @@ const CreateForm: React.FC = () => {
                                 >
                                     <Select.SelectTrigger>
                                         {!data.president
-                                            ? "Select pre"
+                                            ? "Sélectionner un Président"
                                             : data.members.find(
                                                   (m) =>
                                                       m.uuid === data.president
@@ -232,7 +264,11 @@ const CreateForm: React.FC = () => {
                 >
                     <Link href={route("manage.board.index")}>Annuler</Link>
                 </Button>
-                <Button disabled={processing} className="w-full">
+                <Button
+                    disabled={processing}
+                    variant="primary"
+                    className="w-full"
+                >
                     Créer
                 </Button>
             </div>
@@ -332,21 +368,25 @@ export const SearchUsers: React.FC<any> = ({ addMember }) => {
     );
 };
 
-export const SearchProjects: React.FC<any> = ({ addMember }) => {
+export const SearchProjects: React.FC<any> = ({ selectProject }) => {
     const [search, setSearch] = React.useState("");
     const searchInputRef = React.useRef<HTMLInputElement>(null);
     const debouncedValue = useDebounce(search, 300);
 
     const {
-        data: users,
+        data: projects,
         isFetching,
         isLoading,
         isError,
         isSuccess,
     } = useQuery({
-        queryKey: ["search-users", debouncedValue],
+        queryKey: ["search-new-projects", debouncedValue],
         queryFn: debouncedValue
-            ? async ({ signal }) => searchUsers(debouncedValue, { signal })
+            ? async ({ signal }) =>
+                  searchProjects(
+                      { query: debouncedValue, status: ["new", "rejected"] },
+                      { signal }
+                  )
             : skipToken,
         placeholderData: (previousData) => previousData,
     });
@@ -367,43 +407,18 @@ export const SearchProjects: React.FC<any> = ({ addMember }) => {
                         onValueChange={(value) => setSearch(value)}
                     />
                 </Card.CardHeader>
-                <Card.CardContent className="space-y-2 md:max-h-[30rem] max-h-[20rem] overflow-y-auto snap-mandatory snap-y scrollbar-thumb-gray-400 scrollbar-track-gray-200 scrollbar-thin">
+                <Card.CardContent className="space-y-2 h-full md:max-h-[30rem] max-h-[20rem] overflow-y-auto snap-mandatory snap-y scrollbar-thumb-gray-400 scrollbar-track-gray-200 scrollbar-thin">
                     {isSuccess ? (
-                        users.length ? (
-                            users?.map((user) => (
-                                <div
-                                    key={user.uuid}
-                                    className={cn(
-                                        buttonVariants({
-                                            variant: "ghost",
-                                        }),
-                                        "flex justify-between items-center gap-2 py-6 px-2 select-none hover:bg-transparent"
-                                    )}
-                                >
-                                    <div className="flex items-center space-x-4">
-                                        <Avatar>
-                                            <AvatarFallback>
-                                                {getInitials(user.name)}
-                                            </AvatarFallback>
-                                        </Avatar>
-                                        <div>
-                                            <p className="text-sm font-medium leading-none">
-                                                {user.name}
-                                            </p>
-                                            <p className="text-sm text-gray-600">
-                                                {user.email}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() => addMember(user)}
-                                    >
-                                        <ArrowRight className="h-5 w-5 md:rotate-0 rotate-90" />
-                                    </Button>
-                                </div>
-                            ))
+                        projects.length ? (
+                            <div className="divide-y">
+                                {projects?.map((project, idx) => (
+                                    <ProjectCard
+                                        key={idx}
+                                        project={project}
+                                        selectProject={selectProject}
+                                    />
+                                ))}
+                            </div>
                         ) : (
                             <Text>Aucun résultat trouvé</Text>
                         )
@@ -414,9 +429,9 @@ export const SearchProjects: React.FC<any> = ({ addMember }) => {
                         </div>
                     ) : (
                         <Text>
-                            Rechercher et ajouter les membres de votre projet.
-                            Vous pouvez rechercher les membres par leur nom ou
-                            leur adresse e-mail.
+                            Rechercher et ajouter un projet pour le mettre en
+                            examen. Vous pouvez rechercher les projet par leur
+                            code, nom, nature, domaine ou par créateur.
                         </Text>
                     )}
                 </Card.CardContent>
@@ -425,4 +440,70 @@ export const SearchProjects: React.FC<any> = ({ addMember }) => {
     );
 };
 
+export const ProjectCard = ({
+    project,
+    selectProject,
+    selected = false,
+    unselectProject,
+}: any) => {
+    return (
+        <div className="py-2">
+            <div className="flex items-center justify-between gap-4">
+                <Text className="sm:text-sm text-xs inline-flex items-center">
+                    <span className="font-medium">{project.unit.abbr}</span>
+                    <GitMerge className="h-4 w-4 mx-1.5 text-gray-800" />
+                    <span className="font-medium">{project.division.abbr}</span>
+                    <Dot className="h-6 w-6 text-gray-800" />
+                    <span className="font-medium">{project.code}</span>
+                </Text>
+
+                <ProjectBadge
+                    status={project._status}
+                    className="sm:text-sm text-xs"
+                >
+                    {project.status}
+                </ProjectBadge>
+            </div>
+
+            <div className="mt-2">
+                <Tooltip.TooltipProvider>
+                    <Tooltip.Tooltip>
+                        <Tooltip.TooltipTrigger asChild>
+                            <h2 className="font-medium text-base sm:truncate">
+                                {project.name}
+                            </h2>
+                        </Tooltip.TooltipTrigger>
+                        <Tooltip.TooltipContent className="text-sm">
+                            {project.name}
+                        </Tooltip.TooltipContent>
+                    </Tooltip.Tooltip>
+                </Tooltip.TooltipProvider>
+
+                <Text className="text-sm">{project.nature}</Text>
+            </div>
+
+            <div className="mt-2 flex items-end justify-between gap-4">
+                <Text className="text-sm">
+                    Créer par <b>{project.creator.name}</b>{" "}
+                    {formatDistanceToNow(project.createdAt, {
+                        addSuffix: true,
+                        locale: fr,
+                    })}
+                </Text>
+                {!selected ? (
+                    <Button
+                        type="button"
+                        onClick={() => selectProject(project)}
+                    >
+                        Sélectionner
+                    </Button>
+                ) : (
+                    <Button type="button" onClick={unselectProject}>
+                        Retirer
+                    </Button>
+                )}
+            </div>
+        </div>
+    );
+};
 export default CreateForm;

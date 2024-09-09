@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-use stdClass;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 use Modules\Versioning\Models\Version;
 use Illuminate\Database\Eloquent\Model;
 use Modules\Versioning\Traits\Versionable;
@@ -16,10 +14,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Laravel\Scout\Searchable;
 
 class Project extends Model
 {
-    use HasFactory, SoftDeletes, Versionable;
+    use Searchable, HasFactory, Versionable;
 
     protected $guarded = [];
 
@@ -74,6 +73,32 @@ class Project extends Model
         );
     }
 
+    /**
+     * Determine if the model should be searchable.
+     *
+     * @return bool
+     */
+    public function shouldBeSearchable(): bool
+    {
+        return $this->status !== "creation";
+    }
+
+    /**
+     * Get the indexable data array for the model.
+     *
+     * @return array<string, mixed>
+     */
+    public function toSearchableArray(): array
+    {
+        return array_merge($this->only(['code', 'name']), [
+            'id' => (string) $this->id,
+            'nature' => $this->nature->name,
+            'domains' => $this->domains->map(fn($d) => $d->name)->toArray(),
+            'status' => __("status.{$this->status}"),
+            'created_at' => $this->created_at->timestamp,
+        ]);
+    }
+
     public function getRouteKeyName()
     {
         return "code";
@@ -97,7 +122,7 @@ class Project extends Model
      */
     public function canHaveNewVersions(): bool
     {
-        return in_array($this->status, ['new', 'rejected']);
+        return $this->status === 'new';
     }
 
     /**
@@ -307,7 +332,7 @@ class Project extends Model
 
     /**
      * Get the main version of a project.
-     * 
+     *
      * @return null|Version
      */
     public function getMainVersion(): ?Version
@@ -326,7 +351,7 @@ class Project extends Model
      * Edit version info by key-value pair
      * @var string KEYS ARE: []
      * @var int|array<int>
-     * 
+     *
      * @return void
      */
     public function editVersionInfo(string $key, int|array $value)
@@ -335,7 +360,7 @@ class Project extends Model
     }
 
     /**
-     * This will move the current version to previous versions. 
+     * This will move the current version to previous versions.
      * And ref the provided id as main version.
      */
     public function refVersionAsMain(int $version): bool

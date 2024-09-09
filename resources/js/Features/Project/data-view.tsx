@@ -25,18 +25,15 @@ const status = [
 ];
 
 const sortOptions = [
-    { value: "activity", label: "Trier par activité" },
-    { value: "created", label: "Trier par date de création" },
-    { value: "name", label: "Trier par nom" },
+    { value: "by_activity", label: "Trier par activité" },
+    { value: "by_creation_date", label: "Trier par date de création" },
+    { value: "by_name", label: "Trier par nom" },
 ];
 
 const DataView: React.FC<any> = ({ projects }) => {
-    const [selectedStatus, setSelectedStatus] = React.useState<string[]>([]);
     const [mode, setMode] = useLocalStorage<string>("projects-mode", "grid");
-    const [sort, setSort] = useLocalStorage<string>(
-        "projects-sort",
-        "activity"
-    );
+    const [selectedStatus, setSelectedStatus] = React.useState<string[]>([]);
+    const [sort, setSort] = React.useState<string>("by_activity");
 
     const debounce = useDebounce(
         JSON.stringify({
@@ -48,7 +45,7 @@ const DataView: React.FC<any> = ({ projects }) => {
 
     useUpdateEffect(() => {
         router.get(
-            "/app/projects",
+            route("project.index"),
             { status: selectedStatus, sort },
             {
                 only: ["projects"],
@@ -233,9 +230,10 @@ const DataView: React.FC<any> = ({ projects }) => {
                             ))}
                         </DropdownMenu.DropdownMenuContent>
                     </DropdownMenu.DropdownMenu>
+
                     <ToggleGroup.ToggleGroup
                         type="single"
-                        className="rounded p-0.5 bg-white"
+                        className="hidden md:block rounded p-0.5 bg-white"
                         value={mode}
                         onValueChange={(value) => setMode(value)}
                     >
@@ -250,7 +248,7 @@ const DataView: React.FC<any> = ({ projects }) => {
             </div>
 
             <ul
-                className="flex data-[display=list]:flex-col data-[display=grid]:flex-row *:w-full md:data-[display=grid]:*:max-w-md flex-wrap gap-4"
+                className="flex data-[display=list]:flex-col data-[display=grid]:flex-row *:w-full md:data-[display=grid]:*:max-w-sm flex-wrap gap-2"
                 data-display={mode}
             >
                 {projects.map((project, idx) => (

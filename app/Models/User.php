@@ -20,7 +20,7 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use Searchable, HasFactory, HasUuids, Notifiable, SoftDeletes, HasPermissions, HasRoles;
+    use Searchable, HasFactory, HasUuids, Notifiable,  HasPermissions, HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -58,6 +58,7 @@ class User extends Authenticatable
             'status' => 'boolean',
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'last_activity' => 'datetime',
         ];
     }
 
@@ -101,6 +102,17 @@ class User extends Authenticatable
         return ['uuid'];
     }
 
+
+    /**
+     * Determine if the model should be searchable.
+     *
+     * @return bool
+     */
+    public function shouldBeSearchable(): bool
+    {
+        return (bool) $this->status;
+    }
+
     /**
      * Get the indexable data array for the model.
      *
@@ -108,9 +120,9 @@ class User extends Authenticatable
      */
     public function toSearchableArray(): array
     {
-        return array_merge($this->toArray(), [
+        return array_merge($this->only(['uuid', 'first_name', 'last_name', 'email']), [
             'id' => (string) $this->id,
-            'created_at' => $this->created_at?->timestamp,
+            'created_at' => $this->created_at->timestamp,
         ]);
     }
 
@@ -206,6 +218,7 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Board::class, 'board_user', 'user_id', 'board_id')
             ->withPivot('comment', 'is_favorable')
+            ->using(BoardUser::class)
             ->withTimestamps();
     }
 }

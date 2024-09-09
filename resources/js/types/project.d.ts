@@ -2,8 +2,8 @@ import { Unit, User } from ".";
 import { Division } from "./division";
 
 type Timeline = {
-    from: string;
-    to: string;
+    from: string | number | Date;
+    to: string | number | Date;
 }
 
 type ProjectStatus = "creation" | "new" | "review" | "pending" | "suspended" | "rejected" | "completed";
@@ -34,7 +34,7 @@ type Member = {
     email: User["email"];
 };
 
-type TaskStatus = "to_do" | "in_progress" | "done" | "suspended" | "canceled";
+type TaskStatus = "todo" | "progress" | "done" | "suspended" | "canceled";
 
 type TaskPriority = "Basse" | "Moyenne" | "Haute";
 

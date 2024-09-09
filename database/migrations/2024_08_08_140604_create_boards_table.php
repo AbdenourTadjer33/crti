@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('boards', function (Blueprint $table) {
             $table->id();
-            $table->string('code', 10)->unique();
-            $table->longText('description')->nullable();
+            $table->string('code', 15)->unique()->index();
             $table->date('judgment_start_date');
             $table->date('judgment_end_date');
             $table->foreignId('user_id')->nullable()->constrained('users', 'id')->nullOnDelete();
             $table->foreignId('project_id')->constrained('projects', 'id')->cascadeOnDelete();
+            $table->boolean("decision")->nullable();
             $table->timestamps();
         });
 

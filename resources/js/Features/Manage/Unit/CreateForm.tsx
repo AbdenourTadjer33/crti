@@ -28,7 +28,7 @@ const CreateForm = () => {
 
     return (
         <FormWrapper
-            className="space-y-4 md:space-y-8"
+            className="space-y-4 md:space-y-6"
             onSubmit={submitHandler}
         >
             <div className="grid grid-cols-3 gap-4">

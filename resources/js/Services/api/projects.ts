@@ -16,5 +16,9 @@ async function duplicateProjectVersion(projectId: string, data: any, config: Axi
     return await response.data;
 }
 
+async function searchProjects(data: Record<string, any>, config: AxiosRequestConfig = {}): Promise<any[]> {
+    const response = await axios.get(route('search.project', data), config);
+    return await response.data;
+}
 
-export { createProject, syncProjectVersion, duplicateProjectVersion }
+export { createProject, syncProjectVersion, duplicateProjectVersion, searchProjects }

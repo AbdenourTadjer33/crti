@@ -20,7 +20,6 @@ class UserResource extends JsonResource
             'email' => $this->email,
             'isEmailVerified' => (bool) $this->email_verified_at,
             'status' => $this->status,
-            'picture' => $this->picture,
             // 'permissions' => $this->getDirectPermissions()->toArray(),
         ];
     }

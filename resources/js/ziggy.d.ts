@@ -10,7 +10,66 @@ declare module 'ziggy-js' {
     ],
     "app": [],
     "search.user": [],
+    "search.project": [],
+    "search.resource": [],
     "manage.index": [],
+    "manage.permission.index": [],
+    "manage.permission.create": [],
+    "manage.permission.store": [],
+    "manage.permission.show": [
+        {
+            "name": "permission",
+            "required": true
+        }
+    ],
+    "manage.permission.edit": [
+        {
+            "name": "permission",
+            "required": true
+        }
+    ],
+    "manage.permission.update": [
+        {
+            "name": "permission",
+            "required": true
+        }
+    ],
+    "manage.permission.destroy": [
+        {
+            "name": "permission",
+            "required": true
+        }
+    ],
+    "manage.role.index": [],
+    "manage.role.create": [],
+    "manage.role.store": [],
+    "manage.role.show": [
+        {
+            "name": "role",
+            "required": true
+        }
+    ],
+    "manage.role.edit": [
+        {
+            "name": "role",
+            "required": true,
+            "binding": "id"
+        }
+    ],
+    "manage.role.update": [
+        {
+            "name": "role",
+            "required": true,
+            "binding": "id"
+        }
+    ],
+    "manage.role.destroy": [
+        {
+            "name": "role",
+            "required": true,
+            "binding": "id"
+        }
+    ],
     "manage.unit.index": [],
     "manage.unit.create": [],
     "manage.unit.store": [],
@@ -95,68 +154,10 @@ declare module 'ziggy-js' {
     "manage.unit.division.destroy": [
         {
             "name": "unit",
-            "required": true,
-            "binding": "id"
+            "required": true
         },
         {
             "name": "division",
-            "required": true,
-            "binding": "id"
-        }
-    ],
-    "manage.permission.index": [],
-    "manage.permission.create": [],
-    "manage.permission.store": [],
-    "manage.permission.show": [
-        {
-            "name": "permission",
-            "required": true
-        }
-    ],
-    "manage.permission.edit": [
-        {
-            "name": "permission",
-            "required": true
-        }
-    ],
-    "manage.permission.update": [
-        {
-            "name": "permission",
-            "required": true
-        }
-    ],
-    "manage.permission.destroy": [
-        {
-            "name": "permission",
-            "required": true
-        }
-    ],
-    "manage.role.index": [],
-    "manage.role.create": [],
-    "manage.role.store": [],
-    "manage.role.show": [
-        {
-            "name": "role",
-            "required": true
-        }
-    ],
-    "manage.role.edit": [
-        {
-            "name": "role",
-            "required": true,
-            "binding": "id"
-        }
-    ],
-    "manage.role.update": [
-        {
-            "name": "role",
-            "required": true,
-            "binding": "id"
-        }
-    ],
-    "manage.role.destroy": [
-        {
-            "name": "role",
             "required": true,
             "binding": "id"
         }
@@ -199,27 +200,28 @@ declare module 'ziggy-js' {
         {
             "name": "board",
             "required": true,
-            "binding": "id"
+            "binding": "code"
         }
     ],
     "manage.board.edit": [
         {
             "name": "board",
             "required": true,
-            "binding": "id"
+            "binding": "code"
         }
     ],
     "manage.board.update": [
         {
             "name": "board",
             "required": true,
-            "binding": "id"
+            "binding": "code"
         }
     ],
     "manage.board.destroy": [
         {
             "name": "board",
-            "required": true
+            "required": true,
+            "binding": "code"
         }
     ],
     "manage.resource.index": [],
@@ -276,13 +278,32 @@ declare module 'ziggy-js' {
     "project.version.sync": [
         {
             "name": "project",
-            "required": true,
-            "binding": "code"
+            "required": true
         },
         {
             "name": "version",
             "required": true,
             "binding": "id"
+        }
+    ],
+    "project.version.accept": [
+        {
+            "name": "project",
+            "required": true
+        },
+        {
+            "name": "version",
+            "required": true
+        }
+    ],
+    "project.version.reject": [
+        {
+            "name": "project",
+            "required": true
+        },
+        {
+            "name": "version",
+            "required": true
         }
     ],
     "project.version.create": [
@@ -294,8 +315,7 @@ declare module 'ziggy-js' {
     "project.version.store": [
         {
             "name": "project",
-            "required": true,
-            "binding": "code"
+            "required": true
         }
     ],
     "project.version.edit": [
@@ -326,7 +346,19 @@ declare module 'ziggy-js' {
         {
             "name": "board",
             "required": true,
-            "binding": "id"
+            "binding": "code"
+        }
+    ],
+    "board.accept": [
+        {
+            "name": "board",
+            "required": true
+        }
+    ],
+    "board.reject": [
+        {
+            "name": "board",
+            "required": true
         }
     ],
     "board.index": [],
@@ -344,12 +376,6 @@ declare module 'ziggy-js' {
             "binding": "code"
         }
     ],
-    "workspace.calendar": [
-        {
-            "name": "project",
-            "required": true
-        }
-    ],
     "workspace.kanban": [
         {
             "name": "project",
@@ -357,9 +383,19 @@ declare module 'ziggy-js' {
             "binding": "code"
         }
     ],
-    "workspace.suggested.version": [
+    "workspace.suggested.version.index": [
         {
             "name": "project",
+            "required": true
+        }
+    ],
+    "workspace.suggested.version.show": [
+        {
+            "name": "project",
+            "required": true
+        },
+        {
+            "name": "version",
             "required": true
         }
     ],

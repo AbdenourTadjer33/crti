@@ -10,7 +10,6 @@ import { Textarea } from "@/Components/ui/textarea";
 import { isAnyKeyBeginWith } from "@/Libs/Validation/utils";
 import { X } from "lucide-react";
 import { User } from "@/types";
-import { updateGrade } from "@/Services/api/users";
 
 export interface Member {
     id: number;
@@ -65,17 +64,17 @@ const EditGradeModal: React.FC<EditGradeModalProps> = ({
             grade: grade,
         };
 
-        try {
-            await updateGrade(member.id, grade);
-            onSave(grade);
-            onClose();
-        } catch (error: any) {
-            if (error.response && error.response.status === 422) {
-                setValidationErrors(error.response.data.errors || {});
-            } else {
-                alert("Une erreur est survenue lors de la mise à jour du grade.");
-            }
-        }
+        // try {
+        //     await updateGrade(member.id, grade);
+        //     onSave(grade);
+        //     onClose();
+        // } catch (error: any) {
+        //     if (error.response && error.response.status === 422) {
+        //         setValidationErrors(error.response.data.errors || {});
+        //     } else {
+        //         alert("Une erreur est survenue lors de la mise à jour du grade.");
+        //     }
+        // }
     };
 
 

@@ -11,7 +11,6 @@ use App\Enums\ProjectStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Gate;
 use App\Events\Project\ProjectInitialized;
 use App\Http\Requests\Project\StoreRequest;
 use Illuminate\Routing\Controllers\Middleware;
@@ -19,6 +18,8 @@ use App\Http\Resources\Project\ProjectRessource;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use App\Http\Resources\Project\ProjectDetailsResource;
 use App\Http\Resources\Project\ProjectInCreationResource;
+use App\Http\Resources\Project\ProjectMemberResource;
+use App\Http\Resources\Project\ProjectPreviousVersionResource;
 
 class ProjectController extends Controller implements HasMiddleware
 {
@@ -39,11 +40,26 @@ class ProjectController extends Controller implements HasMiddleware
     public function index(Request $request)
     {
         $projectsFn = function () use ($request) {
+
+            if (!$this->user->canAny(['access.projects', 'access-related.projects', 'access-related.members.projects', 'access-related.divisions.projects'])) {
+                return [];
+            }
+
+            /** @var Illuminate\Database\Eloquent\Builder */
             $baseQuery = Project::with(['division:id,unit_id,abbr,name', 'division.unit:id,abbr,name', 'nature:id,name', 'users', 'user'])
                 ->whereNot('status', 'creation');
 
-            if ($request->input('status')) {
-                $baseQuery->whereIn('status', $request->input('status'));;
+            if ($request->input('status', []) && $filter = array_intersect($request->input('status', []), ["new", "review", "pending", "suspended", "rejected", "completed"])) {
+                $baseQuery->whereIn('status', $filter);
+                unset($filter);
+            }
+
+
+            if ($request->input('sort') && in_array($request->input('sort'), ["by_creation_date", "by_name"])) {
+                if ($request->input('sort') === "by_name") $baseQuery->orderBy('name');
+                if ($request->input('sort') === "by_creation_date") $baseQuery->orderBy('created_at');
+            } else {
+                $baseQuery->latest('updated_at');
             }
 
             if ($this->user->can('access.projects')) {
@@ -74,7 +90,6 @@ class ProjectController extends Controller implements HasMiddleware
         };
 
         $projectsInCreationFn = function () {
-
             $projects = Project::with([
                 'division:id,unit_id,name,abbr',
                 'division.unit:id,name,abbr',
@@ -115,40 +130,46 @@ class ProjectController extends Controller implements HasMiddleware
     public function show(Request $request)
     {
         /** @var Project */
-            $project = Project::query()
+        $project = Project::with(['nature', 'domains', 'partner', 'users', 'tasks', 'tasks.users', 'existingResources', 'requestedResources', 'division:id,unit_id,abbr,name', 'division.unit:id,abbr,name'])
             ->where('code', $request->route('project'))
             ->whereNot('status', ProjectStatus::creation->name)
-            ->first(['id', 'code', 'status', 'version_info']);
+            ->first();
 
-        if (!$project) return abort(404, 'Sorry, the page you are looking for could not be found.');
+        if (!$project) return abort(404);
 
-        $versionInCreationFn = function () use ($project) {
-            $versionIds = $project->getVersionMarkedAs('creation');
-            if (!$versionIds) return;
+        $previousVersionFn = function () use ($project) {
+            $versionIds = [...$project->getVersionMarkedAs('previous'), $project->getVersionMarkedAs('main')];
 
-            $version = $project->versions()->whereIn('id', $versionIds)->where('user_id', $this->user->id)->first(['id', 'reason', 'created_at']);
-            return $version;
+            if (count($versionIds) === 1) return;
+
+            $project->load([
+                'versions' => fn($query) => $query->whereIn('id', $versionIds)->select(['id', 'versionable_id', 'versionable_type', 'user_id', 'reason', 'created_at'])->latest(),
+                'versions.user:id,uuid,first_name,last_name,email'
+            ]);
+
+            return $project->versions->map(fn($version) => [
+                'name' => 'Version ' . (array_search($version->id, $versionIds) + 1),
+                'reason' => $version->reason,
+                'creator' => new ProjectMemberResource($version->user),
+                'isSuggested' => $version->user->id !== $project->user_id,
+                'isFirstVersion' => $project->versions->last()->id === $version->id,
+                'createdAt' => $version->created_at,
+            ]);
         };
 
         return Inertia::render('Project/Show', [
-            'project' => fn() => new ProjectDetailsResource($project->getMainVersion()->getModel()),
-            'canCreateNewVersion' => fn() => $project->canHaveNewVersions(),
-            'versionInCreation' => $versionInCreationFn,
-            'havePreviousVersion' => fn() => (bool)$project->getVersionMarkedAs('previous'),
-            'haveVersionInReview' => fn() => $this->user->id === $project->user_id && $project->getVersionMarkedAs('review'),
+            'project' => fn() => new ProjectDetailsResource($project),
+            'canCreateNewVersion' => fn() => $project->canHaveNewVersions() && $this->user->can('suggest.versions'),
+            'previousVersions' => $previousVersionFn,
+            // 'versionInCreation' => $versionInCreationFn,
         ]);
-    }
-
-    public function suggest(Request $request)
-    {
-        Gate::authorize('create.projects');
-
-        $request->validate([
-            'value' => ['required', 'string', 'min:4', 'max: 50'],
-        ]);
-
-        if ($request->routeIs('project.suggest.domain')) return Domain::suggest($request->input('value'));
-
-        return Nature::suggest($request->input('value'));
     }
 }
+
+
+// $versionInCreationFn = function () use ($project) {
+//     $versionIds = $project->getVersionMarkedAs('creation');
+//     if (!$versionIds) return;
+//     $version = $project->versions()->whereIn('id', $versionIds)->where('user_id', $this->user->id)->first(['id', 'reason', 'created_at']);
+//     return $version;
+// };

@@ -7,10 +7,10 @@ import { Badge } from "@/Components/ui/badge";
 import { Dot, GitMerge } from "lucide-react";
 import { Project } from "@/types/project";
 import UserAvatar from "@/Components/common/user-hover-avatar";
-import { Heading } from "@/Components/ui/heading";
 import { buttonVariants } from "@/Components/ui/button";
 import { Card } from "@/Components/ui/card";
 import * as Tooltip from "@/Components/ui/tooltip";
+import ProjectBadge from "@/Components/common/project-badge";
 
 const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
     const {
@@ -38,23 +38,18 @@ const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
                     <span className="font-medium">{code}</span>
                 </Text>
 
-                <Badge className="sm:text-sm text-xs">{status}</Badge>
+                <ProjectBadge status={project._status} className="text-xs">{status}</ProjectBadge>
             </div>
 
             <div className="mt-2">
                 <Tooltip.TooltipProvider>
                     <Tooltip.Tooltip>
                         <Tooltip.TooltipTrigger asChild>
-                            <Heading
-                                level={2}
-                                className="font-medium md:text-lg truncate"
-                            >
+                            <h2 className="font-medium md:text-lg text-base sm:truncate">
                                 {name}
-                            </Heading>
+                            </h2>
                         </Tooltip.TooltipTrigger>
-                        <Tooltip.TooltipContent>
-                            {name}
-                        </Tooltip.TooltipContent>
+                        <Tooltip.TooltipContent>{name}</Tooltip.TooltipContent>
                     </Tooltip.Tooltip>
                 </Tooltip.TooltipProvider>
 
@@ -87,7 +82,7 @@ const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
                         href={href}
                         className={buttonVariants({ variant: "primary" })}
                     >
-                        Voir
+                        Sélectionnez
                     </Link>
                 </div>
             </div>

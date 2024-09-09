@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Manage;
 
+use Inertia\Inertia;
+use App\Models\Project;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Resources\Manage\Project\ProjectBaseResource;
 
 class ProjectController extends Controller
 {
@@ -12,7 +14,14 @@ class ProjectController extends Controller
      */
     public function index()
     {
-        //
+        $projects = Project::with(['division:id,abbr,name', 'user:id,uuid,first_name,last_name,email'])
+            ->withCount('versions')
+            ->latest('updated_at')
+            ->paginate();
+
+        return Inertia::render('Manage/project/index', [
+            'projects' => ProjectBaseResource::collection($projects),
+        ]);
     }
 
     /**

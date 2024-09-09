@@ -98,9 +98,11 @@ class UnitController extends Controller
      */
     public function destroy(Unit $unit)
     {
+        $unit->delete();
+
         return redirect()->back()->with('alert', [
-            'status' => 'error',
-            'message' => "L'unité n'est pas supprimé",
+            'status' => 'success',
+            'message' => "L'unité est supprimé avec succés",
         ]);
     }
 }

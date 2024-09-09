@@ -14,12 +14,15 @@ import { Button } from "@/Components/ui/button";
 import { SuccessCheckAlert } from "@/Components/Alerts/Alert";
 
 export default function AuthLayout({ children }: React.PropsWithChildren) {
-    const { alert, info } = usePage().props.flash as any;
+    const { alert, info } = usePage<{
+        alert: { status: "success" | "error"; message: string };
+        info: any;
+    }>().props;
     const [dialog, setDialog] = React.useState(false);
 
     React.useEffect(() => {
         if (alert) {
-            toast(alert.message);
+            toast[alert.status](alert.message);
         }
 
         if (info) {
@@ -33,7 +36,7 @@ export default function AuthLayout({ children }: React.PropsWithChildren) {
                 <Navbar />
                 <Sidebar />
                 <Main>{children}</Main>
-                <Toaster closeButton />
+                <Toaster richColors expand />
                 {info && (
                     <Dialog.Dialog open={dialog} onOpenChange={setDialog}>
                         <Dialog.DialogContent
@@ -74,7 +77,7 @@ function Main({ children }: React.PropsWithChildren) {
 
     return (
         <main
-            className="p-2 sm:p-4 mt-16 data-[sidebar=open]:ml-64 data-[sidebar=open]:animate-in data-[sidebar=open]:slide-in-from-left-0 data-[sidebar=close]:ml-16 data-[sidebar=close]:animate-out data-[sidebar=close]:slide-out-to-right-0 duration-200"
+            className="p-2 sm:p-4 mt-16 md:data-[sidebar=open]:ml-64 data-[sidebar=open]:animate-in data-[sidebar=open]:slide-in-from-left-0 md:data-[sidebar=close]:ml-16 data-[sidebar=close]:animate-out data-[sidebar=close]:slide-out-to-right-0 duration-200"
             data-sidebar={sidebarState}
         >
             {children}

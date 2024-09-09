@@ -16,8 +16,9 @@
 
 <body class="font-sans antialiased bg-gray-100 text-primary-950/50">
 
-    <img id="background" class="absolute -left-20 top-0 max-w-[850px]"
-        src="https://laravel.com/assets/img/welcome/background.svg" />
+    {{-- <img id="background" class="absolute -left-20 top-0 max-w-[850px]"
+        src="https://laravel.com/assets/img/welcome/background.svg" /> --}}
+
 
     @if (!Auth::check())
         <div
@@ -44,6 +45,8 @@
                 </div>
             </div>
         </div>
+    @else
+        <a href="{{ route('app') }}">Dashboard</a>
     @endif
 </body>
 

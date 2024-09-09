@@ -7,5 +7,12 @@ return [
     "pending" => "Pending",
     "suspended" => "Suspended",
     "rejected" => "Rejected",
-    "completed" => "Completed"
+    "completed" => "Completed",
+
+
+    'todo' => 'Todo',
+    'inprogress' => 'In progress',
+    'done' => 'Done',
+    'suspended' => 'Suspended',
+    'canceled' => 'Canceled',
 ];

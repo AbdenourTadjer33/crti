@@ -14,6 +14,7 @@ import { Text } from "@/Components/ui/paragraph";
 import Table from "@/Features/Manage/Board/User/Table";
 import AuthLayout from "@/Layouts/AuthLayout";
 import { Board } from "@/types";
+import { cn } from "@/Utils/utils";
 import { Head, Link } from "@inertiajs/react";
 import { House } from "lucide-react";
 import React from "react";
@@ -35,14 +36,14 @@ const Show: React.FC<BoardsProps> = ({ board }) => {
                 label: "Gestion des conseils scientifique",
             },
             {
-                label: board.name,
+                label: board.code,
             },
         ],
         []
     );
     return (
         <>
-            <Head title={board.name} />
+            <Head title={board.code} />
 
             <div className="space-y-4">
                 <Breadcrumb items={breadcrumbs} />
@@ -50,13 +51,13 @@ const Show: React.FC<BoardsProps> = ({ board }) => {
                 <div className="flex sm:flex-row flex-col justify-between sm:items-end gap-4">
                     <div className="space-y-2">
                         <Heading level={3} className="font-medium">
-                            {board.name}
+                            {board.code}
                         </Heading>
 
                         <Text className="sm:text-base text-sm">
                             Consultez les informations complètes sur le conseil
                             scientifique{" "}
-                            <span className=" font-medium">{board.name}</span>.
+                            <span className=" font-medium">{board.code}</span>.
                             vous trouverez une liste des membres associées à ce
                             conseil scientifique. Vous pouvez voir les détails
                             et accéder aux options pour le modifier ou le
@@ -66,30 +67,31 @@ const Show: React.FC<BoardsProps> = ({ board }) => {
                 </div>
                 <Card>
                     <CardHeader>
-                        <CardTitle>{board.name}</CardTitle>
-                        <CardSubTitle className="text-base">
+                        <CardTitle>{board.code}</CardTitle>
+                        <CardSubTitle>
+                            {
+                                board.users?.find(
+                                    (u) => u.uuid === board.president
+                                )?.name
+                            }{" "}
+                            <span className="font-medium">(Président)</span>
+                        </CardSubTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <Text>
+                            Projet{" "}
                             <Link
-                                href={route(
-                                    "manage.user.show",
-                                    board.president.uuid
+                                href={route("project.show", board.project.code)}
+                                className={cn(
+                                    buttonVariants({ variant: "link" }),
+                                    "p-0 font-medium"
                                 )}
                             >
-                                {board.president.name + " " + "(President)"}
+                                {board.project.name}
                             </Link>
-                        </CardSubTitle>
-                        <CardDescription className="">
-                            <span className="font-medium">
-                                {board.description}
-                            </span>
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <Text>
-                            <span className="text-sm">
-                                Projeet en commission:{" "}
-                            </span>
-                            {board.project.name}
                         </Text>
+
+                        <Table users={board.users} />
                     </CardContent>
                     <CardFooter className="justify-end gap-2">
                         <Link
@@ -105,9 +107,7 @@ const Show: React.FC<BoardsProps> = ({ board }) => {
                         <Button variant="destructive">Supprimer</Button>
                     </CardFooter>
                 </Card>
-                <Table users={board.users} />
             </div>
-            <pre>{JSON.stringify(board, null, 2)}</pre>
         </>
     );
 };

@@ -13,17 +13,14 @@ import {
 } from "@/Components/ui/select";
 import { router, useForm } from "@inertiajs/react";
 
-import { Button, ButtonGroup } from "@/Components/ui/button";
+import { Button } from "@/Components/ui/button";
 import { Calendar } from "@/Components/ui/calendar";
 import {
     CalendarIcon,
     ChevronsUpDown,
     Check,
-    University,
     X,
-    Users,
 } from "lucide-react";
-import { cn } from "@/Utils/utils";
 import { Label } from "@/Components/ui/label";
 import React, { useEffect, useState } from "react";
 import { format } from "date-fns";
@@ -36,11 +33,6 @@ import {
     CommandItem,
 } from "@/Components/ui/command";
 import { FormWrapper } from "@/Components/ui/form";
-import { TableWrapper } from "@/Components/ui/table";
-import { MdAdd } from "react-icons/md";
-import * as Dropdown from "@/Components/ui/dropdown-menu";
-import { FaCaretDown } from "react-icons/fa";
-import DataTable from "@/Components/common/data-table";
 import { Switch } from "@/Components/ui/switch";
 import { Text } from "@/Components/ui/paragraph";
 import { Badge } from "@/Components/ui/badge";
@@ -155,7 +147,6 @@ const CreateForm: React.FC<CreateFormProps> = ({ units = [], boards = [] }) => {
     const submitHandler = (e: React.FormEvent) => {
         e.preventDefault();
         post(route("manage.user.store"), {
-            only: ["errors", "flash"],
             preserveScroll: true,
             preserveState: true,
             onSuccess: () => reset(),
@@ -467,10 +458,6 @@ const CreateForm: React.FC<CreateFormProps> = ({ units = [], boards = [] }) => {
                     Créer
                 </Button>
             </div>
-            {/* <pre>{JSON.stringify(boards, null, 2)}</pre>
-
-            <pre>{JSON.stringify(units, null, 2)}</pre>
-            <pre>{JSON.stringify(data, null, 2)}</pre> */}
         </FormWrapper>
     );
 };

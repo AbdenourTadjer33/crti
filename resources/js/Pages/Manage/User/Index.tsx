@@ -9,7 +9,6 @@ import Table from "@/Features/Manage/User/Table";
 import { Text } from "@/Components/ui/paragraph";
 import { House, Plus } from "lucide-react";
 
-
 const breadcrumbs = [
     { href: route("app"), label: <House className="w-6 h-6" /> },
     { href: route("manage.index"), label: "Centres d'administration" },
@@ -18,7 +17,7 @@ const breadcrumbs = [
 
 const Index: React.FC<{ users: Pagination<User> }> = ({ users }) => {
     return (
-        <AuthLayout>
+        <>
             <Head title="Gestion d'utilisateur" />
 
             <div className="space-y-4">
@@ -45,8 +44,11 @@ const Index: React.FC<{ users: Pagination<User> }> = ({ users }) => {
 
                 <Table users={users} />
             </div>
-        </AuthLayout>
+        </>
     );
 };
+
+// @ts-ignore
+Index.layout = (page) => <AuthLayout children={page} />;
 
 export default Index;

@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('resources', function (Blueprint $table) {
             $table->id();
             $table->enum('type', ['existing_resource', 'requested_resource']);
-            $table->string('code')->unique()->nullable();
+            $table->string('code', 15)->unique()->nullable();
             $table->string('name');
             $table->longText('description')->nullable();
-            $table->string('state')->nullable();
+            $table->boolean('state')->nullable();
             $table->timestamps();
         });
     }

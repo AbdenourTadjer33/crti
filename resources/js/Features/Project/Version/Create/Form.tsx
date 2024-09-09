@@ -139,9 +139,7 @@ const Form: React.FC<FormProps> = ({ versionId, version, params }) => {
             ),
     });
 
-    useUpdateEffect(() => {
-        isDirty && mutate();
-    }, [debouncedValue]);
+    useUpdateEffect(() => mutate(), [debouncedValue]);
 
     return (
         <FormWrapper className="space-y-4 sm:space-y-6">

@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "@inertiajs/react";
-import { Bell, Eye, Moon, Search } from "lucide-react";
+import { Bell, Eye, Menu, Moon } from "lucide-react";
 import { useUser } from "@/Hooks/use-user";
 import * as DropdownMenu from "@/Components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/Components/ui/avatar";
@@ -8,9 +8,12 @@ import { getInitials } from "@/Utils/helper";
 
 const Navbar: React.FC = () => {
     return (
-        <nav className="fixed top-0 left-0 right-0 py-2 px-2.5 bg-gray-100 z-50 border-b border-gray-200">
+        <nav className="fixed top-0 left-0 right-0 py-2 px-2.5 bg-white z-50 border-b border-gray-200">
             <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
+                    <button className="md:hidden">
+                        <Menu className="" />
+                    </button>
                     <a href="/" className="shrink-0">
                         <img
                             src="/assets/favicon.png"
@@ -20,11 +23,6 @@ const Navbar: React.FC = () => {
                 </div>
 
                 <div className="flex items-center gap-4">
-                    <NavBtn>
-                        <span className="sr-only">Toggle search</span>
-                        <Search className="h-6 w-6" />
-                    </NavBtn>
-
                     <Theme />
 
                     <NotificationManu />

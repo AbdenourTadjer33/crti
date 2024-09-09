@@ -19,8 +19,8 @@ class ProjectDetailsResource extends JsonResource
             'status' => __("status.{$this->status}"),
             '_status' => $this->status,
             'name' => $this->name,
-            'nature' => $this->nature->name,
-            'domains' => $this->domains->map(fn ($domain) => $domain->name),
+            'nature' => $this->whenLoaded('nature', fn() => $this->nature->name),
+            'domains' => $this->whenLoaded('domains', fn() => $this->domains->map(fn($domain) => $domain->name)),
             'timeline' => [
                 'from' => $this->date_begin,
                 'to' => $this->date_end,
@@ -38,17 +38,17 @@ class ProjectDetailsResource extends JsonResource
             ]),
             'deliverables' => $this->deliverables,
             'estimated_amount' => $this->estimated_amount,
-            'creator' => $this->when(!!$this->user, new ProjectMemberResource($this->user)),
+            'creator' => $this->whenLoaded("users", fn() => new ProjectMemberResource($this->users->filter(fn($u) => $u->id === $this->user_id)->first())),
             'members' => ProjectMemberResource::collection($this->whenLoaded('users')),
             'tasks' => ProjectTaskResource::collection($this->whenLoaded('tasks')),
             'existingResources' => $this->whenLoaded('existingResources'),
             'requestedResources' => ProjectRequestedResource::collection($this->whenLoaded('requestedResources')),
-            'division' => $this->when(!!$this->division, [
+            'division' => $this->whenLoaded('division', fn() => [
                 'id' => $this->division->id,
                 'name' => $this->division->name,
                 'abbr' => $this->division->abbr,
             ]),
-            'unit' => $this->when($this->division?->unit, [
+            'unit' => $this->when($this->division?->unit, fn() => [
                 'id' => $this->division->unit->id,
                 'name' => $this->division->unit->name,
                 'abbr' => $this->division->unit->abbr,

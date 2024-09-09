@@ -182,6 +182,10 @@ return [
                             'type' => 'string',
                         ],
                         [
+                            'name' => 'uuid',
+                            'type' => 'string'
+                        ],
+                        [
                             'name' => 'first_name',
                             'type' => 'string',
                         ],
@@ -201,7 +205,7 @@ return [
                     'default_sorting_field' => 'created_at',
                 ],
                 'search-parameters' => [
-                    'query_by' => 'first_name,last_name,email'
+                    'query_by' => 'uuid,first_name,last_name,email'
                 ],
             ],
             \App\Models\Project::class => [
@@ -220,10 +224,53 @@ return [
                             'type' => 'string',
                         ],
                         [
-                            ''
+                            'name' => 'status',
+                            'type' => 'string',
                         ],
-                    ]
+                        [
+                            'name' => 'nature',
+                            'type' => 'string',
+                        ],
+                        [
+                            'name' => 'domains',
+                            'type' => 'string[]',
+                        ],
+                        [
+                            'name' => 'created_at',
+                            'type' => 'int64'
+                        ],
+                    ],
+                    'default_sorting_field' => 'created_at',
                 ],
+                'search-parameters' => [
+                    'query_by' => 'code,name,status,domains,nature',
+                ]
+            ],
+            \App\Models\ExistingResource::class => [
+                'collection-schema' => [
+                    'fields' => [
+                        [
+                            'name' => 'id',
+                            'type' => 'string',
+                        ],
+                        [
+                            'name' => 'code',
+                            'type' => 'string',
+                        ],
+                        [
+                            'name' => 'name',
+                            'type' => 'string',
+                        ],
+                        [
+                            'name' => 'created_at',
+                            'type' => 'int64'
+                        ]
+                    ],
+                    'default_sorting_field' => 'created_at'
+                ],
+                'search-parameters' => [
+                    'query_by' => 'code,name'
+                ]
             ],
         ],
     ],

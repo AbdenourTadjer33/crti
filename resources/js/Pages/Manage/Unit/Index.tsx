@@ -8,7 +8,6 @@ import { Button } from "@/Components/ui/button";
 import Table from "@/Features/Manage/Unit/Table";
 import { Pagination, Unit } from "@/types";
 import { Plus, House } from "lucide-react";
-import { json } from "stream/consumers";
 
 const breadcrumbs = [
     { href: route("app"), label: <House className="w-5 h-5" /> },
@@ -18,7 +17,7 @@ const breadcrumbs = [
 
 const Index: React.FC<{ units: Pagination<Unit> }> = ({ units }) => {
     return (
-        <AuthLayout>
+        <>
             <Head title="Gestion d'unité" />
 
             <div className="space-y-4">
@@ -30,10 +29,11 @@ const Index: React.FC<{ units: Pagination<Unit> }> = ({ units }) => {
                             Gestion d'unité
                         </Heading>
 
-                        <Text className={"max-w-7xl"}>
+                        <Text>
                             Voici la liste de toutes les unités enregistrées .
                             Vous pouvez visualiser les détails de chaque unité,
-                            et accéder aux options pour modifier ou supprimer les unités existantes.
+                            et accéder aux options pour modifier ou supprimer
+                            les unités existantes.
                         </Text>
                     </div>
 
@@ -46,8 +46,11 @@ const Index: React.FC<{ units: Pagination<Unit> }> = ({ units }) => {
                 </div>
                 <Table units={units} />
             </div>
-        </AuthLayout>
+        </>
     );
 };
+
+// @ts-ignore
+Index.layout = (page) => <AuthLayout children={page} />;
 
 export default Index;

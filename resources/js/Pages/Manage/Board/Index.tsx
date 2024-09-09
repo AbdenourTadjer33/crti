@@ -17,36 +17,36 @@ const breadcrumbs = [
 
 const Index: React.FC<{ boards: Pagination<Board> }> = ({ boards }) => {
     return (
-        <>
+        <div className="space-y-4">
             <Head title="Gestion des conseils scientifique" />
 
-            <div className="space-y-4">
-                <Breadcrumb items={breadcrumbs} />
+            <Breadcrumb items={breadcrumbs} />
 
-                <div className="flex sm:flex-row flex-col justify-between sm:items-end gap-4">
-                    <div className="space-y-2">
-                        <Heading level={3} className="font-medium">
-                            Gestion des conseils scientifique
-                        </Heading>
+            <div className="flex sm:flex-row flex-col justify-between sm:items-end gap-4">
+                <div className="space-y-2">
+                    <Heading level={3} className="font-medium">
+                        Gestion des conseils scientifique
+                    </Heading>
 
-                        <Text className={"max-w-7xl"}>
-                            Voici la liste de tout les conseils scientifique enregistrées.
-                            Vous pouvez visualiser les détails de chaque conseil scientifique,
-                            et accéder aux options pour modifier ou supprimer les conseils scientifique existantes.
-                        </Text>
-                    </div>
-
-                    <Button asChild>
-                        <Link href={route("manage.board.create")}>
-                            <Plus className="w-4 h-4 mr-2" />
-                            Ajouter un conseil scientifique
-                        </Link>
-                    </Button>
+                    <Text className="text-sm sm:text-base">
+                        Voici la liste de tout les conseils scientifique
+                        enregistrées. Vous pouvez visualiser les détails de
+                        chaque conseil scientifique, et accéder aux options pour
+                        modifier ou supprimer les conseils scientifique
+                        existantes.
+                    </Text>
                 </div>
-                <Table boards={boards} />
+
+                <Button asChild>
+                    <Link href={route("manage.board.create")}>
+                        <Plus className="w-4 h-4 mr-2" />
+                        Ajouter un conseil scientifique
+                    </Link>
+                </Button>
             </div>
-            <pre>{JSON.stringify({boards}, null, 2)}</pre>
-        </>
+
+            <Table boards={boards} />
+        </div>
     );
 };
 

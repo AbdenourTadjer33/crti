@@ -16,9 +16,10 @@ class ProjectRessource extends JsonResource
     {
         return [
             'code' => $this->code,
+            '_status' => $this->status,
             'status' => __("status.{$this->status}"),
             'name' => $this->name,
-            'nature' => $this->nature?->name,
+            'nature' => $this->whenLoaded('nature', $this->nature->name),
             'domains' => $this->whenLoaded('domains', fn() => $this->domains->map(fn($domain) => $domain->name)),
             'timeline' => [
                 'from' => $this->date_begin,
