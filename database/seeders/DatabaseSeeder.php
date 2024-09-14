@@ -2,19 +2,20 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
+    use WithoutModelEvents;
+
     /**
      * Seed the application's database.
      */
     public function run(): void
     {
-        if (!User::query()->where('email', 'tad.abdenour33@gmail.com')->count()) {
-            User::create([
+        if (!\App\Models\User::query()->where('email', 'tad.abdenour33@gmail.com')->count()) {
+            \App\Models\User::create([
                 'first_name' => 'abdenour',
                 'last_name' => 'tadjer',
                 'email' => 'tad.abdenour33@gmail.com',

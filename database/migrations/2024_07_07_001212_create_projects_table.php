@@ -80,23 +80,33 @@ return new class extends Migration
             $table->foreignId('project_id')->constrained('projects', 'id')->cascadeOnDelete();
             $table->string('name');
             $table->string('status');
-            $table->date('date_begin');
-            $table->date('date_end');
             $table->longText('description');
             $table->string('priority')->nullable();
+            $table->date('date_begin');
+            $table->date('date_end');
+            $table->date('real_start_date')->nullable();
+            $table->date('real_end_date')->nullable();
+            $table->date('suspended_at')->nullable();
+            $table->text('suspension_reason')->nullable();
+            $table->date('canceled_at')->nullable();
+            $table->text('cancellation_reason')->nullable();
             $table->timestamps();
+        });
+
+        Schema::create('task_status_histories', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('task_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
+            $table->string('old_status');
+            $table->string('new_status');
+            $table->text('reason')->nullable();
+            $table->timestamp('changed_at')->useCurrent();
         });
 
         Schema::create('task_user', function (Blueprint $table) {
             $table->foreignId('task_id')->constrained('tasks', 'id')->cascadeOnDelete();
             $table->foreignId('user_id')->constrained('users', 'id')->cascadeOnDelete();
             $table->primary(['task_id', 'user_id']);
-        });
-
-        Schema::create('task_resource', function (Blueprint $table) {
-            $table->foreignId('task_id')->constrained('tasks', 'id')->cascadeOnDelete();
-            $table->foreignId('resource_id')->constrained('resources', 'id')->cascadeOnDelete();
-            $table->primary(['task_id', 'resource_id']);
         });
     }
 
@@ -105,7 +115,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('task_resource');
+        // Schema::dropIfExists('task_resource');
         Schema::dropIfExists('task_user');
         Schema::dropIfExists('tasks');
         Schema::dropIfExists('members');

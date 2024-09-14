@@ -2,15 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Models\Unit;
-use App\Models\User;
-use App\Models\Division;
-use App\Models\ExistingResource;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Storage;
-use Spatie\Permission\Models\Permission;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class InitAppSeeder extends Seeder
@@ -22,27 +16,18 @@ class InitAppSeeder extends Seeder
      */
     public function run(): void
     {
-        foreach (Storage::json('data/resources.json') as $resource) {
-            ExistingResource::query()->create([
-                ...$resource,
-                "state" => true
-            ]);
-        }
-
         $permissions = [];
         foreach (Storage::json('data/permissions.json') as $permission) {
-            $permissions[] = Permission::create([
+            $permissions[] = \Spatie\Permission\Models\Permission::create([
                 ...$permission,
                 'default' => true,
             ]);
         }
 
-        Role::create([
+        \Spatie\Permission\Models\Role::create([
             'name' => 'admin',
             'description' => "Le rôle d'Admin offre un contrôle total sur l'application, y compris la gestion des utilisateurs, des permissions et des paramètres globaux. Les administrateurs ont l'autorité de superviser et de maintenir le système."
         ])->givePermissionTo(collect($permissions));
-
-
 
         DB::table('natures')->insert(Storage::json('data/project_natures.json'));
         DB::table('domains')->insert(Storage::json('data/project_domains.json'));
@@ -50,17 +35,23 @@ class InitAppSeeder extends Seeder
         DB::table('diplomas')->insert(Storage::json('data/diplomas.json'));
         DB::table('division_grades')->insert(Storage::json('data/division_grades.json'));
 
-        $unit = Unit::query()->create([
-            'name' => 'Centre de Recherche en Technologies Industrielles',
-            'abbr' => 'CRTI',
-            'webpage' => 'https://crti.dz/',
-            'description' => null,
-            'address' => 'CRTI P.O.Box 64, Cheraga 16014 Alger, Algerie',
-        ]);
+        foreach (Storage::json('data/units.json') as $unit) {
+            \App\Models\Unit::query()->create($unit);
+        }
 
-        $unit->divisions()->createMany(Storage::json('data/divisions.json'));
-        $unit->users()->createMany(Storage::json('data/users.json'));
+        foreach (Storage::json('data/divisions.json') as $division) {
+            \App\Models\Division::query()->create($division);
+        }
 
-        User::query()->first()->divisions()->attach(Division::all()->random()->id);
+        foreach (Storage::json('data/users.json') as $user) {
+            \App\Models\User::query()->create($user);
+        }
+
+        foreach (Storage::json('data/resources.json') as $resource) {
+            \App\Models\ExistingResource::query()->create([
+                ...$resource,
+                "state" => true
+            ]);
+        }
     }
 }
