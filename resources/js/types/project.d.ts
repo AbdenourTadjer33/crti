@@ -39,11 +39,17 @@ type TaskStatus = "todo" | "progress" | "done" | "suspended" | "canceled";
 type TaskPriority = "Basse" | "Moyenne" | "Haute";
 
 type Task = {
+    id: string;
     name: string;
     status: string;
     _status: TaskStatus;
     description: string;
     timeline: Timeline;
+    realTimeline: Timeline;
+    suspendedAt: string;
+    suspensionReason: string;
+    canceledAt: string;
+    cancellationReason: string;
     priority: TaskPriority;
     users: Member[];
 }

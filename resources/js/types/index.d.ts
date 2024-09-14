@@ -1,17 +1,28 @@
 import { UUID } from "crypto";
 import { MemberBoard } from "./member";
 
+export type Alert = {
+    status: "success" | "error",
+    message: string;
+};
+
+export type Info = {
+    status: "success";
+    title: string;
+    message: string;
+}
+
 export type PageProps<
     T extends Record<string, unknown> = Record<string, unknown>
 > = T & {
     auth: {
         user: User;
     };
-    flash: {
-        alert?: Record<string, unknown>;
-        info?: Record<string, unknown>;
-    };
+    alert?: Alert;
+    info?: Info;
 };
+
+
 
 export type Unit = {
     id: string;
@@ -19,6 +30,7 @@ export type Unit = {
     abbr?: string;
     description?: string;
     address?: string;
+    webpage?: string;
     createdAt?: string;
     updatedAt?: string;
     divisions?: Division[];

@@ -1,7 +1,6 @@
 import axios from "axios";
 import { router } from "@inertiajs/react";
 
-
 axios.defaults.withCredentials = true;
 axios.defaults.withXSRFToken = true;
 axios.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";

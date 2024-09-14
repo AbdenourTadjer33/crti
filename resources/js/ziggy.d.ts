@@ -2,13 +2,9 @@
 declare module 'ziggy-js' {
   interface RouteList {
     "sanctum.csrf-cookie": [],
-    "telescope": [
-        {
-            "name": "view",
-            "required": false
-        }
-    ],
     "app": [],
+    "profile.show": [],
+    "profile.update": [],
     "search.user": [],
     "search.project": [],
     "search.resource": [],
@@ -379,8 +375,7 @@ declare module 'ziggy-js' {
     "workspace.kanban": [
         {
             "name": "project",
-            "required": true,
-            "binding": "code"
+            "required": true
         }
     ],
     "workspace.suggested.version.index": [
@@ -399,12 +394,94 @@ declare module 'ziggy-js' {
             "required": true
         }
     ],
+    "project.task.start": [
+        {
+            "name": "project",
+            "required": true,
+            "binding": "code"
+        },
+        {
+            "name": "task",
+            "required": true,
+            "binding": "id"
+        }
+    ],
+    "project.task.suspend": [
+        {
+            "name": "project",
+            "required": true,
+            "binding": "code"
+        },
+        {
+            "name": "task",
+            "required": true,
+            "binding": "id"
+        }
+    ],
+    "project.task.cancel": [
+        {
+            "name": "project",
+            "required": true,
+            "binding": "code"
+        },
+        {
+            "name": "task",
+            "required": true,
+            "binding": "id"
+        }
+    ],
+    "project.task.end": [
+        {
+            "name": "project",
+            "required": true,
+            "binding": "code"
+        },
+        {
+            "name": "task",
+            "required": true,
+            "binding": "id"
+        }
+    ],
+    "project.task.resum": [
+        {
+            "name": "project",
+            "required": true,
+            "binding": "code"
+        },
+        {
+            "name": "task",
+            "required": true,
+            "binding": "id"
+        }
+    ],
     "check.user": [],
     "register.create": [],
     "register.store": [],
-    "register.created": [],
     "login.create": [],
     "login.store": [],
+    "password.request": [],
+    "password.email": [],
+    "password.reset": [
+        {
+            "name": "token",
+            "required": true
+        }
+    ],
+    "password.store": [],
+    "verification.notice": [],
+    "verification.verify": [
+        {
+            "name": "id",
+            "required": true
+        },
+        {
+            "name": "hash",
+            "required": true
+        }
+    ],
+    "verification.send": [],
+    "password.confirm": [],
+    "password.update": [],
     "logout.destroy": []
 }
 }
