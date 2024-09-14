@@ -1,30 +1,75 @@
 import React from "react";
-import { Link } from "@inertiajs/react";
-import { Bell, Eye, Menu, Moon } from "lucide-react";
+import { Link, router, usePage } from "@inertiajs/react";
+import {
+    Bell,
+    Ellipsis,
+    EllipsisVertical,
+    Eye,
+    Menu,
+    Moon,
+    Sun,
+} from "lucide-react";
 import { useUser } from "@/Hooks/use-user";
 import * as DropdownMenu from "@/Components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/Components/ui/avatar";
 import { getInitials } from "@/Utils/helper";
+import {
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetTitle,
+    SheetTrigger,
+} from "@/Components/ui/sheet";
+import { Sidebar } from "./Sidebar";
+import { Button } from "@/Components/ui/button";
+import { useMediaQuery } from "@/Hooks/use-media-query";
+import { useLocalStorage } from "@/Hooks/use-local-storage";
+import { formatDistanceToNow } from "date-fns";
+import { fr } from "date-fns/locale";
 
 const Navbar: React.FC = () => {
+    const displayMenu = useMediaQuery("(max-width: 768px)");
+
     return (
-        <nav className="fixed top-0 left-0 right-0 py-2 px-2.5 bg-white z-50 border-b border-gray-200">
+        <nav className="fixed top-0 left-0 right-0 h-16 px-2.5 flex flex-col justify-center bg-white dark:bg-gray-950 z-50 border-b border-gray-200 dark:border-gray-800">
             <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                    <button className="md:hidden">
-                        <Menu className="" />
-                    </button>
+                <div className="flex items-center sm:gap-4 gap-2">
+                    {displayMenu && (
+                        <Sheet>
+                            <SheetTrigger asChild>
+                                <Button variant="ghost" size="icon">
+                                    <Menu className="h-6 w-6" />
+                                </Button>
+                            </SheetTrigger>
+                            <SheetContent
+                                className="w-64 border-0 p-0"
+                                side="left"
+                                onOpenAutoFocus={(e) => e.preventDefault()}
+                                onCloseAutoFocus={(e) => e.preventDefault()}
+                            >
+                                <SheetTitle className="hidden"></SheetTitle>
+                                <SheetDescription className="hidden"></SheetDescription>
+                                <Sidebar
+                                    sidebarState="open"
+                                    className="border-0 pt-12 bg-transparent "
+                                    hidder={false}
+                                />
+                            </SheetContent>
+                        </Sheet>
+                    )}
+
                     <a href="/" className="shrink-0">
                         <img
                             src="/assets/favicon.png"
                             className="shrink-0 h-11"
                         />
                     </a>
+
+                    <Actions />
                 </div>
 
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
                     <Theme />
-
                     <NotificationManu />
                     <UserMenu />
                 </div>
@@ -34,23 +79,51 @@ const Navbar: React.FC = () => {
 };
 
 const Theme = () => {
+    const [theme, setTheme] = useLocalStorage("color-theme", "system");
+
+    React.useEffect(() => {
+        const root = window.document.documentElement;
+
+        if (
+            theme === "dark" ||
+            ("system" === theme &&
+                window.matchMedia("(prefers-color-scheme: dark)").matches)
+        ) {
+            root.classList.add("dark");
+            return;
+        }
+
+        root.classList.remove("dark");
+    }, [theme]);
+
     return (
         <DropdownMenu.DropdownMenu modal={false}>
             <DropdownMenu.DropdownMenuTrigger asChild>
                 <NavBtn>
-                    <Moon className="h-6 w-6" />
+                    {theme === "dark" ||
+                    ("system" === theme &&
+                        window.matchMedia("(prefers-color-scheme: dark)")
+                            .matches) ? (
+                        <Moon className="h-6 w-6" />
+                    ) : (
+                        <Sun className="h-6 w-6" />
+                    )}
                 </NavBtn>
             </DropdownMenu.DropdownMenuTrigger>
             <DropdownMenu.DropdownMenuContent
                 onCloseAutoFocus={(e) => e.preventDefault()}
             >
-                <DropdownMenu.DropdownMenuItem>
+                <DropdownMenu.DropdownMenuItem
+                    onClick={() => setTheme("light")}
+                >
                     Mode jour
                 </DropdownMenu.DropdownMenuItem>
-                <DropdownMenu.DropdownMenuItem>
+                <DropdownMenu.DropdownMenuItem onClick={() => setTheme("dark")}>
                     Mode nuit
                 </DropdownMenu.DropdownMenuItem>
-                <DropdownMenu.DropdownMenuItem>
+                <DropdownMenu.DropdownMenuItem
+                    onClick={() => setTheme("system")}
+                >
                     System
                 </DropdownMenu.DropdownMenuItem>
             </DropdownMenu.DropdownMenuContent>
@@ -61,7 +134,7 @@ const Theme = () => {
 const UserMenu = () => {
     const { name, email } = useUser();
     return (
-        <DropdownMenu.DropdownMenu>
+        <DropdownMenu.DropdownMenu modal={false}>
             <DropdownMenu.DropdownMenuTrigger asChild>
                 <button className="flex mx-3 rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark:ring-gray-700 outline-none">
                     <Avatar>
@@ -79,19 +152,19 @@ const UserMenu = () => {
                     </span>
                 </div>
                 <div className="h-px bg-gray-300 dark:bg-gray-500" />
-                <DropdownMenu.DropdownMenuItem asChild>
-                    <Link href="#">Profile</Link>
+                <DropdownMenu.DropdownMenuItem
+                    asChild
+                    className="cursor-pointer"
+                >
+                    <Link href={route("profile.show")}>Profile</Link>
                 </DropdownMenu.DropdownMenuItem>
-                <DropdownMenu.DropdownMenuItem asChild>
-                    <Link href="#">Account Settings</Link>
-                </DropdownMenu.DropdownMenuItem>
-                <DropdownMenu.DropdownMenuItem asChild>
+                <DropdownMenu.DropdownMenuItem>
                     <Link
                         as="button"
                         href={route("logout.destroy")}
                         method="delete"
                     >
-                        Sign out
+                        Se déconnecter
                     </Link>
                 </DropdownMenu.DropdownMenuItem>
             </DropdownMenu.DropdownMenuContent>
@@ -101,7 +174,7 @@ const UserMenu = () => {
 
 const NotificationManu = () => {
     return (
-        <DropdownMenu.DropdownMenu>
+        <DropdownMenu.DropdownMenu modal={false}>
             <DropdownMenu.DropdownMenuTrigger asChild>
                 <NavBtn>
                     <span className="sr-only">View notifications</span>
@@ -166,6 +239,63 @@ const NotificationManu = () => {
     );
 };
 
+const Actions = () => {
+    const { pendingActions } = usePage<{
+        pendingActions?: Record<
+            string,
+            { url: string; name: string; createdAt: string }[]
+        >;
+    }>().props;
+
+    return (
+        <DropdownMenu.DropdownMenu modal={false}>
+            <DropdownMenu.DropdownMenuTrigger asChild>
+                <Button
+                    variant="ghost"
+                    onClick={() => {
+                        router.reload({ only: ["pendingActions"] });
+                    }}
+                >
+                    Action incompléte
+                    <EllipsisVertical className="h-4 w-4 ml-2" />
+                </Button>
+            </DropdownMenu.DropdownMenuTrigger>
+            <DropdownMenu.DropdownMenuContent className="w-80" align="start">
+                {pendingActions &&
+                    Object.keys(pendingActions).map((type, idx) => (
+                        <React.Fragment key={idx}>
+                            <DropdownMenu.DropdownMenuLabel>
+                                {type}
+                            </DropdownMenu.DropdownMenuLabel>
+
+                            {pendingActions[type].map((action, idx) => (
+                                <DropdownMenu.DropdownMenuItem
+                                    key={idx}
+                                    asChild
+                                >
+                                    <Link
+                                        href={action.url}
+                                        className="flex items-center justify-between"
+                                    >
+                                        <b>{action.name}</b>
+                                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                                            {formatDistanceToNow(
+                                                action.createdAt,
+                                                { locale: fr, addSuffix: true }
+                                            )}
+                                        </span>
+                                    </Link>
+                                </DropdownMenu.DropdownMenuItem>
+                            ))}
+
+                            <DropdownMenu.DropdownMenuSeparator />
+                        </React.Fragment>
+                    ))}
+            </DropdownMenu.DropdownMenuContent>
+        </DropdownMenu.DropdownMenu>
+    );
+};
+
 const NavBtn = React.forwardRef<
     HTMLButtonElement,
     React.HTMLAttributes<HTMLButtonElement>
@@ -173,7 +303,7 @@ const NavBtn = React.forwardRef<
     <button
         type="button"
         ref={ref}
-        className={`p-2 mr-1 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-200 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600 ${className}`}
+        className={`p-2 mr-1 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-200 dark:text-gray-50 dark:hover:text-white dark:hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600 ${className}`}
         {...props}
     >
         {children}

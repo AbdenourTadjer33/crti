@@ -1,5 +1,5 @@
-import AppLogo from "@/Components/common/app-logo";
 import React, { useEffect } from "react";
+import AppLogo from "@/Components/common/app-logo";
 
 export default function ({ ...props }: React.PropsWithChildren) {
     useEffect(() => {
@@ -8,12 +8,12 @@ export default function ({ ...props }: React.PropsWithChildren) {
         }
     }, []);
     return (
-        <div className="flex flex-col items-center justify-center px-4 py-8 mx-auto h-screen lg:py-0">
+        <div className="flex flex-col items-center justify-center md:px-4 px-2 py-8 mx-auto h-screen lg:py-0">
             <a
                 href="/"
                 className="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white"
             >
-                <AppLogo />
+                <AppLogo className="md:w-52 w-32" />
             </a>
             <div className="w-full sm:max-w-xl" {...props} />
         </div>

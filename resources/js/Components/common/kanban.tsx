@@ -47,7 +47,10 @@ const KanbanCard: React.FC<CardProps> = ({ className, ...props }) => (
 
 const KanbanCardTitle: React.FC<CardTitleProps> = ({ className, ...props }) => (
     <h2
-        className={cn("md:text-lg text-base font-medium text-gray-800", className)}
+        className={cn(
+            "md:text-lg text-base font-medium text-gray-800",
+            className
+        )}
         {...props}
     />
 );
@@ -55,11 +58,13 @@ const KanbanCardTitle: React.FC<CardTitleProps> = ({ className, ...props }) => (
 const KanbanCardDescription: React.FC<CardDescriptionProps> = ({
     readLessText = "Lire moins",
     readMoreText = "Lire plus",
+    charLimit = 125,
     ...props
 }) => (
     <ReadMore
         readMoreText={readMoreText}
         readLessText={readLessText}
+        charLimit={charLimit}
         {...props}
     />
 );

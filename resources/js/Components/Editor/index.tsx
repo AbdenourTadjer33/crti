@@ -165,7 +165,7 @@ const RichEditor: React.FC<RichEditorProps> = ({
     return (
         <div
             className={cn(
-                "bg-white rounded border",
+                "bg-white dark:bg-gray-950 rounded border dark:border-gray-700",
                 className,
                 classNames?.root
             )}
