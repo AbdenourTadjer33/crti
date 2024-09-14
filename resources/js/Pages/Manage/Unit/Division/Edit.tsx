@@ -18,7 +18,10 @@ const Edit: React.FC<any> = ({ division, unit, grades }) => {
                 label: unit.abbr,
             },
             {
-                href: route("manage.unit.division.show", { unit: route().params.unit as string, division }),
+                href: route("manage.unit.division.show", {
+                    unit: route().params.unit as string,
+                    division,
+                }),
                 label: division.abbr,
             },
             { label: "modifier " + (division.abbr ?? division.name) },
@@ -26,26 +29,30 @@ const Edit: React.FC<any> = ({ division, unit, grades }) => {
         []
     );
     return (
-        <AuthLayout>
+        <div className="space-y-4">
             <Head title="Modifier devision" />
-            <div className="space-y-4">
-                <Breadcrumb items={breadcrubms} />
+            <Breadcrumb items={breadcrubms} />
 
-                <div>
-                    <Heading level={3} className="font-medium">
+            <div>
+                <Heading level={3} className="font-medium">
                     Modifier {division.name}
-                    </Heading>
-                    <Text className="sm:text-base text-sm">
-                    Utilisez ce formulaire pour modifier les détails
-                    de la division <span className=" font-medium">{division.name}</span> au sein de l'unité <span className="font-medium">{unit.name}</span>.
-                    Cliquez sur "Sauvegarder" pour enregistrer vos changements
-                    ou "Annuler" pour revenir sans sauvegarder.
-                    </Text>
-                </div>
-                <EditForm unit={unit} division={division} grades={grades} />
+                </Heading>
+                <Text className="sm:text-base text-sm">
+                    Utilisez ce formulaire pour modifier les détails de la
+                    division{" "}
+                    <span className=" font-medium">{division.name}</span> au
+                    sein de l'unité{" "}
+                    <span className="font-medium">{unit.name}</span>. Cliquez
+                    sur "Sauvegarder" pour enregistrer vos changements ou
+                    "Annuler" pour revenir sans sauvegarder.
+                </Text>
             </div>
-        </AuthLayout>
+            <EditForm unit={unit} division={division} grades={grades} />
+        </div>
     );
 };
+
+// @ts-ignore
+Edit.layout = (page) => <AuthLayout children={page} />;
 
 export default Edit;

@@ -24,30 +24,30 @@ const Edit = ({
     permissions: Permission[];
 }) => {
     return (
-        <AuthLayout>
+        <div className="space-y-4">
             <Head title="Edit role" />
+            <Breadcrumb items={breadcrumbs} />
 
             <div className="space-y-2">
-                <Breadcrumb items={breadcrumbs} />
+                <Heading level={3} className="font-medium">
+                    Edit role
+                </Heading>
 
-                <div>
-                    <Heading level={3} className="font-medium">
-                        Edit role
-                    </Heading>
-
-                    <Text>
-                        Votre modèle de tableau de bord de gestion d'accées.
-                    </Text>
-                </div>
-
-                <FormWrapper>
-                    <PermissionContext.Provider value={{ permissions }}>
-                        <EditForm role={role} />
-                    </PermissionContext.Provider>
-                </FormWrapper>
+                <Text>
+                    Votre modèle de tableau de bord de gestion d'accées.
+                </Text>
             </div>
-        </AuthLayout>
+
+            <FormWrapper>
+                <PermissionContext.Provider value={{ permissions }}>
+                    <EditForm role={role} />
+                </PermissionContext.Provider>
+            </FormWrapper>
+        </div>
     );
 };
+
+// @ts-ignore
+Edit.layout = (page) => <AuthLayout children={page} />;
 
 export default Edit;

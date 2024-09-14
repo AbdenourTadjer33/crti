@@ -19,7 +19,7 @@ const ProjectInCreationCard = React.lazy(
 const DataView = React.lazy(() => import("@/Features/Project/data-view"));
 
 const breadcrumbs = [
-    { href: route("app"), label: <House className="w-5 h-5" /> },
+    { href: route("app"), label: <House className="h-5 w-5" /> },
     { label: "Projets" },
 ];
 
@@ -136,8 +136,6 @@ const Index: React.FC<ProjectIndexProps> = ({
 };
 
 // @ts-ignore
-Index.layout = (page) => {
-    return <AuthLayout children={page} />;
-};
+Index.layout = (page) =>  <AuthLayout children={page} />
 
 export default Index;

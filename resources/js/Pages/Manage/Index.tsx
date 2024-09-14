@@ -52,8 +52,11 @@ const Index = () => {
                         Centre d'administration
                     </Heading>
 
-                    <Text className={"max-w-7xl"}>
-                        Votre modèle de tableau de bord de gestion d'accées.
+                    <Text className="text-sm sm:text-base">
+                        Voici votre tableau de bord d'administration, où vous
+                        pouvez gérer les utilisateurs, les rôles et permissions,
+                        les unités, les conseils scientifiques, les ressources
+                        et les projets.
                     </Text>
                 </div>
             </div>
@@ -63,13 +66,13 @@ const Index = () => {
                     <Link
                         key={idx}
                         href={app.link}
-                        className="group bg-white hover:bg-gray-50 p-4 flex items-center justify-between gap-4 rounded shadow w-full max-w-sm"
+                        className="group bg-white dark:bg-gray-950 border dark:border-gray-800 hover:shadow-md p-4 flex items-center justify-between gap-4 rounded shadow w-full sm:max-w-sm"
                     >
                         <Heading level={6} className="text-gray-800">
                             {capitalize(app.title)}
                         </Heading>
-                        <Button variant="ghost" size="sm">
-                            <ArrowRightCircle className="h-6 w-6 text-primary-700" />
+                        <Button variant="ghost" size="sm" className="hover:text-primary-700 dark:hover:text-primary-600">
+                            <ArrowRightCircle className="h-6 w-6 " />
                         </Button>
                     </Link>
                 ))}
@@ -79,8 +82,6 @@ const Index = () => {
 };
 
 // @ts-ignore
-Index.layout = (page) => {
-    return <AuthLayout children={page} />;
-};
+Index.layout = (page) => <AuthLayout children={page} />;
 
 export default Index;

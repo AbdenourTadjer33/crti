@@ -23,28 +23,28 @@ const Edit: React.FC<{ unit: any }> = ({ unit }) => {
     );
 
     return (
-        <AuthLayout>
+        <div className="space-y-4">
             <Head title={"Modifier " + unit.name} />
-            <div className="space-y-4">
-                <Breadcrumb items={breadcrubms} />
+            <Breadcrumb items={breadcrubms} />
 
-                <div className="space-y-2">
-                    <Heading level={3} className="font-medium">
-                        Modifier {unit.name}
-                    </Heading>
-                    <Text className="sm:text-base text-sm">
-                        Utilisez ce formulaire pour modifier les détails de
-                        l'unité <span className="font-medium">{unit.name}</span>
-                        , et Cliquez sur "Sauvegarder" pour
-                        enregistrer vos changements ou "Annuler" pour revenir
-                        sans sauvegarder.{" "}
-                    </Text>
-                </div>
-
-                <EditForm unit={unit} />
+            <div className="space-y-2">
+                <Heading level={3} className="font-medium">
+                    Modifier {unit.name}
+                </Heading>
+                <Text className="sm:text-base text-sm">
+                    Utilisez ce formulaire pour modifier les détails de l'unité{" "}
+                    <span className="font-medium">{unit.name}</span>, et Cliquez
+                    sur "Sauvegarder" pour enregistrer vos changements ou
+                    "Annuler" pour revenir sans sauvegarder.{" "}
+                </Text>
             </div>
-        </AuthLayout>
+
+            <EditForm unit={unit} />
+        </div>
     );
 };
+
+// @ts-ignore
+Edit.layout = (page) => <AuthLayout children={page} />;
 
 export default Edit;

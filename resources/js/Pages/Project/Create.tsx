@@ -24,7 +24,7 @@ const Create: React.FC<any> = ({ version }) => {
     );
 
     return (
-        <>
+        <div className="space-y-4">
             <Head
                 title={
                     isStarting
@@ -32,19 +32,18 @@ const Create: React.FC<any> = ({ version }) => {
                         : "Continuez Votre Projet"
                 }
             />
-            <div className="space-y-4">
-                <Breadcrumb items={breadcrubms} />
+            <Breadcrumb items={breadcrubms} />
 
-                <div className="flex sm:flex-row flex-col justify-between sm:items-end gap-4">
-                    <div className="space-y-2">
-                        <Heading level={3} className="font-medium">
-                            {isStarting
-                                ? "Commencez Votre Projet"
-                                : "Continuez Votre Projet"}
-                        </Heading>
-                        <Text>
-                            {isStarting
-                                ? `Votre projet a été initialisé avec succès.
+            <div className="flex sm:flex-row flex-col justify-between sm:items-end gap-4">
+                <div className="space-y-2">
+                    <Heading level={3} className="font-medium">
+                        {isStarting
+                            ? "Commencez Votre Projet"
+                            : "Continuez Votre Projet"}
+                    </Heading>
+                    <Text>
+                        {isStarting
+                            ? `Votre projet a été initialisé avec succès.
                             Maintenant, commençons à le construire ! Cette page
                             est votre espace de travail pour entrer tous les
                             détails importants de votre projet. Prenez le temps
@@ -53,7 +52,7 @@ const Create: React.FC<any> = ({ version }) => {
                             progression sera sauvegardée, et vous pourrez
                             revenir à tout moment pour continuer là où vous vous
                             êtes arrêté.`
-                                : `Vous êtes de retour ! Continuez à travailler sur
+                            : `Vous êtes de retour ! Continuez à travailler sur
                             votre projet là où vous vous étiez arrêté. Cette
                             page est conçue pour vous aider à finaliser votre
                             projet en vous permettant de revoir, mettre à jour
@@ -65,23 +64,20 @@ const Create: React.FC<any> = ({ version }) => {
                             simplement dessus pour reprendre. Une fois que tout
                             est en place, finalisez votre projet et soumettez-le
                             pour révision.`}
-                        </Text>
-                    </div>
+                    </Text>
                 </div>
-
-                <Form
-                    versionId={version.id}
-                    version={version?.data}
-                    params={version?.params}
-                />
             </div>
-        </>
+
+            <Form
+                versionId={version.id}
+                version={version?.data}
+                params={version?.params}
+            />
+        </div>
     );
 };
 
 // @ts-ignore
-Create.layout = (page) => {
-    return <AuthLayout children={page} />;
-};
+Create.layout = (page) => <AuthLayout children={page} />;
 
 export default Create;

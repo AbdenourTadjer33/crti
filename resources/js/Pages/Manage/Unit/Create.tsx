@@ -15,25 +15,26 @@ const breadcrubms = [
 ];
 
 const Create: React.FC = () => (
-    <AuthLayout>
+    <div className="space-y-4">
         <Head title="Créer unité" />
-        <div className="space-y-4">
-            <Breadcrumb items={breadcrubms} />
+        <Breadcrumb items={breadcrubms} />
 
-            <div>
-                <Heading level={3} className="font-medium">
-                    Créer unité
-                </Heading>
-                <Text>
-                    Utilisez ce formulaire pour ajouter une nouvelle unité,
-                    Cliquez sur "Créer" pour enregistrer les informations ou "Annuler"
-                    pour revenir à la page précédente sans sauvegarder.
-                </Text>
-            </div>
-
-            <CreateForm />
+        <div>
+            <Heading level={3} className="font-medium">
+                Créer unité
+            </Heading>
+            <Text>
+                Utilisez ce formulaire pour ajouter une nouvelle unité, Cliquez
+                sur "Créer" pour enregistrer les informations ou "Annuler" pour
+                revenir à la page précédente sans sauvegarder.
+            </Text>
         </div>
-    </AuthLayout>
+
+        <CreateForm />
+    </div>
 );
+
+// @ts-ignore
+Create.layout = (page) => <AuthLayout children={page} />;
 
 export default Create;

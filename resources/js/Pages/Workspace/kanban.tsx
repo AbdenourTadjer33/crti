@@ -1,119 +1,110 @@
 import React from "react";
 import AuthLayout from "@/Layouts/AuthLayout";
 import { Task } from "@/types/project";
-import { differenceInDays, set } from "date-fns";
-import { Badge } from "@/Components/ui/badge";
+import { set } from "date-fns";
 import {
-    KanbanCard,
-    KanbanCardDescription,
-    KanbanCardTitle,
     KanbanColumn,
     KanbanColumnTitle,
     KanbanLayout,
 } from "@/Components/common/kanban";
-import { Button } from "@/Components/ui/button";
-import { EllipsisVertical } from "lucide-react";
-import UserAvatar from "@/Components/common/user-hover-avatar";
 import WorkspaceLayout from "@/Layouts/workspace-layout";
+import { Head } from "@inertiajs/react";
+import TodoCard from "@/Features/Workspace/kanban/todo-card";
+import ProgressCard from "@/Features/Workspace/kanban/progress-card";
+import DoneCard from "@/Features/Workspace/kanban/done-card";
+import SuspendedCard from "@/Features/Workspace/kanban/suspended-card";
+import CanceledCard from "@/Features/Workspace/kanban/canceled-card";
 
 interface KanbanProps {
     tasks: Task[];
 }
 
-const Kanban: React.FC<KanbanProps> = ({ tasks }) => {
-    const { todo, progress, done, suspended, canceled } = React.useMemo<
-        Record<Task["_status"], Task[]>
-    >(() => {
-        const statusGroups: Record<Task["_status"], Task[]> = {
-            todo: [],
-            progress: [],
-            done: [],
-            suspended: [],
-            canceled: [],
-        };
+type TaskByStatus = Record<Task["_status"], Task[]>;
 
-        tasks.forEach((task) => {
-            task.timeline.from = set(task.timeline.from, {
-                hours: 23,
-                minutes: 59,
-                seconds: 59,
+const Kanban: React.FC<KanbanProps> = ({ tasks }) => {
+    const { todo, progress, done, suspended, canceled } =
+        React.useMemo<TaskByStatus>(() => {
+            const statusGroups: TaskByStatus = {
+                todo: [],
+                progress: [],
+                done: [],
+                suspended: [],
+                canceled: [],
+            };
+
+            tasks.forEach((task) => {
+                task.timeline.to = set(task.timeline.to, {
+                    hours: 23,
+                    minutes: 59,
+                    seconds: 59,
+                });
+
+                statusGroups[task._status]?.push(task);
             });
 
-            statusGroups[task._status]?.push(task);
-        });
+            statusGroups.progress.sort(
+                (a, b) =>
+                    (a.timeline.to as Date).getTime() -
+                    (b.timeline.to as Date).getTime()
+            );
 
-        return statusGroups;
-    }, [tasks]);
+            return statusGroups;
+        }, [tasks]);
 
     return (
-        <>
-            <KanbanLayout className="px-0">
-                <KanbanColumn className="space-y-4">
-                    <KanbanColumnTitle className="capitalize">
-                        à faire
-                    </KanbanColumnTitle>
+        <KanbanLayout className="px-0">
+            <Head title="Tableau kanban" />
 
-                    {todo.map((task, idx) => (
-                        <TodoCard key={idx} task={task} />
-                    ))}
-                </KanbanColumn>
-                <>
-                    <KanbanColumn className="space-y-4">
-                        <KanbanColumnTitle className="capitalize">
-                            En cours
-                        </KanbanColumnTitle>
-                    </KanbanColumn>
+            <KanbanColumn className="space-y-4">
+                <KanbanColumnTitle className="capitalize">
+                    à faire
+                </KanbanColumnTitle>
 
-                    <KanbanColumn>
-                        <KanbanColumnTitle className="capitalize">
-                            Suspendu
-                        </KanbanColumnTitle>
-                    </KanbanColumn>
+                {todo.map((task, idx) => (
+                    <TodoCard key={idx} task={task} />
+                ))}
+            </KanbanColumn>
 
-                    <KanbanColumn>
-                        <KanbanColumnTitle className="capitalize">
-                            Annulé
-                        </KanbanColumnTitle>
-                    </KanbanColumn>
-                </>
-            </KanbanLayout>
-            <pre>{JSON.stringify(tasks, null, 2)}</pre>
-        </>
-    );
-};
+            <KanbanColumn className="space-y-4">
+                <KanbanColumnTitle className="capitalize">
+                    En cours
+                </KanbanColumnTitle>
 
-const TodoCard = ({ task }) => {
-    return (
-        <KanbanCard className="space-y-2.5">
-            <div className="flex items-start justify-between gap-2">
-                <KanbanCardTitle>{task.name}</KanbanCardTitle>
-                <Button variant="ghost" size="sm">
-                    <EllipsisVertical className="shrink-0 h-5 w-5" />
-                </Button>
-            </div>
+                {progress.map((task, idx) => (
+                    <ProgressCard key={idx} task={task} />
+                ))}
+            </KanbanColumn>
 
-            <KanbanCardDescription text={task.description} />
+            <KanbanColumn className="space-y-4">
+                <KanbanColumnTitle className="capitalize">
+                    faite
+                </KanbanColumnTitle>
 
-            <div className="flex items-end justify-between gap-2">
-                <div className="space-y-1">
-                    <span>
-                        {`${task.users.length} assigné${
-                            task.users.length > 1 ? "s" : ""
-                        }`}{" "}
-                    </span>
-                    <div className="flex items-center -space-x-1 5">
-                        {task.users.map((u) => (
-                            <UserAvatar key={u.uuid} user={u} />
-                        ))}
-                    </div>
-                </div>
+                {done.map((task, idx) => (
+                    <DoneCard key={idx} task={task} />
+                ))}
+            </KanbanColumn>
 
-                <Badge variant="indigo">
-                    {differenceInDays(task.timeline.from, new Date())}
-                    {" jours restants"}
-                </Badge>
-            </div>
-        </KanbanCard>
+            <KanbanColumn className="space-y-4">
+                <KanbanColumnTitle className="capitalize">
+                    Suspendu
+                </KanbanColumnTitle>
+
+                {suspended.map((task, idx) => (
+                    <SuspendedCard key={idx} task={task} />
+                ))}
+            </KanbanColumn>
+
+            <KanbanColumn className="space-y-4">
+                <KanbanColumnTitle className="capitalize">
+                    Annulé
+                </KanbanColumnTitle>
+
+                {canceled.map((task, idx) => (
+                    <CanceledCard key={idx} task={task} />
+                ))}
+            </KanbanColumn>
+        </KanbanLayout>
     );
 };
 
@@ -125,36 +116,3 @@ Kanban.layout = (page) => (
 );
 
 export default Kanban;
-
-// <KanbanCard key={idx} className="space-y-2.5">
-//     <div className="flex items-start justify-between gap-2">
-//         <KanbanCardTitle>{task.name}</KanbanCardTitle>
-
-//         <Button variant="ghost" size="sm">
-//             <EllipsisVertical className="h-5 w-5" />
-//         </Button>
-//     </div>
-//     <KanbanCardDescription text={task.description} />
-
-//     <div className="flex items-end justify-between gap-2">
-//         <div className="space-y-1">
-//             <span>{task.users.length} assigné</span>
-//             <div className="flex items-center -space-x-1.5">
-//                 {task.users.map((user) => (
-//                     <UserAvatar
-//                         key={user.uuid}
-//                         user={user}
-//                     />
-//                 ))}
-//             </div>
-//         </div>
-
-//         <Badge variant="indigo">
-//             {differenceInDays(
-//                 task.timeline.from,
-//                 new Date()
-//             )}
-//             {" jours restants"}
-//         </Badge>
-//     </div>
-// </KanbanCard>

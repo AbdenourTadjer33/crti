@@ -5,7 +5,7 @@ import ProjectDetails from "@/Features/Project/ProjectDetails";
 import { Heading } from "@/Components/ui/heading";
 import { Text } from "@/Components/ui/paragraph";
 import { Project } from "@/types/project";
-import { Head} from "@inertiajs/react";
+import { Head } from "@inertiajs/react";
 import { House } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import ProjectVersionsTimeline from "@/Features/Project/project-versions-timeline";
@@ -152,8 +152,6 @@ const Show: React.FC<ProjectShowProps> = ({
 };
 
 // @ts-ignore
-Show.layout = (page) => {
-    return <AuthLayout children={page} />;
-};
+Show.layout = (page) => <AuthLayout children={page} />;
 
 export default Show;

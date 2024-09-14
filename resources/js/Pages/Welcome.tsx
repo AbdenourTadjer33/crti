@@ -12,8 +12,6 @@ const Welcome = () => {
 };
 
 // @ts-ignore
-Welcome.layout = (page) => {
-    return <AuthLayout children={page} />;
-};
+Welcome.layout = (page) => <AuthLayout children={page} />;
 
 export default Welcome;

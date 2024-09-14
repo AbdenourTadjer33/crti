@@ -17,36 +17,35 @@ const breadcrumbs = [
 
 const Index: React.FC<{ units: Pagination<Unit> }> = ({ units }) => {
     return (
-        <>
+        <div className="space-y-4">
             <Head title="Gestion d'unité" />
 
-            <div className="space-y-4">
-                <Breadcrumb items={breadcrumbs} />
+            <Breadcrumb items={breadcrumbs} />
 
-                <div className="flex sm:flex-row flex-col justify-between sm:items-end gap-4">
-                    <div className="space-y-2">
-                        <Heading level={3} className="font-medium">
-                            Gestion d'unité
-                        </Heading>
+            <div className="flex sm:flex-row flex-col justify-between sm:items-end gap-4">
+                <div className="space-y-2">
+                    <Heading level={3} className="font-medium">
+                        Gestion d'unité
+                    </Heading>
 
-                        <Text>
-                            Voici la liste de toutes les unités enregistrées .
-                            Vous pouvez visualiser les détails de chaque unité,
-                            et accéder aux options pour modifier ou supprimer
-                            les unités existantes.
-                        </Text>
-                    </div>
-
-                    <Button asChild>
-                        <Link href={route("manage.unit.create")}>
-                            <Plus className="w-4 h-4 mr-2" />
-                            Ajouter Unité
-                        </Link>
-                    </Button>
+                    <Text>
+                        Voici la liste de toutes les unités enregistrées . Vous
+                        pouvez visualiser les détails de chaque unité, et
+                        accéder aux options pour modifier ou supprimer les
+                        unités existantes.
+                    </Text>
                 </div>
-                <Table units={units} />
+
+                <Button asChild>
+                    <Link href={route("manage.unit.create")}>
+                        <Plus className="w-4 h-4 mr-2" />
+                        Ajouter Unité
+                    </Link>
+                </Button>
             </div>
-        </>
+
+            <Table units={units} />
+        </div>
     );
 };
 
