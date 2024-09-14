@@ -18,6 +18,8 @@ class UnitController extends Controller
     public function index()
     {
 
+        Unit::with('divisions')->paginate(15);
+
         return Inertia::render('Manage/Unit/Index', [
             'units' => fn() => UnitResource::collection(Unit::withCount('divisions')->paginate(15)),
         ]);

@@ -20,10 +20,11 @@ class UnitResource extends JsonResource
             'abbr' => $this->abbr,
             'description' => $this->description,
             'address' => $this->address,
+            'webpage' => $this->webpage,
+            'divisions' => DivisionResource::collection($this->whenLoaded('divisions')),
+            'divisionCount' => $this->whenCounted('divisions'),
             'createdAt' => $this->created_at,
             'updatedAt' => $this->updated_at,
-            'divisions' => DivisionResource::collection($this->whenLoaded('divisions')),
-            'divisionCount' => $this->when($this->divisions_count !== null, $this->divisions_count),
         ];
     }
 }

@@ -29,7 +29,9 @@ class RoleController extends Controller
      */
     public function create()
     {
-        return Inertia::render('Manage/Role/Create', []);
+        return Inertia::render('Manage/Role/Create', [
+            'permissions' => Permission::getPermissions(),
+        ]);
     }
 
     /**

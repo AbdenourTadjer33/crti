@@ -19,10 +19,12 @@ class DivisionResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'abbr' => $this->abbr,
+            'webpage' => $this->webpage,
             'description' => $this->description,
             'createdAt' => $this->created_at,
             'updatedAt' => $this->updated_at,
-            'users' => UserResource::collection($this->whenLoaded('users')),
+            'users' => DivisionUserResource::collection($this->whenLoaded('users'))
+
         ];
     }
 }

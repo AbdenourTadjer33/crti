@@ -8,10 +8,10 @@ use Inertia\Inertia;
 use App\Models\Division;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Cache;
 use App\Http\Resources\Manage\DivisionResource;
-use App\Http\Requests\Manage\Division\StoreDivisionRequest;
-use App\Http\Requests\Manage\Division\UpdateDivisionRequest;
-use App\Http\Resources\Manage\UnitResource;
+use App\Http\Requests\Manage\Division\StoreRequest;
+use App\Http\Requests\Manage\Division\UpdateRequest;
 
 class UnitDivisionController extends Controller
 {
@@ -20,17 +20,16 @@ class UnitDivisionController extends Controller
      */
     public function create(Unit $unit)
     {
-
         return Inertia::render('Manage/Unit/Division/Create', [
-            "unit" => $unit,
-            'grades' => DB::table('division_grades')->get(['id', 'name']),
+            "unit" => fn() => $unit->only('id', 'name', 'abbr'),
+            'grades' => fn() => Cache::remember('division_grades', now()->addHour(), fn() => DB::table('division_grades')->get(['id', 'name'])),
         ]);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreDivisionRequest $request, Unit $unit)
+    public function store(StoreRequest $request, Unit $unit)
     {
         $division = DB::transaction(function () use ($request, $unit) {
             /** @var Division */
@@ -61,8 +60,8 @@ class UnitDivisionController extends Controller
             'unit' => $unit->id,
             'division' => $division->id
         ])->with('alert', [
-            'status' => 'succes',
-            'message' => 'Division créer avec succes'
+            'status' => 'success',
+            'message' => 'Division créer avec succés'
         ]);
     }
 
@@ -72,8 +71,8 @@ class UnitDivisionController extends Controller
     public function show(Unit $unit, Division $division)
     {
         return Inertia::render('Manage/Unit/Division/Show', [
-            'unit' => new UnitResource($unit->load('divisions')),
-            'division' => new DivisionResource($division->load(['users'])),
+            'unit' => fn() => $unit->only('id', 'name', 'abbr'),
+            'division' => new DivisionResource($division->load('users')),
         ]);
     }
 
@@ -93,7 +92,7 @@ class UnitDivisionController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateDivisionRequest $request, Unit $unit, Division $division)
+    public function update(UpdateRequest $request, Unit $unit, Division $division)
     {
         DB::transaction(function () use ($request, $division) {
             $division->update([
@@ -120,8 +119,8 @@ class UnitDivisionController extends Controller
             'unit' => $unit->id,
             'division' => $division->id
         ])->with('alert', [
-            'status' => 'succes',
-            'message' => 'Division mise a jour avec succes'
+            'status' => 'success',
+            'message' => 'Division mise a jour avec succés'
         ]);
     }
 
