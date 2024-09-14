@@ -1,0 +1,8 @@
+{
+    "User does not have the right permissions.": "L'utilisateur ne dispose pas des autorisations appropriées.",
+    "You are not authorized to start this task. Only assigned members can start the task.": "Vous n'êtes pas autorisé à démarrer cette tâche. Seuls les membres assignés peuvent démarrer la tâche.",
+    "You are not authorized to suspend this task. Only assigned members can suspend the task.": "Vous n'êtes pas autorisé à suspendre cette tâche. Seuls les membres assignés peuvent suspendre la tâche.",
+    "You are not authorized to cancel this task. Only assigned members can cancel the task.": "Vous n'êtes pas autorisé à annuler cette tâche. Seuls les membres assignés peuvent annuler la tâche.",
+    "You are not authorized to end this task. Only assigned members can mark the task as completed.": "Vous n'êtes pas autorisé à terminer cette tâche. Seuls les membres assignés peuvent marquer la tâche comme terminée.",
+    "You are not authorized to resum this task. Only assigned members can resum the task.": "Vous n'êtes pas autorisé à reprendre cette tâche. Seuls les membres assignés peuvent reprendre la tâche."
+}

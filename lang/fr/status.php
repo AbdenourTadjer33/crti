@@ -11,7 +11,7 @@ return [
 
 
     'todo' => 'À faire',
-    'inprogress' => 'En cours',
+    'progress' => 'En cours',
     'done' => 'Fait',
     'suspended' => 'Suspendu',
     'canceled' => 'Annulé',

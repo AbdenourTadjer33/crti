@@ -188,10 +188,17 @@ return [
     */
 
     'attributes' => [
+        'firstName' => 'prénom',
+        'lastName' => 'nom',
         'name' => 'nom',
+        'dob' => 'date de naissance',
+        'sex' => 'sexe',
+        'email' => 'adresse e-mail',
+        'password' => 'mot de passe',
         'abbr' => 'abréviation',
         'address' => 'adresse',
         'webpage' => 'page web',
+        'reason' => 'raison',
     ],
 
 ];
