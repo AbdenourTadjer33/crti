@@ -7,10 +7,10 @@ use App\Events\Project\ProjectAccepted;
 use App\Jobs\Project\ProcessProjectTasksJob;
 use App\Notifications\Project\ProjectAcceptedNotification;
 use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Support\Facades\Notification;
 
-class ProjectAcceptedListener implements ShouldQueue
+class ProjectAcceptedListener implements ShouldQueueAfterCommit
 {
     use InteractsWithQueue;
 
@@ -30,6 +30,6 @@ class ProjectAcceptedListener implements ShouldQueue
 
         $task = $project->tasks()->first(['date_begin']);
 
-        ProcessProjectTasksJob::dispatch()->delay(now()->diffInSeconds($task->date_begin));
+        ProcessProjectTasksJob::dispatch($project->id)->delay(now()->diffInSeconds($task->date_begin));
     }
 }

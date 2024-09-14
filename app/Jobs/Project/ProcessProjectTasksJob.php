@@ -4,11 +4,8 @@ namespace App\Jobs\Project;
 
 use App\Models\Task;
 use App\Models\Project;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
 
 class ProcessProjectTasksJob implements ShouldQueue
 {
@@ -39,8 +36,10 @@ class ProcessProjectTasksJob implements ShouldQueue
          * @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task>
          */
         $tasks = $project->tasks()->getQuery()->with('users')
-            ->where('date_begin', $now->toDateString())
-            ->orWhere('date_end', $now->toDateString())
+            ->where(function ($query) use ($now) {
+                $query->orWhere('date_begin', $now->toDateString());
+                $query->orWhere('date_end', $now->toDateString());
+            })
             ->whereIn('status', ['todo', 'progress'])
             ->get();
 
@@ -63,12 +62,7 @@ class ProcessProjectTasksJob implements ShouldQueue
             })->first();
 
         if ($task) {
-            $date_begin = now()->parse($task->date_begin);
-            $date_end = now()->parse($task->date_end);
-
-            $delay = $date_begin->isFuture() && $date_end->isFuture()
-                ? ($date_end->lt($date_begin) ? $date_end : $date_begin)
-                : ($date_begin->isFuture() ? $date_begin : $date_end);
+            $delay = $this->getClosestFutureDate(now()->parse($task->date_begin), now()->parse($task->date_end));
 
 
             if ($delay) {

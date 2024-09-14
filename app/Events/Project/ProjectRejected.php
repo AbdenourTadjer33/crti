@@ -17,5 +17,6 @@ class ProjectRejected
     public function __construct()
     {
         //
+
     }
 }
