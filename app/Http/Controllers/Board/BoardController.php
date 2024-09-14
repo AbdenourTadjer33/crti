@@ -69,7 +69,7 @@ class BoardController extends Controller
             $board->save();
 
             UpdateProjectStatusJob::dispatchSync($board->project_id, ProjectStatus::pending->name);
-            ProjectAccepted::dispatch($board->project_id);
+            // ProjectAccepted::dispatch($board->project_id);
         });
 
         return redirect()->back();
@@ -86,7 +86,7 @@ class BoardController extends Controller
             $board->save();
 
             UpdateProjectStatusJob::dispatchSync($board->project_id, ProjectStatus::rejected->name);
-            ProjectRejected::dispatch($board->project_id);
+            // ProjectRejected::dispatch($board->project_id);
         });
 
         return redirect()->back();

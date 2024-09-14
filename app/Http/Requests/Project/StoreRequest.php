@@ -29,10 +29,4 @@ class StoreRequest extends FormRequest
         ];
     }
 
-    public function messages()
-    {
-        return [
-            'division' => "sélectionnez une division"
-        ];
-    }
 }

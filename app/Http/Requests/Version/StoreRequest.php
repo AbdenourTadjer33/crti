@@ -132,8 +132,13 @@ class StoreRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            "members" => "member de l'équipe",
-            'name' => "intetule de projet"
+            'name' => 'intitulé du projet',
+            'domains' => 'domaine d\'application',
+            'timeline' => 'date début/fin',
+            'goals' => 'objectifs',
+            'methodology' => 'Méthodologie',
+            'deliverables' => 'livrable',
+            'estimated_amount' => 'Montant estimé'
         ];
     }
 

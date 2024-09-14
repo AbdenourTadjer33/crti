@@ -4,8 +4,6 @@ namespace App\Http\Controllers\Project;
 
 use App\Models\User;
 use Inertia\Inertia;
-use App\Models\Domain;
-use App\Models\Nature;
 use App\Models\Project;
 use App\Enums\ProjectStatus;
 use Illuminate\Http\Request;
@@ -19,7 +17,6 @@ use Illuminate\Routing\Controllers\HasMiddleware;
 use App\Http\Resources\Project\ProjectDetailsResource;
 use App\Http\Resources\Project\ProjectInCreationResource;
 use App\Http\Resources\Project\ProjectMemberResource;
-use App\Http\Resources\Project\ProjectPreviousVersionResource;
 
 class ProjectController extends Controller implements HasMiddleware
 {
@@ -122,6 +119,8 @@ class ProjectController extends Controller implements HasMiddleware
             ]);
         });
 
+        $this->user->storePendingAction($project, []);
+
         event(new ProjectInitialized($this->user->id, $project->id));
 
         return $project->only('code');
@@ -165,11 +164,3 @@ class ProjectController extends Controller implements HasMiddleware
         ]);
     }
 }
-
-
-// $versionInCreationFn = function () use ($project) {
-//     $versionIds = $project->getVersionMarkedAs('creation');
-//     if (!$versionIds) return;
-//     $version = $project->versions()->whereIn('id', $versionIds)->where('user_id', $this->user->id)->first(['id', 'reason', 'created_at']);
-//     return $version;
-// };

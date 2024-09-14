@@ -6,7 +6,6 @@ use App\Models\User;
 use Inertia\Inertia;
 use App\Models\Project;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Project\ProjectRessource;
 use App\Http\Resources\Project\ProjectTaskResource;
 
 class WorkspaceController extends Controller
@@ -28,21 +27,14 @@ class WorkspaceController extends Controller
         ]);
     }
 
-    // public function calendar(Project $project)
+    // public function kanban(Project $project)
     // {
     //     if ($project->user_id === $this->user->id) $this->shareWithCreator($project);
 
-    //     return Inertia::render('Workspace/calendar', []);
+    //     return Inertia::render('Workspace/kanban', [
+    //         'tasks' => ProjectTaskResource::collection($project->load(['tasks', 'tasks.users'])->tasks)
+    //     ]);
     // }
-
-    public function kanban(Project $project)
-    {
-        if ($project->user_id === $this->user->id) $this->shareWithCreator($project);
-
-        return Inertia::render('Workspace/kanban', [
-            'tasks' => ProjectTaskResource::collection($project->load(['tasks', 'tasks.users'])->tasks)
-        ]);
-    }
 
     protected function shareWithCreator(Project $project)
     {
