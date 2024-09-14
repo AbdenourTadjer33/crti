@@ -7,10 +7,9 @@ import {
 import { Task } from "@/types/project";
 import * as DropdownMenu from "@/Components/ui/dropdown-menu";
 import { Button } from "@/Components/ui/button";
-import { CircleArrowRight, Clock, EllipsisVertical } from "lucide-react";
+import { CircleArrowRight, EllipsisVertical } from "lucide-react";
 import UserAvatar from "@/Components/common/user-hover-avatar";
 import { Badge } from "@/Components/ui/badge";
-import { format } from "date-fns";
 
 const CanceledCard: React.FC<{ task: Task }> = ({ task }) => {
     return (
@@ -44,16 +43,15 @@ const CanceledCard: React.FC<{ task: Task }> = ({ task }) => {
                             task.users.length > 1 ? "s" : ""
                         }`}{" "}
                     </span>
-                    <div className="flex items-center -space-x-1.5">
+                    <div className="flex items-center -space-x-2">
                         {task.users.map((u) => (
                             <UserAvatar key={u.uuid} user={u} />
                         ))}
                     </div>
                 </div>
 
-                <Badge variant="orange" className="inline-flex items-center">
-                    <Clock className="h-4 w-4 mr-2" />
-                    {`suspended at ${format(task.suspendedAt, "dd MM yyy")}`}
+                <Badge variant="dark" className="inline-flex items-center">
+                    Annulé
                 </Badge>
             </div>
         </KanbanCard>

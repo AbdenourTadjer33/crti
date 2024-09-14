@@ -6,7 +6,11 @@ import {
     KanbanCardTitle,
 } from "@/Components/common/kanban";
 import * as DropdownMenu from "@/Components/ui/dropdown-menu";
-import { Check, CircleArrowRight, EllipsisVertical } from "lucide-react";
+import {
+    CircleArrowRight,
+    CircleCheckBig,
+    EllipsisVertical,
+} from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import UserAvatar from "@/Components/common/user-hover-avatar";
 import { Badge } from "@/Components/ui/badge";
@@ -35,7 +39,12 @@ const DoneCard: React.FC<{ task: Task }> = ({ task }) => {
 
             <div className="flex items-end justify-between gap-2">
                 <div className="space-y-1">
-                    <div className="flex items-center -space-x-1 5">
+                    <span>
+                        {`${task.users.length} assigné${
+                            task.users.length > 1 ? "s" : ""
+                        }`}{" "}
+                    </span>
+                    <div className="flex items-center -space-x-2">
                         {task.users.map((u) => (
                             <UserAvatar key={u.uuid} user={u} />
                         ))}
@@ -43,7 +52,7 @@ const DoneCard: React.FC<{ task: Task }> = ({ task }) => {
                 </div>
 
                 <Badge variant="green" className="inline-flex items-center">
-                    <Check className="h-4 w-4 mr-2" />
+                    <CircleCheckBig className="h-4 w-4 mr-2" />
                     Faite
                 </Badge>
             </div>

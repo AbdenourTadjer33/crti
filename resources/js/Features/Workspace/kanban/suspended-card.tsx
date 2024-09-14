@@ -6,13 +6,12 @@ import {
     KanbanCardTitle,
 } from "@/Components/common/kanban";
 import * as DropdownMenu from "@/Components/ui/dropdown-menu";
-import { Button } from "@/Components/ui/button";
-import { CircleArrowRight, Clock, EllipsisVertical } from "lucide-react";
-import * as Dialog from "@/Components/ui/dialog";
+import { Button, buttonVariants } from "@/Components/ui/button";
+import { CircleArrowRight, EllipsisVertical, RefreshCcw } from "lucide-react";
 import { router } from "@inertiajs/react";
 import UserAvatar from "@/Components/common/user-hover-avatar";
 import { Badge } from "@/Components/ui/badge";
-import { format } from "date-fns";
+import * as AlertDialog from "@/Components/ui/alert-dialog";
 
 const SuspendedCard: React.FC<{ task: Task }> = ({ task }) => {
     const [confirmResume, setConfirmResum] = React.useState(false);
@@ -38,13 +37,14 @@ const SuspendedCard: React.FC<{ task: Task }> = ({ task }) => {
                         <DropdownMenu.DropdownMenuItem
                             onClick={() => setConfirmResum(true)}
                         >
+                            <RefreshCcw className="h-4 w-4 mr-2" />
                             Reprendre la tâche
                         </DropdownMenu.DropdownMenuItem>
                     </DropdownMenu.DropdownMenuContent>
                 </DropdownMenu.DropdownMenu>
 
                 <ConfirmResumDialog
-                    taskId={task.id}
+                    task={task}
                     open={confirmResume}
                     onOpenChange={setConfirmResum}
                 />
@@ -57,18 +57,17 @@ const SuspendedCard: React.FC<{ task: Task }> = ({ task }) => {
                     <span>
                         {`${task.users.length} assigné${
                             task.users.length > 1 ? "s" : ""
-                        }`}
+                        }`}{" "}
                     </span>
-                    <div className="flex items-center -space-x-1.5">
+                    <div className="flex items-center -space-x-2">
                         {task.users.map((u) => (
                             <UserAvatar key={u.uuid} user={u} />
                         ))}
                     </div>
                 </div>
 
-                <Badge variant="dark" className="inline-flex items-center">
-                    <Clock className="h-4 w-4 mr-2" />
-                    {`suspended at ${format(task.suspendedAt, "dd MM yyy")}`}
+                <Badge variant="orange" className="inline-flex items-center">
+                    Suspendu
                 </Badge>
             </div>
         </KanbanCard>
@@ -76,16 +75,16 @@ const SuspendedCard: React.FC<{ task: Task }> = ({ task }) => {
 };
 
 const ConfirmResumDialog: React.FC<{
-    taskId: string;
+    task: Task;
     open: boolean;
     onOpenChange: React.Dispatch<React.SetStateAction<boolean>>;
-}> = ({ taskId, open, onOpenChange }) => {
+}> = ({ task, open, onOpenChange }) => {
     const [processing, setProcessing] = React.useState(false);
 
     const resum = () => {
         const endpoint = route("project.task.resum", {
             project: route().params.project,
-            task: taskId,
+            task: task.id,
         });
 
         router.visit(endpoint, {
@@ -101,39 +100,34 @@ const ConfirmResumDialog: React.FC<{
     };
 
     return (
-        <Dialog.Dialog open={open} onOpenChange={onOpenChange}>
-            <Dialog.DialogContent
-                className="space-y-4"
+        <AlertDialog.AlertDialog open={open} onOpenChange={onOpenChange}>
+            <AlertDialog.AlertDialogContent
                 onOpenAutoFocus={(e) => e.preventDefault()}
+                className="max-w-2xl"
             >
-                <Dialog.DialogHeader>
-                    <Dialog.DialogTitle>
-                        Redémarrer la tâche suspendue
-                    </Dialog.DialogTitle>
-                    <Dialog.DialogDescription>
+                <AlertDialog.AlertDialogHeader>
+                    <AlertDialog.AlertDialogTitle>
+                        Redémarrer la tâche {task.name}
+                    </AlertDialog.AlertDialogTitle>
+                    <AlertDialog.AlertDialogDescription>
                         Êtes-vous sûr de vouloir reprendre cette tâche ? La
                         tâche reprendra à partir de la date actuelle.
-                    </Dialog.DialogDescription>
-                </Dialog.DialogHeader>
-                <div className="flex items-center gap-2">
-                    <Button
-                        variant="destructive"
-                        className="w-full"
-                        onClick={() => onOpenChange(false)}
-                        disabled={processing}
-                    >
+                    </AlertDialog.AlertDialogDescription>
+                </AlertDialog.AlertDialogHeader>
+                <AlertDialog.AlertDialogFooter>
+                    <AlertDialog.AlertDialogCancel disabled={processing}>
                         Annuler
-                    </Button>
-                    <Button
-                        variant="primary"
-                        className="w-full"
+                    </AlertDialog.AlertDialogCancel>
+                    <AlertDialog.AlertDialogAction
+                        className={buttonVariants({ variant: "primary" })}
+                        disabled={processing}
                         onClick={resum}
                     >
                         Redémarrer
-                    </Button>
-                </div>
-            </Dialog.DialogContent>
-        </Dialog.Dialog>
+                    </AlertDialog.AlertDialogAction>
+                </AlertDialog.AlertDialogFooter>
+            </AlertDialog.AlertDialogContent>
+        </AlertDialog.AlertDialog>
     );
 };
 

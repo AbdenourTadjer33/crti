@@ -268,7 +268,6 @@ const CreateNewProject: React.FC<CreateNewProjectProps> = ({
                     ) : (
                         <>
                             Créer le projet
-                            <MoveRight className="h-4 w-4 ml-2" />
                         </>
                     )}
                 </Button>

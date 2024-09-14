@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import {
     getCoreRowModel,
-    getExpandedRowModel,
     useReactTable,
 } from "@tanstack/react-table";
 import { TableWrapper } from "@/Components/ui/table";
@@ -27,8 +26,8 @@ import { columnDef } from "./Columns";
 import AddMemberModal from "./AddMemberModal";
 
 const Table: React.FC<{ users: User[] }> = ({ users }) => {
-    const finalData = React.useMemo(() => users, [users]);
-    const finalColumnDef = React.useMemo(() => columnDef, []);
+    const data = React.useMemo(() => users, [users]);
+    const columns = React.useMemo(() => columnDef, []);
 
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -44,20 +43,21 @@ const Table: React.FC<{ users: User[] }> = ({ users }) => {
         // Logique pour retirer un membre
     };
 
-
     const table = useReactTable({
-        columns: finalColumnDef,
-        data: finalData ?? [],
+        columns,
+        data,
         getCoreRowModel: getCoreRowModel(),
-        // getRowId: (row) => row.id,
-        getExpandedRowModel: getExpandedRowModel(),
+        getRowId: (row) => row.uuid,
     });
 
     return (
         <>
             <div className="flex justify-end">
                 <Button
-                    className={cn(buttonVariants(), "sm:hidden justify-between gap-2")}
+                    className={cn(
+                        buttonVariants(),
+                        "sm:hidden justify-between gap-2"
+                    )}
                     onClick={handleOpenDialog}
                 >
                     <Plus className="w-4 h-4" />
@@ -74,7 +74,10 @@ const Table: React.FC<{ users: User[] }> = ({ users }) => {
                     </div>
                     <div className="flex items-center gap-2">
                         <Button
-                            className={cn(buttonVariants(), "sm:flex hidden justify-between gap-2")}
+                            className={cn(
+                                buttonVariants(),
+                                "sm:flex hidden justify-between gap-2"
+                            )}
                             onClick={handleOpenDialog}
                         >
                             <Plus className="w-4 h-4" />
@@ -106,7 +109,8 @@ const Table: React.FC<{ users: User[] }> = ({ users }) => {
                                     .filter((col) => col.getCanHide())
                                     .map((col) => {
                                         const title =
-                                            typeof col.columnDef.header === "string"
+                                            typeof col.columnDef.header ===
+                                            "string"
                                                 ? col.columnDef.header
                                                 : col.id;
                                         return (
@@ -114,9 +118,13 @@ const Table: React.FC<{ users: User[] }> = ({ users }) => {
                                                 key={col.id}
                                                 checked={col.getIsVisible()}
                                                 onCheckedChange={(value) =>
-                                                    col.toggleVisibility(!!value)
+                                                    col.toggleVisibility(
+                                                        !!value
+                                                    )
                                                 }
-                                                onSelect={(e) => e.preventDefault()}
+                                                onSelect={(e) =>
+                                                    e.preventDefault()
+                                                }
                                             >
                                                 {title}
                                             </DropdownMenuCheckboxItem>
@@ -133,6 +141,7 @@ const Table: React.FC<{ users: User[] }> = ({ users }) => {
                     }}
                 />
             </TableWrapper>
+
             <AddMemberModal
                 isOpen={isDialogOpen}
                 onClose={handleCloseDialog}

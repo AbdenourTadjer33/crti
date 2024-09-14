@@ -60,10 +60,7 @@ const CreateForm = () => {
         e.preventDefault();
 
         post(route("manage.role.store"), {
-            only: ["errors", "flash"],
-            preserveScroll: true,
-            preserveState: true,
-            onSuccess: () => reset(),
+            preserveScroll: "errors",
         });
     };
 

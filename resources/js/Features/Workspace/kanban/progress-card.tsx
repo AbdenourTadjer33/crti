@@ -6,6 +6,7 @@ import {
     KanbanCardTitle,
 } from "@/Components/common/kanban";
 import {
+    CircleArrowRight,
     CircleCheckBig,
     Clock,
     EllipsisVertical,
@@ -13,21 +14,32 @@ import {
     Pause,
     X,
 } from "lucide-react";
-import { Button } from "@/Components/ui/button";
+import { Button, buttonVariants } from "@/Components/ui/button";
 import { Badge } from "@/Components/ui/badge";
-import { differenceInDays } from "date-fns";
+import { differenceInDays, isAfter } from "date-fns";
 import UserAvatar from "@/Components/common/user-hover-avatar";
 import * as DropdownMenu from "@/Components/ui/dropdown-menu";
-import * as Dialog from "@/Components/ui/dialog";
 import { router, useForm } from "@inertiajs/react";
 import { Textarea } from "@/Components/ui/textarea";
 import { InputError } from "@/Components/ui/input-error";
 import { Label } from "@/Components/ui/label";
+import * as AlertDialog from "@/Components/ui/alert-dialog";
 
 const ProgressCard: React.FC<{ task: Task }> = ({ task }) => {
     const [confirmEnd, setConfirmEnd] = React.useState(false);
     const [confirmSuspension, setConfirmSuspension] = React.useState(false);
     const [confirmCancellation, setConfirmCancellation] = React.useState(false);
+
+    const isOverdue = React.useMemo(
+        () => isAfter(new Date(), task.timeline.to),
+        [task.timeline.to]
+    );
+
+    const daysDifference = React.useMemo(() => {
+        return isOverdue
+            ? differenceInDays(new Date(), task.timeline.to)
+            : differenceInDays(task.timeline.to, new Date());
+    }, [isOverdue, task.timeline.to]);
 
     return (
         <KanbanCard className="space-y-2">
@@ -43,6 +55,10 @@ const ProgressCard: React.FC<{ task: Task }> = ({ task }) => {
                         onCloseAutoFocus={(e) => e.preventDefault()}
                         loop
                     >
+                        <DropdownMenu.DropdownMenuItem>
+                            <CircleArrowRight className="h-4 w-4 mr-2" />
+                            Voir la tâche
+                        </DropdownMenu.DropdownMenuItem>
                         <DropdownMenu.DropdownMenuItem>
                             <FileText className="h-4 w-4 mr-2" />
                             Ajouter un rapport
@@ -69,19 +85,19 @@ const ProgressCard: React.FC<{ task: Task }> = ({ task }) => {
                 </DropdownMenu.DropdownMenu>
 
                 <ConfirmEndDialog
-                    taskId={task.id}
+                    task={task}
                     open={confirmEnd}
                     onOpenChange={setConfirmEnd}
                 />
 
                 <ConfirmCancellationDialog
-                    taskId={task.id}
+                    task={task}
                     open={confirmCancellation}
                     onOpenChange={setConfirmCancellation}
                 />
 
                 <ConfirmSuspensionDialog
-                    taskId={task.id}
+                    task={task}
                     open={confirmSuspension}
                     onOpenChange={setConfirmSuspension}
                 />
@@ -89,24 +105,40 @@ const ProgressCard: React.FC<{ task: Task }> = ({ task }) => {
 
             <KanbanCardDescription text={task.description} />
 
-            <div className="flex items-end justify-between gap-2">
+            <div className="flex items-end justify-between flex-wrap gap-2">
                 <div className="space-y-1">
                     <span>
                         {`${task.users.length} assigné${
                             task.users.length > 1 ? "s" : ""
                         }`}{" "}
                     </span>
-                    <div className="flex items-center -space-x-1 5">
+                    <div className="flex items-center -space-x-2">
                         {task.users.map((u) => (
                             <UserAvatar key={u.uuid} user={u} />
                         ))}
                     </div>
                 </div>
 
-                <Badge variant="indigo" className="inline-flex items-center">
+                <Badge
+                    variant={isOverdue ? "red" : "yellow"}
+                    className="inline-flex items-center ms-auto"
+                >
                     <Clock className="h-4 w-4 mr-2" />
-                    {differenceInDays(task.timeline.to, task.timeline.from)}
-                    {" jours restants"}
+                    {daysDifference === 0
+                        ? isOverdue
+                            ? "Échéance dépassée (retard)"
+                            : "Échéance aujourd'hui"
+                        : isOverdue
+                        ? `${daysDifference} ${
+                              daysDifference === 1
+                                  ? "jour de retard"
+                                  : "jours de retard"
+                          }`
+                        : `${daysDifference} ${
+                              daysDifference === 1
+                                  ? "jour restant"
+                                  : "jours restants"
+                          }`}
                 </Badge>
             </div>
         </KanbanCard>
@@ -114,13 +146,13 @@ const ProgressCard: React.FC<{ task: Task }> = ({ task }) => {
 };
 
 interface ConfirmDialogProps {
-    taskId: string;
+    task: Task;
     open: boolean;
     onOpenChange: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const ConfirmEndDialog: React.FC<ConfirmDialogProps> = ({
-    taskId,
+    task,
     open,
     onOpenChange,
 }) => {
@@ -129,7 +161,7 @@ const ConfirmEndDialog: React.FC<ConfirmDialogProps> = ({
     const end = () => {
         const endpoint = route("project.task.end", {
             project: route().params.project,
-            task: taskId,
+            task: task.id,
         });
 
         router.visit(endpoint, {
@@ -145,54 +177,52 @@ const ConfirmEndDialog: React.FC<ConfirmDialogProps> = ({
     };
 
     return (
-        <Dialog.Dialog open={open} onOpenChange={onOpenChange}>
-            <Dialog.DialogContent
-                className="space-y-4"
+        <AlertDialog.AlertDialog open={open} onOpenChange={onOpenChange}>
+            <AlertDialog.AlertDialogContent
                 onOpenAutoFocus={(e) => e.preventDefault()}
+                className="max-w-2xl"
             >
-                <Dialog.DialogHeader>
-                    <Dialog.DialogTitle>Terminer la tâche</Dialog.DialogTitle>
-                    <Dialog.DialogDescription>
+                <AlertDialog.AlertDialogHeader>
+                    <AlertDialog.AlertDialogTitle>
+                        Terminer la tâche {task.name}
+                    </AlertDialog.AlertDialogTitle>
+                    <AlertDialog.AlertDialogDescription>
                         Êtes-vous prêt à marquer cette tâche comme terminée ?
                         Une fois terminée, aucune autre modification ne peut
                         être apportée à la tâche. Assurez-vous que tous les
                         travaux sont finalisés avant de confirmer.
-                    </Dialog.DialogDescription>
-                </Dialog.DialogHeader>
-                <div className="flex items-center gap-2">
-                    <Button
-                        variant="destructive"
-                        className="w-full"
-                        onClick={() => onOpenChange(false)}
-                        disabled={processing}
-                    >
+                    </AlertDialog.AlertDialogDescription>
+                </AlertDialog.AlertDialogHeader>
+                <AlertDialog.AlertDialogFooter>
+                    <AlertDialog.AlertDialogCancel disabled={processing}>
                         Annuler
-                    </Button>
-                    <Button
-                        variant="primary"
-                        className="w-full"
-                        onClick={end}
+                    </AlertDialog.AlertDialogCancel>
+                    <AlertDialog.AlertDialogAction
+                        className={buttonVariants({ variant: "primary" })}
                         disabled={processing}
+                        onClick={end}
                     >
                         Terminer
-                    </Button>
-                </div>
-            </Dialog.DialogContent>
-        </Dialog.Dialog>
+                    </AlertDialog.AlertDialogAction>
+                </AlertDialog.AlertDialogFooter>
+            </AlertDialog.AlertDialogContent>
+        </AlertDialog.AlertDialog>
     );
 };
 
 const ConfirmCancellationDialog: React.FC<ConfirmDialogProps> = ({
-    taskId,
+    task,
     open,
     onOpenChange,
 }) => {
     const { data, setData, processing, post, errors } = useForm({ reason: "" });
 
-    const cancel = () => {
+    const cancel = (e: React.FormEvent) => {
+        e.preventDefault();
+
         const endpoint = route("project.task.cancel", {
             project: route().params.project,
-            task: taskId,
+            task: task.id,
         });
 
         post(endpoint, {
@@ -203,78 +233,72 @@ const ConfirmCancellationDialog: React.FC<ConfirmDialogProps> = ({
     };
 
     return (
-        <Dialog.Dialog
+        <AlertDialog.AlertDialog
             open={open}
-            onOpenChange={(open) => {
-                if (processing) {
-                    onOpenChange(false);
-                    return;
-                }
-                onOpenChange(open);
-            }}
+            onOpenChange={(o) => onOpenChange(processing ? false : o)}
         >
-            <Dialog.DialogContent
-                className="space-y-4"
-                classNames={{
-                    content: "max-w-2xl",
-                }}
+            <AlertDialog.AlertDialogContent
                 onOpenAutoFocus={(e) => e.preventDefault()}
+                className="max-w-2xl"
             >
-                <Dialog.DialogHeader>
-                    <Dialog.DialogTitle>Annuler la tâche</Dialog.DialogTitle>
-                    <Dialog.DialogDescription>
+                <AlertDialog.AlertDialogHeader>
+                    <AlertDialog.AlertDialogTitle>
+                        Annuler la tâche {task.name}
+                    </AlertDialog.AlertDialogTitle>
+                    <AlertDialog.AlertDialogDescription>
                         Êtes-vous sûr de vouloir annuler cette tâche ? Une fois
                         annulée, la tâche ne peut pas être reprise. Veuillez
                         fournir une raison d'annulation, et celle-ci sera
                         enregistrée dans l'historique des tâches.
-                    </Dialog.DialogDescription>
-                </Dialog.DialogHeader>
-                <div className="space-y-1">
-                    <Label required>Raison</Label>
-                    <Textarea
-                        value={data.reason}
-                        onChange={(e) => setData("reason", e.target.value)}
-                        placeholder="Veuillez fournir une raison pour l'annulation de cette tâche."
-                        className="max-h-80"
-                    />
-                    <InputError message={errors.reason} />
-                </div>
-                <div className="flex items-center gap-2">
-                    <Button
-                        type="button"
-                        variant="destructive"
-                        className="w-full"
-                        onClick={() => onOpenChange(false)}
-                        disabled={processing}
-                    >
-                        Annuler
-                    </Button>
-                    <Button
-                        type="button"
-                        variant="primary"
-                        className="w-full"
-                        onClick={cancel}
-                        disabled={processing}
-                    >
-                        Confirmer
-                    </Button>
-                </div>
-            </Dialog.DialogContent>
-        </Dialog.Dialog>
+                    </AlertDialog.AlertDialogDescription>
+                </AlertDialog.AlertDialogHeader>
+
+                <form onSubmit={cancel} className="sm:space-y-6 space-y-4">
+                    <div className="space-y-1">
+                        <Label required>Raison</Label>
+                        <Textarea
+                            value={data.reason}
+                            onChange={(e) => setData("reason", e.target.value)}
+                            placeholder="Veuillez fournir une raison pour l'annulation de cette tâche."
+                            className="max-h-80"
+                        />
+                        <InputError message={errors.reason} />
+                    </div>
+
+                    <AlertDialog.AlertDialogFooter>
+                        <AlertDialog.AlertDialogCancel
+                            type="button"
+                            disabled={processing}
+                        >
+                            Annuler
+                        </AlertDialog.AlertDialogCancel>
+                        <AlertDialog.AlertDialogAction
+                            type="submit"
+                            className={buttonVariants({ variant: "primary" })}
+                            disabled={processing}
+                        >
+                            Confirmer
+                        </AlertDialog.AlertDialogAction>
+                    </AlertDialog.AlertDialogFooter>
+                </form>
+            </AlertDialog.AlertDialogContent>
+        </AlertDialog.AlertDialog>
     );
 };
 
 const ConfirmSuspensionDialog: React.FC<ConfirmDialogProps> = ({
-    taskId,
+    task,
     open,
     onOpenChange,
 }) => {
     const { data, setData, post, processing, errors } = useForm({ reason: "" });
 
-    const suspend = () => {
+    const suspend = (e: React.FormEvent) => {
+        e.preventDefault();
+
         const endpoint = route("project.task.suspend", {
             project: route().params.project,
-            task: taskId,
+            task: task.id,
         });
 
         post(endpoint, {
@@ -285,51 +309,59 @@ const ConfirmSuspensionDialog: React.FC<ConfirmDialogProps> = ({
     };
 
     return (
-        <Dialog.Dialog open={open} onOpenChange={onOpenChange}>
-            <Dialog.DialogContent
-                className="space-y-4"
-                classNames={{
-                    content: "max-w-2xl",
-                }}
+        <AlertDialog.AlertDialog
+            open={open}
+            onOpenChange={(o) => onOpenChange(processing ? false : o)}
+        >
+            <AlertDialog.AlertDialogContent
                 onOpenAutoFocus={(e) => e.preventDefault()}
+                className="max-w-2xl"
             >
-                <Dialog.DialogHeader>
-                    <Dialog.DialogTitle>
-                        Êtes-vous sur de suspendre la tâche
-                    </Dialog.DialogTitle>
-                    <Dialog.DialogDescription>
-                        Please provide a reason for suspending this task. The
-                        task will remain suspended until resumed.
-                    </Dialog.DialogDescription>
-                </Dialog.DialogHeader>
-                <div className="space-y-1">
-                    <Label required>Raison</Label>
-                    <Textarea
-                        value={data.reason}
-                        onChange={(e) => setData("reason", e.target.value)}
-                    />
-                    <InputError message={errors.reason} />
-                </div>
-                <div className="flex items-center gap-2">
-                    <Button
-                        variant="destructive"
-                        className="w-full"
-                        disabled={processing}
-                        onClick={() => onOpenChange(false)}
-                    >
-                        Annuler
-                    </Button>
-                    <Button
-                        variant="primary"
-                        className="w-full"
-                        disabled={processing}
-                        onClick={suspend}
-                    >
-                        Confirmer
-                    </Button>
-                </div>
-            </Dialog.DialogContent>
-        </Dialog.Dialog>
+                <AlertDialog.AlertDialogHeader>
+                    <AlertDialog.AlertDialogTitle>
+                        Suspendre la tâche {task.name}
+                    </AlertDialog.AlertDialogTitle>
+                    <AlertDialog.AlertDialogDescription>
+                        Êtes-vous sûr de vouloir suspendre cette tâche ? En la
+                        suspendant, elle sera mise en attente et ne sera plus
+                        active jusqu'à ce que vous décidiez de la reprendre.
+                        Veuillez indiquer la raison de la suspension. Cette
+                        action peut être réversible, mais assurez-vous que vous
+                        avez bien noté toutes les informations nécessaires avant
+                        de procéder.
+                    </AlertDialog.AlertDialogDescription>
+                </AlertDialog.AlertDialogHeader>
+
+                <form onSubmit={suspend} className="sm:space-y-6 space-y-4">
+                    <div className="space-y-1">
+                        <Label required>Raison</Label>
+                        <Textarea
+                            value={data.reason}
+                            onChange={(e) => setData("reason", e.target.value)}
+                            placeholder="Veuillez fournir une raison pour la suspension de cette tâche."
+                            className="max-h-80"
+                        />
+                        <InputError message={errors.reason} />
+                    </div>
+
+                    <AlertDialog.AlertDialogFooter>
+                        <AlertDialog.AlertDialogCancel
+                            type="button"
+                            disabled={processing}
+                        >
+                            Annuler
+                        </AlertDialog.AlertDialogCancel>
+                        <AlertDialog.AlertDialogAction
+                            type="submit"
+                            className={buttonVariants({ variant: "primary" })}
+                            disabled={processing}
+                        >
+                            Confirmer
+                        </AlertDialog.AlertDialogAction>
+                    </AlertDialog.AlertDialogFooter>
+                </form>
+            </AlertDialog.AlertDialogContent>
+        </AlertDialog.AlertDialog>
     );
 };
 
