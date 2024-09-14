@@ -24,18 +24,21 @@ class RegisteredUserController extends Controller
         /** @var User */
         $user = DB::transaction(function () use ($request) {
             return User::create([
-                'first_name' => $request->input('fname'),
-                'last_name' => $request->input('lname'),
+                'first_name' => $request->input('firstName'),
+                'last_name' => $request->input('lastName'),
                 'sex' => $request->input('sex', true),
                 'dob' => $request->input('dob'),
-                'email' => $request->input('username'),
+                'email' => $request->input('email'),
                 'password' => Hash::make($request->input('password')),
             ]);
         });
 
         event(new Registered($user));
 
-        return redirect(URL::signedRoute('register.created', expiration: now()->addMinutes(5)));
+        return redirect()->back()->with('alert', [
+            'status' => 'success',
+            'message' => ''
+        ]);
     }
 
     public function created()

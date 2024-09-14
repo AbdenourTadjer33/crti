@@ -19,7 +19,7 @@ class AuthenticateSessionController extends Controller
     {
         $request->authenticate();
         $request->session()->regenerate();
-        return response()->noContent();
+        return redirect()->intended(route('app'));
     }
 
     public function destroy(Request $request)
@@ -27,6 +27,6 @@ class AuthenticateSessionController extends Controller
         Auth::guard('web')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return response()->noContent();
+        return redirect(route('login.create'));
     }
 }
