@@ -8,6 +8,7 @@ use App\Models\ExistingResource;
 use Illuminate\Support\Facades\Route;
 use App\Http\Resources\UserBaseResource;
 use Illuminate\Database\Eloquent\Builder;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Board\BoardController;
 use App\Http\Controllers\Manage\RoleController;
 use App\Http\Controllers\Manage\UnitController;
@@ -18,6 +19,7 @@ use App\Http\Controllers\Manage\ManageController;
 use App\Http\Controllers\Workspace\MainController;
 use App\Http\Controllers\Manage\ResourceController;
 use App\Http\Controllers\Project\ProjectController;
+use App\Http\Controllers\Workspace\KanbanController;
 use App\Http\Controllers\Manage\PermissionController;
 use App\Http\Controllers\Manage\UnitDivisionController;
 use App\Http\Controllers\Workspace\WorkspaceController;
@@ -32,6 +34,8 @@ Route::get('/', function () {
 
 Route::prefix('/app')->middleware(['auth', 'permission:access.application'])->group(function () {
     Route::get('/', fn() => Inertia::render('Welcome'))->name('app');
+
+    Route::singleton('profile', ProfileController::class)->except('edit')->names('profile');
 
     Route::get('search/users', function (Request $request) {
         if (app()->isProduction() && !$request->isXmlHttpRequest()) return abort(401);
@@ -125,11 +129,19 @@ Route::prefix('/app')->middleware(['auth', 'permission:access.application'])->gr
     Route::prefix('/workspace')->as('workspace.')->middleware(['auth', 'permission:access.workspace'])->group(function () {
         Route::get('/', MainController::class)->name('index');
         Route::get('/{project}', [WorkspaceController::class, 'project'])->name('project');
-        Route::get('/{project}/kanban', [WorkspaceController::class, 'kanban'])->name('kanban');
+        Route::get('/{project}/kanban', [KanbanController::class, 'index'])->name('kanban');
 
         Route::resource('/{project}/suggested/versions', SuggestedVersionController::class)
             ->only(['index', 'show'])
             ->names('suggested.version');
+    });
+
+    Route::prefix('projects/{project}/tasks/{task}')->as('project.task.')->group(function () {
+        Route::post('/start', [KanbanController::class, 'start'])->name('start');
+        Route::post('/suspend', [KanbanController::class, 'suspend'])->name('suspend');
+        Route::post('/cancel', [KanbanController::class, 'cancel'])->name('cancel');
+        Route::post('/end', [KanbanController::class, 'end'])->name('end');
+        Route::any('/resum', [KanbanController::class, 'resum'])->name('resum');
     });
 });
 
