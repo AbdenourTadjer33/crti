@@ -7,7 +7,6 @@ use Modules\Versioning\Models\Version;
 use Illuminate\Database\Eloquent\Model;
 use Modules\Versioning\Traits\Versionable;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -181,6 +180,11 @@ class Project extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    public function pendingAction()
+    {
+        return $this->morphOne(PendingAction::class, "progressable");
     }
 
     /**

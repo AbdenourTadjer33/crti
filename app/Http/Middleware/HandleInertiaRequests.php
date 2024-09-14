@@ -3,10 +3,12 @@
 namespace App\Http\Middleware;
 
 use App\Http\Resources\Auth\UserResource;
+use App\Http\Resources\Project\PendingActionResource;
 use Closure;
 use Inertia\Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -51,6 +53,30 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $pendingActionsFn = function () use ($request) {
+
+            /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\PendingAction> */
+            $actions = $request->user()->getPendingActions();
+
+            if (!$actions->count()) return false;
+
+            $projects = $actions->where('progressable_type', \App\Models\Project::class);
+            $versions = $actions->where('progressable_type', \Modules\Versioning\Models\Version::class);
+
+            $response = [];
+
+            if ($projects->count()) {
+                $projects = $projects->load('progressable:id,code,created_at')->map(fn($action) => $action->progressable);
+                $response["Projet en cours de création"] = PendingActionResource::collection($projects);
+            }
+
+            if ($versions->count()) {
+                $response["Version propsé en cours de création"] = $versions->load('progressable');
+            }
+
+            return $response;
+        };
+
         return [
             ...parent::share($request),
             'auth' => [
@@ -59,6 +85,7 @@ class HandleInertiaRequests extends Middleware
             // FLASH MESSAGES
             'alert' => fn() => $request->session()->get('alert'),
             'info' => fn() => $request->session()->get('info'),
+            'pendingActions' => Inertia::lazy($pendingActionsFn)
         ];
     }
 }

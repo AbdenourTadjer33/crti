@@ -6,21 +6,21 @@ namespace App\Models;
 
 use Ramsey\Uuid\Uuid;
 use Laravel\Scout\Searchable;
+use App\Traits\HasPendingActions;
+use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Permission\Traits\HasPermissions;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Spatie\Permission\Traits\HasPermissions;
-use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
-    use Searchable, HasFactory, HasUuids, Notifiable,  HasPermissions, HasRoles;
+    use Searchable, HasFactory, HasUuids, Notifiable,  HasPermissions, HasRoles, HasPendingActions;
 
     /**
      * The attributes that are mass assignable.
@@ -158,7 +158,8 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Division::class, 'division_user', 'user_id', 'division_id')
             ->withTimestamps()
-            ->withPivot(['grade']);
+            ->withPivot('division_grade_id')
+            ->using(DivisionUser::class);
     }
 
     /**
