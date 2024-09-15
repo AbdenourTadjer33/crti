@@ -1,5 +1,5 @@
 <div class="container px-6 py-16 mx-auto gap-">
-    <div class="items-center lg:flex">
+    <div class="items-center md:flex">
         <div class="w-full lg:w-1/2">
             <div class="lg:max-w-lg">
                 <h1 class="text-3xl font-semibold text-gray-800 dark:text-white lg:text-4xl">Optimisez la Gestion de Vos Projets de Recherche</h1>
@@ -13,7 +13,7 @@
             </div>
         </div>
         <div class="flex items-center justify-center w-full mt-6 lg:mt-0 lg:w-1/2">
-            <img class="w-full h-full rounded-lg lg:max-w-3xl" src="assets/portrait-engineers-work-hours-job-site.jpg" alt="Catalogue-pana.svg">
+            <img class="w-full h-full rounded-lg lg:max-w-3xl md:rotate-2" src="assets/img-1.jpg">
         </div>
     </div>
 </div>
@@ -21,11 +21,11 @@
 <div class="bg-white dark:bg-gray-900">
     <div class="container px-6 py-10 mx-auto">
 
-        <div class="mt-8 lg:-mx-6 lg:flex lg:items-center">
+        <div class="mt-8 md:-mx-6 md:flex md:items-center">
             <img
-                class="object-cover w-full lg:mx-6 lg:w-1/2 rounded-xl h-72 lg:h-96"
-                src="assets/business-graphs-it.jpg"
-                alt="">
+                class="object-cover w-full lg:mx-6 lg:w-1/2 rounded-xl h-72 lg:h-96 md:-rotate-2"
+                src="assets/img-2.jpg"
+            >
 
             <div class="mt-6 lg:w-1/2 lg:mt-0 lg:mx-6 ">
                 <h1 class="text-2xl font-semibold text-gray-800 capitalize lg:text-3xl dark:text-white">Suivez Vos Projets de Recherche avec Précision</h1>
@@ -42,7 +42,7 @@
 
 
                 <div class="flex items-center mt-6">
-                    
+
                 </div>
             </div>
 
