@@ -67,7 +67,6 @@ function Calendar({
                 Caption: (props) => <CustomCalendarCaption {...props} />,
             }}
             {...props}
-            
         />
     );
 }
@@ -76,6 +75,16 @@ function CustomCalendarCaption({ displayMonth }: CaptionProps) {
     const { nextMonth, previousMonth, goToMonth } = useNavigation();
     const { classNames } = useDayPicker();
     const [isYearSelect, setIsYearSelect] = React.useState<boolean>(false);
+
+    const years = React.useMemo(() => {
+        return Array.from(
+            {
+                length: Number(format(new Date(), "yyy")) + 20 - 1899,
+            },
+            (_, index) => Number(format(new Date(), "yyy")) + 20 - index
+        );
+    }, []);
+
     return (
         <div className="flex items-center justify-between">
             <Button
@@ -105,19 +114,12 @@ function CustomCalendarCaption({ displayMonth }: CaptionProps) {
 
                     <div className="grid grid-cols-4 gap-1">
                         {isYearSelect
-                            ? Array.from(
-                                  {
-                                      length:
-                                          Number(format(new Date(), "yyy")) -
-                                          1899,
-                                  },
-                                  (_, index) =>
-                                      Number(format(new Date(), "yyy")) - index
-                              ).map((year) => (
+                            ? years.map((year) => (
                                   <Button
                                       key={year}
                                       type="button"
                                       variant="ghost"
+                                      autoFocus={year === displayMonth.getFullYear()}
                                       onClick={() =>
                                           goToMonth(
                                               new Date(
