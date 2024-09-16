@@ -181,10 +181,10 @@ const StepItem: React.FC<StepItemProps> = ({
             <div className="min-w-7 min-h-7 flex flex-col items-center md:w-full md:inline-flex md:flex-wrap md:flex-row text-xs align-middle">
                 <span
                     className={cn(
-                        "size-7 flex justify-center items-center shrink-0 bg-gray-100 font-medium text-gray-800 rounded-full",
-                        "data-[state=active]:bg-primary-600 data-[state=active]:text-white",
-                        "data-[state=success]:bg-primary-600 data-[state=success]:text-white",
-                        "data-[state=error]:bg-red-600 data-[state=error]:text-white"
+                        "size-7 flex justify-center items-center shrink-0 bg-gray-100 dark:bg-gray-600 text-gray-800 dark:text-gray-50 font-medium rounded-full",
+                        "data-[state=active]:bg-primary-600 data-[state=active]:text-white dark:data-[state=active]:bg-primary-500 dark:data-[state=active]:text-white",
+                        "data-[state=success]:bg-primary-600 data-[state=success]:text-white dark:data-[state=success]:bg-primary-500 dark:data-[state=success]:text-white",
+                        "data-[state=error]:bg-red-600 data-[state=error]:text-white dark:data-[state=error]:bg-red-600 dark:data-[state=error]:text-white"
                     )}
                     data-state={state}
                 >
@@ -206,11 +206,13 @@ const StepItem: React.FC<StepItemProps> = ({
             </div>
             {showDetails && (
                 <div className="grow md:grow-0 md:mt-3 pb-5">
-                    <span className="block text-sm font-medium text-gray-800">
+                    <span className="block text-sm font-medium text-gray-800 dark:text-gray-200">
                         {title}
                     </span>
                     {description && (
-                        <p className="text-sm text-gray-500">{description}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-300">
+                            {description}
+                        </p>
                     )}
                 </div>
             )}

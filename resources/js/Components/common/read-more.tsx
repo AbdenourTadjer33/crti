@@ -1,3 +1,4 @@
+import { cn } from "@/Utils/utils";
 import React from "react";
 
 interface ReadMoreProps {
@@ -5,6 +6,11 @@ interface ReadMoreProps {
     readMoreText?: string;
     readLessText?: string;
     text: string;
+    classNames?: {
+        readLess?: string;
+        readMore?: string;
+        content?: string;
+    };
 }
 
 const ReadMore: React.FC<ReadMoreProps> = ({
@@ -12,6 +18,7 @@ const ReadMore: React.FC<ReadMoreProps> = ({
     readMoreText = "Read more",
     readLessText = "Read less",
     text,
+    classNames,
 }) => {
     const [currentCharLimit, setCurrentCharLimit] = React.useState(charLimit);
 
@@ -43,7 +50,10 @@ const ReadMore: React.FC<ReadMoreProps> = ({
             />
             {isTextLong ? (
                 <span
-                    className="cursor-pointer text-blue-700 hover:underline"
+                    className={cn(
+                        "cursor-pointer text-blue-600 dark:text-blue-500 hover:underline",
+                        classNames?.readMore
+                    )}
                     role="presentation"
                     onClick={handleReadMore}
                 >
@@ -51,7 +61,10 @@ const ReadMore: React.FC<ReadMoreProps> = ({
                 </span>
             ) : currentCharLimit > charLimit ? (
                 <span
-                    className="cursor-pointer text-blue-700 hover:underline"
+                    className={cn(
+                        "cursor-pointer text-blue-600 dark:text-blue-500 hover:underline",
+                        classNames?.readLess
+                    )}
                     role="presentation"
                     onClick={handleReadLess}
                 >

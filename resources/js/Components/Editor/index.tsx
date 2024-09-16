@@ -70,8 +70,8 @@ const baseExtensions = [
         document: false,
     }),
     Document,
-    Color.configure({ types: [TextStyle.name, ListItem.name] }),
-    TextStyle,
+    // Color.configure({ types: [TextStyle.name, ListItem.name] }),
+    // TextStyle,
     Underline,
     Link,
 ];
@@ -165,7 +165,7 @@ const RichEditor: React.FC<RichEditorProps> = ({
     return (
         <div
             className={cn(
-                "bg-white dark:bg-gray-950 rounded border dark:border-gray-700",
+                "bg-white dark:bg-gray-700 rounded border dark:border-gray-600",
                 className,
                 classNames?.root
             )}

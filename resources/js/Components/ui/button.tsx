@@ -10,9 +10,9 @@ const buttonVariants = cva(
         variants: {
             variant: {
                 default:
-                    "bg-gray-900 text-gray-50 hover:bg-gray-900/90 dark:bg-gray-50 dark:text-gray-900 dark:hover:bg-gray-50/90 focus:ring-gray-900",
+                    "bg-gray-900 text-gray-50 hover:bg-gray-900/90 dark:bg-gray-50 dark:text-gray-900 dark:hover:bg-gray-50/75 focus:ring-gray-900",
                 primary:
-                    "text-white bg-primary-600 hover:bg-primary-700 dark:text-gray-50 dark:bg-primary-800 hover:bg-primary-800/90 focus:ring-primary-600",
+                    "text-white bg-primary-600 hover:bg-primary-700 dark:text-gray-50 dark:bg-primary-800 dark:hover:bg-primary-800/75 focus:ring-primary-600",
                 secondary:
                     "bg-gray-100 text-gray-900 hover:bg-gray-100/50 dark:bg-gray-800 dark:text-gray-50 dark:hover:bg-gray-800/50 focus:ring-gray-100",
                 destructive:

@@ -36,7 +36,7 @@ const FixedMenu: React.FC<FixedMenuProps> = ({
 }) => {
     return (
         <div
-            className={cn("flex flex-wrap gap-1 border-b dark:border-gray-800 p-0.5", className)}
+            className={cn("flex flex-wrap gap-1 border-b dark:border-gray-600 p-0.5", className)}
             {...props}
         >
             <Items editor={editor} />
