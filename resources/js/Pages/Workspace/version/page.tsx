@@ -1,20 +1,22 @@
 import React from "react";
 import AuthLayout from "@/Layouts/AuthLayout";
 import WorkspaceLayout from "@/Layouts/workspace-layout";
-import { Head, Link, usePage } from "@inertiajs/react";
+import { Head, Link } from "@inertiajs/react";
 import * as Card from "@/Components/ui/card";
-import { Button, buttonVariants } from "@/Components/ui/button";
+import { buttonVariants } from "@/Components/ui/button";
 import ReadMore from "@/Components/common/read-more";
 import { Heading } from "@/Components/ui/heading";
 import { Text } from "@/Components/ui/paragraph";
 import UserAvatar from "@/Components/common/user-hover-avatar";
+import { formatDistanceToNow } from "date-fns";
+import { fr } from "date-fns/locale";
 
 const Page: React.FC<{ versions: any[] }> = ({ versions }) => {
     if (!versions.length) {
         return (
             <div className="space-y-2">
                 <Head title="Aucune Version Proposée pour l’Instant" />
-                
+
                 <Heading level={3} className="font-medium">
                     Aucune Version Proposée pour l’Instant
                 </Heading>
@@ -49,39 +51,55 @@ const Page: React.FC<{ versions: any[] }> = ({ versions }) => {
                 </Text>
             </div>
 
-            <ul>
+            <div className="flex items-center flex-wrap gap-2">
                 {versions.map((version, idx) => (
-                    <li key={idx}>
-                        <Card.Card className="p-2 flex justify-between items-end gap-20">
-                            <div className="flex flex-col">
-                                <div>
-                                    {version.id}
-                                    <br />
-                                    <ReadMore text={version.reason} />
-                                    <br />
-                                </div>
+                    <Card.Card
+                        key={idx}
+                        className="p-4 flex justify-between items-end gap-2 max-w-sm"
+                    >
+                        <div className="flex flex-col space-y-2">
+                            <div className="flex items-start gap-2">
                                 <div className="flex items-center">
-                                    <UserAvatar user={version.user} />
+                                    <UserAvatar
+                                        user={version.user}
+                                        className="sm:h-8 sm:w-8 sm:text-sm"
+                                    />
                                 </div>
+
+                                <ReadMore
+                                    charLimit={75}
+                                    text={version.reason}
+                                    readMoreText="Lire plus"
+                                    readLessText="Lire moins"
+                                    classNames={{
+                                        readLess: "ml-1",
+                                        readMore: "ml-2",
+                                        content: "text-justify",
+                                    }}
+                                />
                             </div>
-                            <Link
-                                href={route(
-                                    "workspace.suggested.version.show",
-                                    {
-                                        project: route().params.project,
-                                        version: version.id,
-                                    }
-                                )}
-                                className={buttonVariants({
-                                    variant: "primary",
+
+                            <p>
+                                {formatDistanceToNow(version.suggestedAt, {
+                                    addSuffix: true,
+                                    locale: fr,
                                 })}
-                            >
-                                Voir
-                            </Link>
-                        </Card.Card>
-                    </li>
+                            </p>
+                        </div>
+                        <Link
+                            href={route("workspace.suggested.version.show", {
+                                project: route().params.project,
+                                version: version.id,
+                            })}
+                            className={buttonVariants({
+                                variant: "primary",
+                            })}
+                        >
+                            Voir
+                        </Link>
+                    </Card.Card>
                 ))}
-            </ul>
+            </div>
         </div>
     );
 };

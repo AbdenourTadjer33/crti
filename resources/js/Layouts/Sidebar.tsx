@@ -66,17 +66,19 @@ const Sidebar: React.FC<SidebarProps> = ({
         <aside
             className={cn(className)}
             data-state={sidebarState === "open-hover" ? "open" : sidebarState}
-            onPointerEnter={() => {
-                if (sidebarState !== "close") return;
-                setSidebarState && setSidebarState("open-hover");
-            }}
-            onPointerLeave={() => {
-                if (sidebarState !== "open-hover") return;
-
-                setSidebarState && setSidebarState("close");
-            }}
         >
-            <div className="overflow-y-auto p-2">
+            <div
+                className="overflow-y-auto p-2"
+                onPointerEnter={() => {
+                    if (sidebarState !== "close") return;
+                    setSidebarState && setSidebarState("open-hover");
+                }}
+                onPointerLeave={() => {
+                    if (sidebarState !== "open-hover") return;
+
+                    setSidebarState && setSidebarState("close");
+                }}
+            >
                 {addAttributesToChildren(
                     <ul className="space-y-2">
                         {items.map(
@@ -112,7 +114,7 @@ const SidebarToggler: React.FC<
 > = ({ sidebarState, setSidebarState }) => {
     const sidebarTogglerFn = () =>
         setSidebarState((prev) => {
-            if (prev === "hidden") return "open";
+            if (prev === "hidden") return "close";
             if (prev === "open") return "close";
             return "open";
         });

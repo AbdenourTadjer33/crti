@@ -72,7 +72,7 @@ const Index = () => {
                             {capitalize(app.title)}
                         </Heading>
                         <Button variant="ghost" size="sm" className="hover:text-primary-700 dark:hover:text-primary-600">
-                            <ArrowRightCircle className="h-6 w-6 " />
+                            <ArrowRightCircle className="shrink-0 h-6 w-6" />
                         </Button>
                     </Link>
                 ))}

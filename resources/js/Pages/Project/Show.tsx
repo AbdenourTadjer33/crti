@@ -5,32 +5,55 @@ import ProjectDetails from "@/Features/Project/ProjectDetails";
 import { Heading } from "@/Components/ui/heading";
 import { Text } from "@/Components/ui/paragraph";
 import { Project } from "@/types/project";
-import { Head } from "@inertiajs/react";
-import { House } from "lucide-react";
+import { Head, router } from "@inertiajs/react";
+import { ArrowRight, ChevronUp, House, LoaderCircle } from "lucide-react";
 import { Button } from "@/Components/ui/button";
-import ProjectVersionsTimeline from "@/Features/Project/project-versions-timeline";
+import { formatDistanceToNow } from "date-fns";
+import { fr } from "date-fns/locale";
+import { cn } from "@/Utils/utils";
+import { useUpdateEffect } from "@/Hooks/use-update-effect";
+import { Badge } from "@/Components/ui/badge";
+import * as Tooltip from "@/Components/ui/tooltip";
 
 const ConfirmNewVersionCreation = React.lazy(
     () => import("@/Features/Project/ConfirmNewVersionCreation")
 );
 interface ProjectShowProps {
-    project: Project;
     canCreateNewVersion: boolean;
-    previousVersions?: {
+    versions: {
+        id: string;
         name: string;
         reason: string;
         creator: Project["creator"];
-        isSuggested: boolean;
         isFirstVersion: boolean;
+        isSuggested: boolean;
+        isMain: boolean;
+        data: Project;
         createdAt: string;
     }[];
+    previousVersion: {
+        id: string;
+        data: Project;
+    };
 }
 
 const Show: React.FC<ProjectShowProps> = ({
-    project,
     canCreateNewVersion,
-    previousVersions,
+    versions,
+    previousVersion,
 }) => {
+    const [previousVersions, setPreviousVersions] = React.useState<
+        Record<string, any>
+    >({});
+
+    const project = React.useMemo(() => {
+        return versions.find((v) => v.isMain)!.data;
+    }, [versions]);
+
+    const [visible, setVisible] = React.useState<Record<string, true>>(() =>
+        versions.length === 1 ? { [versions[0].id]: true } : {}
+    );
+
     const breadcrumbs = React.useMemo(
         () => [
             { href: route("app"), label: <House className="h-5 w-5" /> },
@@ -39,8 +62,18 @@ const Show: React.FC<ProjectShowProps> = ({
         ],
         []
     );
-    const [confirmModal, setConfirmModal] = React.useState(false);
 
+    const [confirmModal, setConfirmModal] = React.useState(false);
+    const [progressing, setProgressing] = React.useState(false);
+
+    useUpdateEffect(() => {
+        if (!previousVersion) return;
+
+        setPreviousVersions((prev) => ({
+            ...prev,
+            [previousVersion.id]: previousVersion.data,
+        }));
+    }, [previousVersion]);
     return (
         <div className="space-y-4">
             <Head title={project.name} />
@@ -72,81 +105,148 @@ const Show: React.FC<ProjectShowProps> = ({
                 )}
             </div>
 
-            {/* <ol className="relative border-s border-gray-200 dark:border-gray-700">
-                <li className="mb-10 ms-4">
-                    <div className="absolute w-3 h-3 bg-gray-200 rounded-full mt-1.5 -start-1.5 border border-white dark:border-gray-900 dark:bg-gray-700"></div>
-                    <time className="mb-1 text-sm font-normal leading-none text-gray-400 dark:text-gray-500">
-                        February 2022
-                    </time>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                        Application UI code in Tailwind CSS
-                    </h3>
-                    <p className="mb-4 text-base font-normal text-gray-500 dark:text-gray-400">
-                        Get access to over 20+ pages including a dashboard
-                        layout, charts, kanban board, calendar, and pre-order
-                        E-commerce & Marketing pages.
-                    </p>
-                    <a
-                        href="#"
-                        className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:outline-none focus:ring-gray-100 focus:text-blue-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-700"
-                    >
-                        Learn more{" "}
-                        <svg
-                            className="w-3 h-3 ms-2 rtl:rotate-180"
-                            aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 14 10"
-                        >
-                            <path
-                                stroke="currentColor"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M1 5h12m0 0L9 1m4 4L9 9"
-                            />
-                        </svg>
-                    </a>
-                </li>
-                <li className="mb-10 ms-4">
-                    <div className="absolute w-3 h-3 bg-gray-200 rounded-full mt-1.5 -start-1.5 border border-white dark:border-gray-900 dark:bg-gray-700"></div>
-                    <time className="mb-1 text-sm font-normal leading-none text-gray-400 dark:text-gray-500">
-                        March 2022
-                    </time>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                        Marketing UI design in Figma
-                    </h3>
-                    <p className="text-base font-normal text-gray-500 dark:text-gray-400">
-                        All of the pages and components are first designed in
-                        Figma and we keep a parity between the two versions even
-                        as we update the project.
-                    </p>
-                </li>
-                <li className="ms-4">
-                    <div className="absolute w-3 h-3 bg-gray-200 rounded-full mt-1.5 -start-1.5 border border-white dark:border-gray-900 dark:bg-gray-700"></div>
-                    <time className="mb-1 text-sm font-normal leading-none text-gray-400 dark:text-gray-500">
-                        April 2022
-                    </time>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                        E-Commerce UI code in Tailwind CSS
-                    </h3>
-                    <p className="text-base font-normal text-gray-500 dark:text-gray-400">
-                        Get started with dozens of web components and
-                        interactive elements built on top of Tailwind CSS.
-                    </p>
-                </li>
-            </ol> */}
+            <ol className="relative border-s border-gray-200 dark:border-gray-700 space-y-10">
+                {versions.map((version, idx) => (
+                    <li key={idx} className="ms-4">
+                        <div className="absolute w-3 h-3 bg-gray-200 rounded-full mt-1.5 -start-1.5 border border-white dark:border-gray-900 dark:bg-gray-700"></div>
 
-            {previousVersions && (
-                <ProjectVersionsTimeline
-                    versions={previousVersions}
-                    project={project}
-                />
-            )}
+                        <Text className="mb-1 text-sm">
+                            {version.isFirstVersion
+                                ? "Créé par"
+                                : version.isSuggested
+                                ? "Suggéré par"
+                                : "Mis à jour par"}{" "}
+                            <strong>{version.creator.name}</strong>{" "}
+                            <time className="text-sm font-normal leading-none text-gray- dark:text-gray-500">
+                                {formatDistanceToNow(version.createdAt, {
+                                    addSuffix: true,
+                                    locale: fr,
+                                })}
+                            </time>
+                        </Text>
 
-            {/* <pre>{JSON.stringify(previousVersions, null, 2)}</pre> */}
+                        <div className="space-y-1 mb-4">
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center justify-between">
+                                <span className="text-2xl font-bold">
+                                    {version.name}
+                                </span>
+                                {version.isMain ? (
+                                    <Badge
+                                        variant="green"
+                                        className="text-lg font-semibold"
+                                    >
+                                        Majeure
+                                    </Badge>
+                                ) : null}
+                            </h3>
 
-            {/* <ProjectDetails project={project} /> */}
+                            {version.reason && (
+                                <blockquote className="text-base italic font-normal text-gray-500 dark:text-gray-400">
+                                    "{version.reason}"
+                                </blockquote>
+                            )}
+                        </div>
+
+                        <div className="relative">
+                            {version.isMain ? (
+                                <ProjectDetails
+                                    project={project}
+                                    className={
+                                        !visible?.[version.id]
+                                            ? "max-h-96 overflow-hidden"
+                                            : ""
+                                    }
+                                />
+                            ) : previousVersions?.[version.id] !== undefined ? (
+                                <ProjectDetails
+                                    project={previousVersions?.[version.id]}
+                                    className={cn(
+                                        !visible?.[version.id]
+                                            ? "max-h-96 overflow-hidden"
+                                            : "",
+                                        "opacity-75"
+                                    )}
+                                />
+                            ) : (
+                                <Button
+                                    variant="default"
+                                    onClick={() => {
+                                        router.reload({
+                                            only: ["previousVersion"],
+                                            data: {
+                                                version: version.id,
+                                            },
+                                            onBefore: () =>
+                                                setProgressing(true),
+                                            onFinish: () =>
+                                                setProgressing(false),
+                                        });
+
+                                        setVisible({
+                                            [version.id]: true,
+                                        });
+                                    }}
+                                >
+                                    Consulter
+                                    {progressing ? (
+                                        <LoaderCircle className="shrink-0 h-4 w-4 ms-2 animate-spin" />
+                                    ) : (
+                                        <ArrowRight className="shrink-0 h-4 w-4 ms-2" />
+                                    )}
+                                </Button>
+                            )}
+
+                            {versions.length > 1 &&
+                                (version.isMain ||
+                                    previousVersions?.[version.id]) && (
+                                    <div
+                                        className={cn(
+                                            "absolute inset-x-0 -bottom-5 flex justify-center",
+                                            !visible[version.id] ? "" : ""
+                                        )}
+                                    >
+                                        <Tooltip.TooltipProvider>
+                                            <Tooltip.Tooltip>
+                                                <Tooltip.TooltipTrigger asChild>
+                                                    <Button
+                                                        type="button"
+                                                        variant="primary"
+                                                        size="sm"
+                                                        className="group relative pointer-events-auto"
+                                                        onClick={() =>
+                                                            !visible[version.id]
+                                                                ? setVisible({
+                                                                      [version.id]:
+                                                                          true,
+                                                                  })
+                                                                : setVisible({})
+                                                        }
+                                                    >
+                                                        <ChevronUp
+                                                            className={cn(
+                                                                "h-6 w-6 group",
+                                                                !visible[
+                                                                    version.id
+                                                                ]
+                                                                    ? "rotate-180"
+                                                                    : ""
+                                                            )}
+                                                        />
+                                                    </Button>
+                                                </Tooltip.TooltipTrigger>
+                                                <Tooltip.TooltipContent>
+                                                    {visible[version.id]
+                                                        ? "Afficher moins"
+                                                        : "Afficher plus"}
+                                                </Tooltip.TooltipContent>
+                                            </Tooltip.Tooltip>
+                                        </Tooltip.TooltipProvider>
+                                    </div>
+                                )}
+                        </div>
+                    </li>
+                ))}
+            </ol>
         </div>
     );
 };

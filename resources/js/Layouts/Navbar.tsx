@@ -2,9 +2,9 @@ import React from "react";
 import { Link, router, usePage } from "@inertiajs/react";
 import {
     Bell,
-    Ellipsis,
-    EllipsisVertical,
+    CircleEllipsis,
     Eye,
+    LoaderCircle,
     Menu,
     Moon,
     Sun,
@@ -26,15 +26,16 @@ import { useMediaQuery } from "@/Hooks/use-media-query";
 import { useLocalStorage } from "@/Hooks/use-local-storage";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
+import * as Tooltip from "@/Components/ui/tooltip";
 
 const Navbar: React.FC = () => {
-    const displayMenu = useMediaQuery("(max-width: 768px)");
+    const renderSidebar = useMediaQuery("(max-width: 768px)");
 
     return (
         <nav className="fixed top-0 left-0 right-0 h-16 px-2.5 flex flex-col justify-center bg-white dark:bg-gray-950 z-50 border-b border-gray-200 dark:border-gray-800">
             <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center sm:gap-4 gap-2">
-                    {displayMenu && (
+                    {renderSidebar && (
                         <Sheet>
                             <SheetTrigger asChild>
                                 <Button variant="ghost" size="icon">
@@ -64,14 +65,16 @@ const Navbar: React.FC = () => {
                             className="shrink-0 h-11"
                         />
                     </a>
-
-                    <Actions />
                 </div>
 
-                <div className="flex items-center gap-2">
-                    <Theme />
-                    <NotificationManu />
+                <div className="flex items-center flex-row-reverse gap-2">
                     <UserMenu />
+
+                    <NotificationManu />
+
+                    <Theme />
+
+                    <PendingActions />
                 </div>
             </div>
         </nav>
@@ -98,18 +101,27 @@ const Theme = () => {
 
     return (
         <DropdownMenu.DropdownMenu modal={false}>
-            <DropdownMenu.DropdownMenuTrigger asChild>
-                <NavBtn>
-                    {theme === "dark" ||
-                    ("system" === theme &&
-                        window.matchMedia("(prefers-color-scheme: dark)")
-                            .matches) ? (
-                        <Moon className="h-6 w-6" />
-                    ) : (
-                        <Sun className="h-6 w-6" />
-                    )}
-                </NavBtn>
-            </DropdownMenu.DropdownMenuTrigger>
+            <Tooltip.TooltipProvider>
+                <Tooltip.Tooltip>
+                    <Tooltip.TooltipTrigger asChild>
+                        <DropdownMenu.DropdownMenuTrigger asChild>
+                            <NavBtn>
+                                {theme === "dark" ||
+                                ("system" === theme &&
+                                    window.matchMedia(
+                                        "(prefers-color-scheme: dark)"
+                                    ).matches) ? (
+                                    <Moon className="h-6 w-6" />
+                                ) : (
+                                    <Sun className="h-6 w-6" />
+                                )}
+                            </NavBtn>
+                        </DropdownMenu.DropdownMenuTrigger>
+                    </Tooltip.TooltipTrigger>
+                    <Tooltip.TooltipContent>Thème</Tooltip.TooltipContent>
+                </Tooltip.Tooltip>
+            </Tooltip.TooltipProvider>
+
             <DropdownMenu.DropdownMenuContent
                 onCloseAutoFocus={(e) => e.preventDefault()}
             >
@@ -135,15 +147,28 @@ const UserMenu = () => {
     const { name, email } = useUser();
     return (
         <DropdownMenu.DropdownMenu modal={false}>
-            <DropdownMenu.DropdownMenuTrigger asChild>
-                <button className="flex mx-3 rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark:ring-gray-700 outline-none">
-                    <Avatar>
-                        <AvatarFallback>{getInitials(name)}</AvatarFallback>
-                    </Avatar>
-                </button>
-            </DropdownMenu.DropdownMenuTrigger>
-            <DropdownMenu.DropdownMenuContent>
-                <div className="py-3 px-4">
+            <Tooltip.TooltipProvider>
+                <Tooltip.Tooltip>
+                    <Tooltip.TooltipTrigger asChild>
+                        <DropdownMenu.DropdownMenuTrigger asChild>
+                            <button className="flex mx-3 rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark:ring-gray-700 outline-none">
+                                <Avatar>
+                                    <AvatarFallback>
+                                        {getInitials(name)}
+                                    </AvatarFallback>
+                                </Avatar>
+                            </button>
+                        </DropdownMenu.DropdownMenuTrigger>
+                    </Tooltip.TooltipTrigger>
+                    <Tooltip.TooltipContent>Profile</Tooltip.TooltipContent>
+                </Tooltip.Tooltip>
+            </Tooltip.TooltipProvider>
+
+            <DropdownMenu.DropdownMenuContent
+                className="mx-2"
+                onCloseAutoFocus={(e) => e.preventDefault()}
+            >
+                <div className="py-3 px-2">
                     <span className="block text-sm font-semibold text-gray-900 dark:text-white">
                         {name}
                     </span>
@@ -175,13 +200,28 @@ const UserMenu = () => {
 const NotificationManu = () => {
     return (
         <DropdownMenu.DropdownMenu modal={false}>
-            <DropdownMenu.DropdownMenuTrigger asChild>
-                <NavBtn>
-                    <span className="sr-only">View notifications</span>
-                    <Bell className="w-6 h-6" />
-                </NavBtn>
-            </DropdownMenu.DropdownMenuTrigger>
-            <DropdownMenu.DropdownMenuContent>
+            <Tooltip.TooltipProvider>
+                <Tooltip.Tooltip>
+                    <Tooltip.TooltipTrigger asChild>
+                        <DropdownMenu.DropdownMenuTrigger asChild>
+                            <NavBtn>
+                                <span className="sr-only">
+                                    View notifications
+                                </span>
+                                <Bell className="w-6 h-6" />
+                            </NavBtn>
+                        </DropdownMenu.DropdownMenuTrigger>
+                    </Tooltip.TooltipTrigger>
+                    <Tooltip.TooltipContent>
+                        Notification
+                    </Tooltip.TooltipContent>
+                </Tooltip.Tooltip>
+            </Tooltip.TooltipProvider>
+
+            <DropdownMenu.DropdownMenuContent
+                onCloseAutoFocus={(e) => e.preventDefault()}
+                className="mx-2"
+            >
                 <div className="block py-2 px-4 text-base font-medium text-center text-gray-700 bg-gray-50 dark:bg-gray-600 dark:text-gray-300">
                     Notifications
                 </div>
@@ -239,29 +279,52 @@ const NotificationManu = () => {
     );
 };
 
-const Actions = () => {
+const PendingActions = () => {
     const { pendingActions } = usePage<{
-        pendingActions?: Record<
-            string,
-            { url: string; name: string; createdAt: string }[]
-        >;
+        pendingActions?:
+            | false
+            | Record<
+                  string,
+                  { url: string; name: string; createdAt: string }[]
+              >;
     }>().props;
 
     return (
         <DropdownMenu.DropdownMenu modal={false}>
-            <DropdownMenu.DropdownMenuTrigger asChild>
-                <Button
-                    variant="ghost"
-                    onClick={() => {
-                        router.reload({ only: ["pendingActions"] });
-                    }}
-                >
-                    Action incompléte
-                    <EllipsisVertical className="h-4 w-4 ml-2" />
-                </Button>
-            </DropdownMenu.DropdownMenuTrigger>
-            <DropdownMenu.DropdownMenuContent className="w-80" align="start">
-                {pendingActions &&
+            <Tooltip.TooltipProvider>
+                <Tooltip.Tooltip>
+                    <Tooltip.TooltipTrigger asChild>
+                        <DropdownMenu.DropdownMenuTrigger asChild>
+                            <NavBtn
+                                onClick={() =>
+                                    router.reload({ only: ["pendingActions"] })
+                                }
+                            >
+                                <CircleEllipsis className="h-6 w-6" />
+                            </NavBtn>
+                        </DropdownMenu.DropdownMenuTrigger>
+                    </Tooltip.TooltipTrigger>
+                    <Tooltip.TooltipContent>
+                        Incompléte action
+                    </Tooltip.TooltipContent>
+                </Tooltip.Tooltip>
+            </Tooltip.TooltipProvider>
+
+            <DropdownMenu.DropdownMenuContent
+                className="w-80 mx-2"
+                align="start"
+                onCloseAutoFocus={(e) => e.preventDefault()}
+            >
+                {typeof pendingActions === "undefined" ? (
+                    <div className="py-8 flex items-center justify-center">
+                        <LoaderCircle className="animate-spin mr-2 h-5 w-5" />
+                        Chargement...
+                    </div>
+                ) : pendingActions === false ? (
+                    <div className="py-8 text-center">
+                        Vous n'avez aucune action incompléte.
+                    </div>
+                ) : (
                     Object.keys(pendingActions).map((type, idx) => (
                         <React.Fragment key={idx}>
                             <DropdownMenu.DropdownMenuLabel>
@@ -281,7 +344,10 @@ const Actions = () => {
                                         <span className="text-xs text-gray-500 dark:text-gray-400">
                                             {formatDistanceToNow(
                                                 action.createdAt,
-                                                { locale: fr, addSuffix: true }
+                                                {
+                                                    locale: fr,
+                                                    addSuffix: true,
+                                                }
                                             )}
                                         </span>
                                     </Link>
@@ -290,7 +356,8 @@ const Actions = () => {
 
                             <DropdownMenu.DropdownMenuSeparator />
                         </React.Fragment>
-                    ))}
+                    ))
+                )}
             </DropdownMenu.DropdownMenuContent>
         </DropdownMenu.DropdownMenu>
     );

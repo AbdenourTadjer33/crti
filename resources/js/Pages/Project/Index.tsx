@@ -8,6 +8,7 @@ import { House } from "lucide-react";
 import { TableWrapper } from "@/Components/ui/table";
 import { BaseProject, Project } from "@/types/project";
 import { Skeleton } from "@/Components/ui/skeleton";
+import { format } from "date-fns";
 
 const ConfirmNewProjectCreation = React.lazy(
     () => import("@/Features/Project/ConfirmNewProjectCreation")
@@ -68,12 +69,12 @@ const Index: React.FC<ProjectIndexProps> = ({
 
             {displayCreationProjectSection && (
                 <TableWrapper className="shadow-none p-2 overflow-x-auto snap-mandatory snap-x scrollbar-thumb-gray-400 scrollbar-track-gray-200 scrollbar-thin">
-                    <ul className="flex gap-2 min-h-24">
+                    <ul className="flex gap-2 min-h-24 h-full">
                         {canCreateProjects && (
                             <li className="shrink-0 w-full max-w-xs snap-center">
                                 <React.Suspense
                                     fallback={
-                                        <Skeleton className="h-full w-full" />
+                                        <Skeleton className="h-full w-full dark:bg-gray-600" />
                                     }
                                 >
                                     <ConfirmNewProjectCreation
@@ -92,15 +93,19 @@ const Index: React.FC<ProjectIndexProps> = ({
                         {projectsInCreation?.map((project, idx) => (
                             <li
                                 key={idx}
-                                className="shrink-0 block h-full w-full max-w-sm snap-center"
+                                className="shrink-0 h-full w-full max-w-xs snap-center"
                             >
-                                <React.Suspense
-                                    fallback={
-                                        <Skeleton className="flex w-full h-24" />
-                                    }
-                                >
-                                    <ProjectInCreationCard project={project} />
-                                </React.Suspense>
+                                <div className="w-full h-24">
+                                    <React.Suspense
+                                        fallback={
+                                            <Skeleton className="flex w-full h-24 dark:bg-gray-600" />
+                                        }
+                                    >
+                                        <ProjectInCreationCard
+                                            project={project}
+                                        />
+                                    </React.Suspense>
+                                </div>
                             </li>
                         ))}
                     </ul>
@@ -111,19 +116,22 @@ const Index: React.FC<ProjectIndexProps> = ({
                 <React.Suspense
                     fallback={
                         <>
-                            <div className="h-10 flex justify-between *:!bg-gray-200">
+                            <div className="h-10 flex justify-between *:!bg-gray-200 dark:*:!bg-gray-700">
                                 <Skeleton className="w-full max-w-lg" />
                                 <Skeleton className="w-full max-w-xs" />
                             </div>
-                            <div className="grid grid-cols-3 gap-4 *:!bg-gray-200">
-                                <Skeleton className="w-full h-28" />
-                                <Skeleton className="w-full h-28" />
-                                <Skeleton className="w-full h-28" />
-                                <Skeleton className="w-full h-28" />
-                                <Skeleton className="w-full h-28" />
-                                <Skeleton className="w-full h-28" />
-                                <Skeleton className="w-full h-28" />
-                                <Skeleton className="w-full h-28" />
+                            <div className="grid grid-cols-3 gap-4 *:!bg-gray-200 dark:*:!bg-gray-700">
+                                {Array.from(
+                                    {
+                                        length: projects.length,
+                                    },
+                                    (_, idx) => idx + 1
+                                ).map((_, idx) => (
+                                    <Skeleton
+                                        key={idx}
+                                        className="w-full h-28"
+                                    />
+                                ))}
                             </div>
                         </>
                     }
@@ -136,6 +144,6 @@ const Index: React.FC<ProjectIndexProps> = ({
 };
 
 // @ts-ignore
-Index.layout = (page) =>  <AuthLayout children={page} />
+Index.layout = (page) => <AuthLayout children={page} />;
 
 export default Index;

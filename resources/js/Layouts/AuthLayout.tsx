@@ -48,7 +48,7 @@ export default function AuthLayout({ children }: React.PropsWithChildren) {
             {displayWorkspaceNavbar && (
                 <WorkspaceNavbar
                     className={cn(
-                        "top-16 duration-200",
+                        "top-16 duration-200 z-10",
                         sidebarState === "open"
                             ? "left-64 animate-in slide-in-from-left-0"
                             : sidebarState === "close"
@@ -67,7 +67,9 @@ export default function AuthLayout({ children }: React.PropsWithChildren) {
             </div>
             <div className="fixed top-1/2 md:block hidden">
                 <SidebarToggler
-                    sidebarState={sidebarState === "open-hover" ? "open" : sidebarState}
+                    sidebarState={
+                        sidebarState === "open-hover" ? "open" : sidebarState
+                    }
                     setSidebarState={setSidebarState}
                 />
             </div>
@@ -98,10 +100,11 @@ export default function AuthLayout({ children }: React.PropsWithChildren) {
 
                         <div className="flex items-center justify-center">
                             <Button
+                                variant="outline"
                                 onClick={() => setDialog(false)}
                                 className="uppercase"
                             >
-                                ok!
+                                Fermer
                             </Button>
                         </div>
                     </Dialog.DialogContent>

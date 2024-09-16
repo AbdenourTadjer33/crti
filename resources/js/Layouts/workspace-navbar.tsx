@@ -7,6 +7,7 @@ interface NavbarProps extends React.HTMLAttributes<HTMLDivElement> {}
 const WorkspaceNavbar: React.FC<NavbarProps> = ({ className }) => {
     const { suggested_versions_count } = usePage<{
         suggested_versions_count?: number;
+        can_access_kanban?: boolean;
     }>().props;
 
     return (
