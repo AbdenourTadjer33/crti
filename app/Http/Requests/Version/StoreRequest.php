@@ -46,8 +46,8 @@ class StoreRequest extends FormRequest
     protected function passedValidation(): void
     {
         $this->replace($this->except(['_description', '_goals', '_methodology', 'description', 'goals', 'methodology', 'resources_crti', 'resources_partner', 'tasks']) + [
-            'resources_crti' => collect($this->input('resources_crti'))->map(fn($resource) => array_merge($resource, ["by_crti" => true]))->toArray(),
-            'resources_partner' => collect($this->input('resources_partner'))->map(fn($resource) => array_merge($resource, ["by_crti" => false]))->toArray(),
+            // 'resources_crti' => collect($this->input('resources_crti'))->map(fn($resource) => array_merge($resource, ["by_crti" => true]))->toArray(),
+            // 'resources_partner' => collect($this->input('resources_partner'))->map(fn($resource) => array_merge($resource, ["by_crti" => false]))->toArray(),
             'description' => $this->input('_description'),
             'goals' => $this->input('_goals'),
             'methodology' => $this->input('_methodology'),
@@ -115,6 +115,7 @@ class StoreRequest extends FormRequest
             'resources_partner.*' => ['exclude_if:is_partner,false', 'nullable', 'array'],
             'resources_partner.*.name' => ['required', 'string'],
             'resources_partner.*.description' => ['nullable', 'string'],
+
             'resources_partner.*.price' => ['required', 'numeric'],
 
             'tasks' => ['required', 'array', 'min:2', 'max:20'],
@@ -136,16 +137,39 @@ class StoreRequest extends FormRequest
             'domains' => 'domaine d\'application',
             'timeline' => 'date début/fin',
             'goals' => 'objectifs',
-            'methodology' => 'Méthodologie',
+            'methodology' => 'méthodologie',
             'deliverables' => 'livrable',
-            'estimated_amount' => 'Montant estimé'
+            'estimated_amount' => 'montant estimé',
+
+            'partner.organisation' => 'partenaire',
+            'partner.sector' => 'secteur',
+            'partner.contact_name' => 'nom du contact',
+            'partner.contact_post' => 'post du contact',
+            'partner.contact_email' => 'adresse e-mail du contact',
+            'partner.contact_phone' => 'n° tél du contact',
+
+            'members' => 'membres de l\'équipe',
+
+            'tasks' => 'tâches',
+            'tasks.*.name' => 'tâche',
+            'tasks.*.description' => 'description',
+            'tasks.*.users' =>  'assigné à',
+            'tasks.*.priority' => 'priorité',
+            'tasks.*.timeline' => 'échancier',
+
+            'resources_crti.*.name' => 'ressource',
+            'resources_crti.*.price' => 'prix',
+
+            'resources_partner.*.name' => 'ressource',
+            'resources_partner.*.price' => 'prix',
+
         ];
     }
 
     public function messages(): array
     {
         return [
-            "members.required" => "Vous devez séléctionnez les members de projet.",
+            "tasks" => "Vous devez ajouter des :attribute.",
         ];
     }
 }

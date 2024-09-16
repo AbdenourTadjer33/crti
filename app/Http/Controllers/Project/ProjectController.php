@@ -14,10 +14,10 @@ use App\Http\Requests\Project\StoreRequest;
 use Illuminate\Routing\Controllers\Middleware;
 use App\Http\Resources\Project\ProjectRessource;
 use Illuminate\Routing\Controllers\HasMiddleware;
+use App\Services\Project\Project as ProjectService;
+use App\Http\Resources\Project\ProjectMemberResource;
 use App\Http\Resources\Project\ProjectDetailsResource;
 use App\Http\Resources\Project\ProjectInCreationResource;
-use App\Http\Resources\Project\ProjectMemberResource;
-use App\Services\Project\Project as ProjectService;
 
 class ProjectController extends Controller implements HasMiddleware
 {
@@ -138,31 +138,68 @@ class ProjectController extends Controller implements HasMiddleware
 
         if (!$project) return abort(404);
 
-        $previousVersionFn = function () use ($project) {
-            $versionIds = [...$project->getVersionMarkedAs('previous'), $project->getVersionMarkedAs('main')];
+        // $previousVersionFn = function () use ($project) {
+        //     $versionIds = [...$project->getVersionMarkedAs('previous'), $project->getVersionMarkedAs('main')];
 
-            // if (count($versionIds) === 1) return;
+        //     // if (count($versionIds) === 1) return;
+
+        //     $project->load([
+        //         'versions' => fn($query) => $query->whereIn('id', $versionIds)->select(['id', 'versionable_id', 'versionable_type', 'user_id', 'reason', 'created_at'])->latest(),
+        //         'versions.user:id,uuid,first_name,last_name,email'
+        //     ]);
+
+        //     return $project->versions->map(fn($version) => [
+        //         'name' => 'Version ' . (array_search($version->id, $versionIds) + 1),
+        //         'reason' => $version->reason,
+        //         'creator' => new ProjectMemberResource($version->user),
+        //         'isSuggested' => $version->user->id !== $project->user_id,
+        //         'isFirstVersion' => $project->versions->last()->id === $version->id,
+        //         'createdAt' => $version->created_at,
+        //     ]);
+        // };
+
+        $versionsFn = function () use ($project) {
+            $versionIds = [...$project->getVersionMarkedAs('previous'), $project->getVersionMarkedAs('main')];
 
             $project->load([
                 'versions' => fn($query) => $query->whereIn('id', $versionIds)->select(['id', 'versionable_id', 'versionable_type', 'user_id', 'reason', 'created_at'])->latest(),
-                'versions.user:id,uuid,first_name,last_name,email'
+                'versions.user:id,uuid,first_name,last_name,email',
             ]);
 
             return $project->versions->map(fn($version) => [
+                'id' => (string) $version->id,
                 'name' => 'Version ' . (array_search($version->id, $versionIds) + 1),
                 'reason' => $version->reason,
                 'creator' => new ProjectMemberResource($version->user),
-                'isSuggested' => $version->user->id !== $project->user_id,
                 'isFirstVersion' => $project->versions->last()->id === $version->id,
+                'isSuggested' => $version->user->id !== $project->user_id,
+                'isMain' => $version->id === $project->getVersionMarkedAs('main'),
+                'data' => $version->id === $project->getVersionMarkedAs('main') ? new ProjectDetailsResource($project) : null,
                 'createdAt' => $version->created_at,
             ]);
         };
 
+        $previousVersionFn = function () use ($project, $request) {
+            $versionId = $request->input('version');
+
+            if (!in_array($versionId, $project->getVersionMarkedAs('previous'))) {
+                return abort(403);
+            }
+
+            $version = $project->versions()->where('id', $versionId)->first();
+
+            if (!$version) return abort(404);
+
+            return [
+                'id' => (string) $version->id,
+                'data' => new ProjectDetailsResource($version->getModel()),
+            ];
+        };
+
         return Inertia::render('Project/Show', [
-            'project' => fn() => new ProjectDetailsResource($project),
             'canCreateNewVersion' => fn() => $project->canHaveNewVersions() && $this->user->can('suggest.versions'),
-            'previousVersions' => $previousVersionFn,
-            // 'versionInCreation' => $versionInCreationFn,
+            'versions' => $versionsFn,
+            'previousVersion' => Inertia::lazy($previousVersionFn),
         ]);
     }
 }

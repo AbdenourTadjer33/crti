@@ -25,11 +25,6 @@ class ProjectAcceptedListener implements ShouldQueueAfterCommit
     public function handle(ProjectAccepted $event): void
     {
         $project = Project::query()->where('id', $event->projectId)->first();
-
         Notification::send($project->users, new ProjectAcceptedNotification);
-
-        $task = $project->tasks()->first(['date_begin']);
-
-        ProcessProjectTasksJob::dispatch($project->id)->delay(now()->diffInSeconds($task->date_begin));
     }
 }

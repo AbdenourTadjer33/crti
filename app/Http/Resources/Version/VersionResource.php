@@ -19,7 +19,7 @@ class VersionResource extends JsonResource
             'id' => $this->id,
             'user' => new ProjectMemberResource($this->user),
             'reason' => $this->reason,
-            'suggested_at' => $this->updated_at,
+            'suggestedAt' => $this->updated_at,
         ];
     }
 }
