@@ -55,15 +55,12 @@ class KanbanController extends Controller implements HasMiddleware
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(Project $project)
     {
-
-        $project = Project::with([
+        $project->load([
             'tasks' => fn($query) => $query->latest('updated_at'),
             'tasks.users:id,uuid,first_name,last_name,email',
-        ])
-            ->where('code', $request->route('project'))
-            ->first(['id', 'code', 'status']);
+        ]);
 
         return Inertia::render('Workspace/kanban', [
             'tasks' => ProjectTaskResource::collection($project->tasks)

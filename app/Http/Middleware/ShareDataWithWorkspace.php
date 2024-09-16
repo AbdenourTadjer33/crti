@@ -2,15 +2,13 @@
 
 namespace App\Http\Middleware;
 
-use Closure;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 class ShareDataWithWorkspace extends HandleInertiaRequests
 {
     public function share(Request $request): array
     {
-        if (is_a($request->route('project'), \App\Models\Project::class)) {
+        if (!is_a($request->route('project'), \App\Models\Project::class)) {
             return parent::share($request);
         }
 

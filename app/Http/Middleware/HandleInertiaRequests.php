@@ -77,6 +77,18 @@ class HandleInertiaRequests extends Middleware
             return $response;
         };
 
+        $permissionsFn = function () use ($request) {
+            /** @var \App\Models\User */
+            $user = $request->user();
+
+            return [
+                'workspace' => $user->can('access.workspace'),
+                'projects' => $user->canAny(['access.projects', 'access-related.projects', 'access-related.members.projects', 'access-related.divisions.projects', 'access-related.members.projects']),
+                'boards' => $user->can('access.boards'),
+                'control_panel' => $user->can('manage'),
+            ];
+        };
+
         return [
             ...parent::share($request),
             'auth' => [
@@ -85,7 +97,8 @@ class HandleInertiaRequests extends Middleware
             // FLASH MESSAGES
             'alert' => fn() => $request->session()->get('alert'),
             'info' => fn() => $request->session()->get('info'),
-            'pendingActions' => Inertia::lazy($pendingActionsFn)
+            'pendingActions' => Inertia::lazy($pendingActionsFn),
+            'permissions' => $request->user() ? $permissionsFn : null,
         ];
     }
 }

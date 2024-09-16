@@ -33,14 +33,14 @@ const KanbanColumnTitle: React.FC<ColumnTitleProps> = ({
     ...props
 }) => (
     <h5
-        className={cn("text-base font-medium text-gray-800", className)}
+        className={cn("text-base font-medium text-gray-800 dark:text-gray-100", className)}
         {...props}
     />
 );
 
 const KanbanCard: React.FC<CardProps> = ({ className, ...props }) => (
     <div
-        className={cn("bg-white rounded-lg shadow-md p-4", className)}
+        className={cn("bg-white dark:bg-gray-800 rounded-lg shadow-md p-4", className)}
         {...props}
     />
 );
@@ -48,7 +48,7 @@ const KanbanCard: React.FC<CardProps> = ({ className, ...props }) => (
 const KanbanCardTitle: React.FC<CardTitleProps> = ({ className, ...props }) => (
     <h2
         className={cn(
-            "md:text-lg text-base font-medium text-gray-800",
+            "md:text-lg text-base font-medium text-gray-800 dark:text-gray-100",
             className
         )}
         {...props}
