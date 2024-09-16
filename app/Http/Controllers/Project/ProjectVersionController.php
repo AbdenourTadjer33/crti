@@ -89,11 +89,7 @@ class ProjectVersionController extends Controller implements HasMiddleware
         }
 
         DB::transaction(function () use ($request, $project, $projectService) {
-            dump($request->all());
-
             $project =  $projectService->store($project, $request->all());
-
-            dd($project);
 
             $version = $project->currentVersion();
             $version->model_data = serialize($project->toArray());
