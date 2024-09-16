@@ -53,14 +53,17 @@ const columnDef = [
 
     columnHelper.accessor("description", {
         header: "description",
-        cell: ({ getValue }) => (
-            <ReadMore
-            charLimit={50}
-                text={getValue()}
-                readMoreText="...Lire plus"
-                readLessText="Lire moins"
-            />
-        ),
+        cell: ({ getValue }) =>
+            getValue() ? (
+                <ReadMore
+                    charLimit={50}
+                    text={getValue()}
+                    readMoreText="...Lire plus"
+                    readLessText="Lire moins"
+                />
+            ) : (
+                <p className="font-medium">Aucune description fournie</p>
+            ),
     }),
 
     columnHelper.accessor("createdAt", {
