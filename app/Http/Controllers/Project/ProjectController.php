@@ -17,13 +17,14 @@ use Illuminate\Routing\Controllers\HasMiddleware;
 use App\Http\Resources\Project\ProjectDetailsResource;
 use App\Http\Resources\Project\ProjectInCreationResource;
 use App\Http\Resources\Project\ProjectMemberResource;
+use App\Services\Project\Project as ProjectService;
 
 class ProjectController extends Controller implements HasMiddleware
 {
     public static function middleware(): array
     {
         return [
-            new Middleware('permission:access.projects|access-related.projects|access-related.members.projects|access-related.divisions.projects|create.projects',  only: ['index', 'show']),
+            new Middleware('permission:projects|access.projects|access-related.projects|access-related.members.projects|access-related.divisions.projects|create.projects',  only: ['index', 'show']),
         ];
     }
 
@@ -108,18 +109,19 @@ class ProjectController extends Controller implements HasMiddleware
         ]);
     }
 
-    public function store(StoreRequest $request)
+    public function store(StoreRequest $request, ProjectService $projectService)
     {
         /** @var Project */
-        $project = DB::transaction(function () use ($request) {
-            return $this->user->projects()->create([
-                'status' => 'creation',
+        $project = DB::transaction(function () use ($request, $projectService) {
+            $project = $projectService->init([
                 'user_id' => $this->user->id,
-                'division_id' => $request->input('division'),
+                'division_id' => $request->input('division')
             ]);
-        });
 
-        $this->user->storePendingAction($project, []);
+            $this->user->storePendingAction($project, []);
+
+            return $project;
+        });
 
         event(new ProjectInitialized($this->user->id, $project->id));
 
@@ -139,7 +141,7 @@ class ProjectController extends Controller implements HasMiddleware
         $previousVersionFn = function () use ($project) {
             $versionIds = [...$project->getVersionMarkedAs('previous'), $project->getVersionMarkedAs('main')];
 
-            if (count($versionIds) === 1) return;
+            // if (count($versionIds) === 1) return;
 
             $project->load([
                 'versions' => fn($query) => $query->whereIn('id', $versionIds)->select(['id', 'versionable_id', 'versionable_type', 'user_id', 'reason', 'created_at'])->latest(),

@@ -8,20 +8,21 @@ use App\Models\Domain;
 use App\Models\Nature;
 use App\Models\Project;
 use Illuminate\Http\Request;
-use App\Models\ExistingResource;
-use App\Services\AuxDataService;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Events\Project\ProjectUpdated;
 use Modules\Versioning\Models\Version;
 use App\Events\Project\NewVersionSuggested;
-use App\Events\Project\SuggestedVersionAccepted;
-use App\Events\Project\SuggestedVersionRejected;
+use App\Events\Project\ProjectCreated;
 use App\Http\Requests\Version\StoreRequest;
 use App\Http\Requests\Version\CreateRequest;
 use App\Http\Requests\Version\UpdateRequest;
 use Illuminate\Routing\Controllers\Middleware;
 use App\Http\Requests\Version\DuplicateRequest;
+use App\Events\Project\SuggestedVersionAccepted;
+use App\Events\Project\SuggestedVersionRejected;
 use Illuminate\Routing\Controllers\HasMiddleware;
+use App\Services\Project\Project as ProjectService;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use App\Http\Resources\Project\ProjectVersionResource;
 use Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests;
@@ -78,105 +79,39 @@ class ProjectVersionController extends Controller implements HasMiddleware
         ]);
     }
 
-    /**
-     * Update all the project state by the coming data.
-     * Update the project current version by the project & project relations data.
-     * Finnaly reference this current version as the main project version.
-     * Send success response to the user
-     */
-    public function store(StoreRequest $request)
+    public function store(StoreRequest $request, ProjectService $projectService)
     {
+        /** @var Project */
         $project = $this->user->projects()->where('code', $request->route('project'))->withCount('versions')->first();
 
         if (!$project || !$project->isFirstVersion($project->versions_count)) {
             return abort(403);
         }
 
-        DB::transaction(function () use ($request, $project) {
-            if ($request->input('is_partner')) {
-                $partner = $project->partner()->create([
-                    'organisation' => $request->input('partner.organisation'),
-                    'sector' => $request->input('partner.sector'),
-                    'contact_name' => $request->input('partner.contact_name'),
-                    'contact_post' => $request->input('partner.contact_post'),
-                    'contact_phone' => $request->input('partner.contact_phone'),
-                    'contact_email' => $request->input('partner.contact_email'),
-                ]);
-            }
+        DB::transaction(function () use ($request, $project, $projectService) {
+            dump($request->all());
 
-            $project->update([
-                'partner_id' => $partner?->id ?? null,
-                'nature_id' => $request->input('nature'),
-                'status' => 'new',
-                'name' => $request->input('name'),
-                'date_begin' => $request->input('timeline.from'),
-                'date_end' => $request->input('timeline.to'),
-                'description' => $request->input('description'),
-                'goals' => $request->input('goals'),
-                'methodology' => $request->input('methodology'),
-                'estimated_amount' => $request->input('estimated_amount'),
-                'deliverables' => $request->input('deliverables'),
-            ]);
+            $project =  $projectService->store($project, $request->all());
 
-            $project->domains()->attach($request->input('domains'));
+            dd($project);
 
-            $members = User::whereIn('uuid', collect($request->members)->map(fn($m) => $m['uuid']))->get(['id', 'uuid']);
+            $version = $project->currentVersion();
+            $version->model_data = serialize($project->toArray());
+            $version->save();
 
-            $project->users()->attach($members->pluck('id'));
+            $project->refVersionAsMain($version->id);
 
-            $resources = ExistingResource::query()->whereIn('code', collect($request->resources)->map(fn($resource) => $resource['code']))->pluck('id');
-
-            $project->existingResources()->attach($resources);
-
-            $project->requestedResources()->createMany([
-                ...$request->input('resources_crti'),
-                ...($request->input('is_partner') ? $request->input('resources_partner') : [])
-            ]);
-
-            for ($i = 0; $i < count($request->tasks); $i++) {
-                /** @var Task */
-                $task = $project->tasks()->create([
-                    'name' => $request->input("tasks.{$i}.name"),
-                    'status' => 'todo',
-                    'date_begin' => $request->input("tasks.{$i}.timeline.from"),
-                    'date_end' => $request->input("tasks.{$i}.timeline.to"),
-                    'description' => $request->input("tasks.{$i}.description"),
-                    'priority' => $request->input("tasks.{$i}.priority"),
-                ]);
-
-                $task->users()->attach($members->whereIn('uuid', $request->input("tasks.{$i}.users"))->pluck('id'));
-            }
-
-            $currentVersion = $project->currentVersion();
-
-            $currentVersion->update([
-                'model_data' => serialize($project->refresh()->load([
-                    'partner:id,organisation,sector,contact_name,contact_post,contact_phone,contact_email',
-                    'division:id,unit_id,name,abbr',
-                    'division.unit:id,name,abbr',
-                    'nature:id,name',
-                    'domains:id,name',
-                    'user:id,uuid,first_name,last_name,email',
-                    'users:id,uuid,first_name,last_name,email',
-                    'tasks',
-                    'tasks.users:id,uuid,first_name,last_name,email',
-                    'existingResources:id,code,name,description,state',
-                    'requestedResources:id,project_id,name,description,price,by_crti',
-                ])->toArray()),
-                'user_id' => $this->user->id,
-            ]);
-
-            $project->refVersionAsMain($currentVersion->id);
+            event(new ProjectCreated($project->id));
         });
 
         return redirect(route('project.show', ['project' => $project->code]))->with('info', [
             'status' => 'success',
             'title' => "Félicitation! vous venez de terminer la création de votre projet avec succés",
-            'message' => "Votre projet est désormis en premier phase d'examen. Vous serez informé une fois que votre project passe au 2eme phase d'examen. Rester connecté"
+            'message' => "Votre projet est désormis xxx. Vous serez informé une fois que votre project passe au phase d'examen."
         ]);
     }
 
-    public function edit(Project $project, Version $version, AuxDataService $auxDataService)
+    public function edit(Project $project, Version $version)
     {
         if (!in_array($version->id, $project->getVersionMarkedAs('creation')) || $this->user->id !== $version->user_id) {
             return abort(403);
@@ -189,34 +124,52 @@ class ProjectVersionController extends Controller implements HasMiddleware
         ]);
     }
 
-    public function update(UpdateRequest $request, Project $project, Version $version)
+    public function update(UpdateRequest $request, Project $project, Version $version, ProjectService $projectService)
     {
-        if (!in_array($version->id, $project->getVersionMarkedAs('creation')) || $this->user->id !== $version->user_id) {
-            return abort(403);
-        }
+        if (!in_array($version->id, $project->getVersionMarkedAs('creation')) || $this->user->id !== $version->user_id) return abort(403);
 
-        $version->update([
-            'model_data' => serialize($request->all()),
-        ]);
+        DB::transaction(function () use ($project, $version, $request, $projectService) {
+            if ($project->user_id !== $version->user_id) {
+                $version->model_data = serialize($request->all());
+                $version->save();
 
-        if ($project->user_id === $version->user_id) {
-            // return here to realy update the project not suggesting a new version.
-            return $this->accept($request, $project, $version);
-        }
+                $project->refVersionAsReview($version->id);
 
-        $project->refVersionAsReview($version->id);
+                event(new NewVersionSuggested($project->id, $version->id));
+                return;
+            }
 
-        event(new NewVersionSuggested);
+            $project = $projectService->update($project, $request->all());
 
-        return redirect(route('project.show', ['project' => $project->code]))->with('info', [
+            $version->model_data = serialize($project->toArray());
+            $version->save();
+
+            $previousMainVersionId = $project->getVersionMarkedAs('main');
+            $project->unrefVersion($version->id);
+            $project->editVersionInfo('main', $version->id);
+            $project->refVersionAsPrevious($previousMainVersionId);
+
+            event(new ProjectUpdated($project->id));
+        });
+
+        $message = [
             'status' => 'success',
             'title' => 'Votre Proposition de Nouvelle Version Soumise',
             'message' => "Votre proposition de nouvelle version a été soumise avec succès. Elle doit maintenant être examinée par le créateur du projet. Vous serez informé une fois qu'une décision aura été prise.",
-        ]);;
+        ];
+
+        if ($project->project_id === $version->user_id) {
+            $message = [
+                'status' => 'success',
+                'title' => 'Modification du projet réussie',
+                'message' => 'Les modifications ont été enregistrées avec succès pour la version actuelle du projet.',
+            ];
+        }
+
+        return redirect(route('project.show', ['project' => $project->code]))->with('info', $message);
     }
 
-    // mark this coming version as accepted
-    public function accept(Request $request, $project)
+    public function accept(Request $request, ProjectService $projectService)
     {
         /** @var \App\Models\Project */
         $project = $this->user->projects()->where('code', $request->route('project'))->first();
@@ -225,91 +178,20 @@ class ProjectVersionController extends Controller implements HasMiddleware
 
         $version = $project->versions()->where('id', $request->route('version'))->first();
 
-        DB::transaction(function () use ($project, $version) {
-            $data = unserialize($version->model_data);
+        DB::transaction(function () use ($project, $version, $projectService) {
+            $project = $projectService->update($project, unserialize($version->model_data));
 
-            $newVersionHasPartner = data_get($data, 'is_partner');
-            $currentVersionHasPartner = (bool) $project->partner_id;
-
-            if ($newVersionHasPartner && $currentVersionHasPartner) {
-                $project->partner->update(data_get($data, 'partner'));
-            } elseif ($newVersionHasPartner && !$currentVersionHasPartner) {
-                $partner = $project->partner()->create(data_get($data, 'partner'));
-                $project->partner_id = $partner->id;
-                $project->save();
-            } elseif (!$newVersionHasPartner && $currentVersionHasPartner) {
-                $project->partner->delete();
-            }
-
-            $project->update([
-                'name' => data_get($data, 'name'),
-                'nature_id' => data_get($data, 'nature'),
-                'date_begin' => data_get($data, 'timeline.from'),
-                'date_end' => data_get($data, 'timeline.to'),
-                'description' => data_get($data, 'description'),
-                'goals' => data_get($data, 'goals'),
-                'methodology' => data_get($data, 'methodology'),
-                'estimated_amount' => data_get($data, 'estimated_amount'),
-                'deliverables' => data_get($data, 'deliverables'),
-            ]);
-
-            $project->domains()->sync(data_get($data, 'domains'));
-
-            $members = User::whereIn('uuid', collect(data_get($data, 'members'))->map(fn($m) => $m['uuid']))->get(['id', 'uuid']);
-
-            $project->users()->sync($members->pluck('id'));
-
-            $resources = ExistingResource::query()->whereIn('code', collect(data_get($data, 'resources'))->map(fn($resource) => $resource['code']))->pluck('id');
-
-            $project->existingResources()->sync($resources);
-
-            $project->requestedResources()->getQuery()->delete();
-
-            $project->requestedResources()->createMany([
-                ...data_get($data, 'resources_crti'),
-                ...($newVersionHasPartner ? data_get($data, 'resources_partner') : [])
-            ]);
-
-            $project->tasks()->getQuery()->delete();
-
-            for ($i = 0; $i < count(data_get($data, 'tasks')); $i++) {
-                $task = $project->tasks()->create([
-                    'name' => data_get($data, "tasks.{$i}.name"),
-                    'status' => 'todo',
-                    'date_begin' => data_get($data, "tasks.{$i}.timeline.from"),
-                    'date_end' => data_get($data, "tasks.{$i}.timeline.to"),
-                    'description' => data_get($data, "tasks.{$i}.description"),
-                    'priority' => data_get($data, "tasks.{$i}.priority"),
-                ]);
-
-                $task->users()->attach(
-                    $members->whereIn('uuid', data_get($data, "tasks.{$i}.users"))->pluck('id')
-                );
-            }
-
-            $version->update([
-                'model_data' => serialize($project->refresh()->load([
-                    'partner:id,organisation,sector,contact_name,contact_post,contact_phone,contact_email',
-                    'division:id,unit_id,name,abbr',
-                    'division.unit:id,name,abbr',
-                    'nature:id,name',
-                    'domains:id,name',
-                    'user:id,uuid,first_name,last_name,email',
-                    'users:id,uuid,first_name,last_name,email',
-                    'tasks',
-                    'tasks.users:id,uuid,first_name,last_name,email',
-                    'existingResources:id,code,name,description,state',
-                    'requestedResources:id,project_id,name,description,price,by_crti',
-                ])->toArray()),
-            ]);
+            $version->model_data = serialize($project->toArray());
+            $version->save();
 
             $previousMainVersionId = $project->getVersionMarkedAs('main');
             $project->unrefVersion($version->id);
             $project->editVersionInfo('main', $version->id);
             $project->refVersionAsPrevious($previousMainVersionId);
+
+            event(new SuggestedVersionAccepted($project->id, $version->id));
         });
 
-        event(new SuggestedVersionAccepted());
 
         $message = [
             'status' => 'success',
@@ -317,19 +199,7 @@ class ProjectVersionController extends Controller implements HasMiddleware
             'message' => "La version suggérée a été acceptée avec succès et est maintenant la version active du projet.",
         ];
 
-        if ($project->user_id === $version->user_id) {
-            $message = [
-                'status' => 'success',
-                'title' => 'Modification du projet réussie',
-                'message' => 'Les modifications ont été enregistrées avec succès pour la version actuelle du projet.',
-            ];
-        }
-
-        if (count($project->getVersionMarkedAs('review'))) {
-            return redirect(route('workspace.suggested.version.index', ['project' => $project->code]))->with('info', $message);
-        }
-
-        return redirect(route('workspace.project', ['project' => $project->code]))->with('alert', $message);
+        return redirect(route('workspace.suggested.version.index', ['project' => $project->code]))->with('info', $message);
     }
 
     public function reject(Request $request)
@@ -339,9 +209,10 @@ class ProjectVersionController extends Controller implements HasMiddleware
 
         if (!$project || !in_array($request->route('version'), $project->getVersionMarkedAs('review'))) return abort(403);
 
-        $project->refVersionAsArchived($request->route('version'));
-
-        event(new SuggestedVersionRejected());
+        DB::transaction(function () use ($request, $project) {
+            $project->refVersionAsArchived($request->route('version'));
+            event(new SuggestedVersionRejected());
+        });
 
         $message = [
             'status' => 'succes',
@@ -349,18 +220,9 @@ class ProjectVersionController extends Controller implements HasMiddleware
             'message' => "La version n'est pas accepté",
         ];
 
-        if (count($project->getVersionMarkedAs('review'))) {
-            return redirect(route('workspace.suggested.version.index', ['project', $project->code]))->with('alert', $message);
-        }
-
-        return redirect(route('workspace.project', ['project' => $project->code]))->with('info', $message);
+        return redirect(route('workspace.suggested.version.index', ['project', $project->code]))->with('info', $message);
     }
 
-    /**
-     * Get the right version to duplicate.
-     * Duplicate the version by editing some data like the reason & the creator of this version.
-     * Reference this version as under creation.
-     */
     public function duplicate(DuplicateRequest $request, Project $project)
     {
         if (!$project->canHaveNewVersions() && !$this->user->can('suggest.versions')) {
@@ -399,9 +261,10 @@ class ProjectVersionController extends Controller implements HasMiddleware
         return ['project' =>  $project->code, 'version' => $version->id];
     }
 
-    // CHECK IF IS THE APPROPRIATE USER THAT ARE MAKING THE REQUEST!
     public function sync(Request $request, string $project, Version $version)
     {
+        if ($version->user_id !== $this->user->id) abort(403);
+
         $version->update([
             'model_data' => serialize($request->all()),
         ]);
@@ -409,25 +272,3 @@ class ProjectVersionController extends Controller implements HasMiddleware
         return $this->success();
     }
 }
-
-// if (!function_exists('array_diff_recursive')) {
-//     function array_diff_recursive($array1, $array2)
-//     {
-//         $result = [];
-//         foreach ($array1 as $key => $value) {
-//             if (is_array($value)) {
-//                 if (!isset($array2[$key]) || !is_array($array2[$key])) {
-//                     $result[$key] = $value;
-//                 } else {
-//                     $recursiveDiff = array_diff_recursive($value, $array2[$key]);
-//                     if (!empty($recursiveDiff)) {
-//                         $result[$key] = $recursiveDiff;
-//                     }
-//                 }
-//             } elseif (!array_key_exists($key, $array2) || $array2[$key] !== $value) {
-//                 $result[$key] = $value;
-//             }
-//         }
-//         return $result;
-//     }
-// }
