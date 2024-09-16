@@ -5,7 +5,10 @@ use Inertia\Inertia;
 use App\Models\Project;
 use Illuminate\Http\Request;
 use App\Models\ExistingResource;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
+use App\Events\Project\ProjectCreated;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Resources\UserBaseResource;
 use Illuminate\Database\Eloquent\Builder;
 use App\Http\Controllers\ProfileController;
@@ -13,18 +16,21 @@ use App\Http\Controllers\Board\BoardController;
 use App\Http\Controllers\Manage\RoleController;
 use App\Http\Controllers\Manage\UnitController;
 use App\Http\Controllers\Manage\UserController;
+use App\Http\Middleware\ShareDataWithWorkspace;
 use App\Http\Controllers\Board\BoardPostComment;
 use App\Http\Resources\Project\ProjectRessource;
 use App\Http\Controllers\Manage\ManageController;
 use App\Http\Controllers\Workspace\MainController;
 use App\Http\Controllers\Manage\ResourceController;
 use App\Http\Controllers\Project\ProjectController;
+use App\Services\Project\Project as ProjectService;
 use App\Http\Controllers\Workspace\KanbanController;
 use App\Http\Controllers\Manage\PermissionController;
 use App\Http\Controllers\Manage\UnitDivisionController;
 use App\Http\Controllers\Workspace\WorkspaceController;
 use App\Http\Controllers\Project\ProjectVersionController;
 use App\Http\Controllers\Workspace\SuggestedVersionController;
+
 use App\Http\Controllers\Manage\BoardController as ManageBoardController;
 use App\Http\Controllers\Manage\ProjectController as ManageProjectController;
 
@@ -126,11 +132,10 @@ Route::prefix('/app')->middleware(['auth', 'permission:access.application'])->gr
         Route::resource('boards', BoardController::class)->only('index', 'show')->names('board');
     });
 
-    Route::prefix('/workspace')->as('workspace.')->middleware(['auth', 'permission:access.workspace'])->group(function () {
+    Route::prefix('/workspace')->as('workspace.')->middleware(['auth', 'permission:access.workspace', ShareDataWithWorkspace::class])->group(function () {
         Route::get('/', MainController::class)->name('index');
         Route::get('/{project}', [WorkspaceController::class, 'project'])->name('project');
         Route::get('/{project}/kanban', [KanbanController::class, 'index'])->name('kanban');
-
         Route::resource('/{project}/suggested/versions', SuggestedVersionController::class)
             ->only(['index', 'show'])
             ->names('suggested.version');
@@ -143,6 +148,35 @@ Route::prefix('/app')->middleware(['auth', 'permission:access.application'])->gr
         Route::post('/end', [KanbanController::class, 'end'])->name('end');
         Route::any('/resum', [KanbanController::class, 'resum'])->name('resum');
     });
+});
+
+Route::get('/test/project-insretion', function () {
+    $data = Storage::json('data/projects.json');
+    $projectService = new ProjectService();
+
+
+    $project = DB::transaction(function ( ) use ($data, $projectService) {
+        $project = $projectService->init([
+            'user_id' => data_get($data, 'members.0.id'),
+            'division_id' => data_get($data, 'division'),
+        ]);
+
+        $project = $projectService->store($project, $data);
+
+        $version = $project->versions()->create([
+            'model_data' => serialize($project->toArray()),
+            'user_id' => $project->user->id,
+        ]);
+
+        $project->refVersionAsMain($version->id);
+
+        event(new ProjectCreated($project->id));
+
+        return $project;
+    });
+
+    return $project;
+
 });
 
 require __DIR__ . DIRECTORY_SEPARATOR . "auth.php";
