@@ -51,7 +51,7 @@ const ConfirmationStep = ({ prev }: StepperContentProps) => {
 
         router.post(url, formData as any, {
             onBefore: () => setProcessing(true),
-            onFinish: () => setProcessing(true),
+            onFinish: () => setProcessing(false),
         });
     };
 
@@ -93,7 +93,7 @@ const ConfirmationStep = ({ prev }: StepperContentProps) => {
                     <div className="space-y-2">
                         <Heading level={6}>Domaines</Heading>
 
-                        <div className="flex flex-wrap items-center gap-1">
+                        <div className="flex flex-wrap items-center gap-1.5">
                             {data.domains.map((domain, idx) => (
                                 <Badge key={idx} variant="blue" size="sm">
                                     {
@@ -254,24 +254,43 @@ const ConfirmationStep = ({ prev }: StepperContentProps) => {
                         <TaskTable tasks={data.tasks} />
                     </div>
 
-                    <div className="space-y-2">
-                        <Heading level={6}>
-                            Matériel existant pouvant être utilisé dans
-                            l'exécution du projet.
-                        </Heading>
-                        <div>Pas de ressources séléctionne</div>
-                    </div>
+                    {data.resources.length ? (
+                        <div className="space-y-2">
+                            <Heading level={6}>
+                                Matériel existant pouvant être utilisé dans
+                                l'exécution du projet.
+                            </Heading>
+                            <ul className="flex flex-wrap items-center justify-start gap-4">
+                                {data.resources?.map((resource, idx) => (
+                                    <li key={idx}>
+                                        <Card.Card className="p-4 flex items-center justify-between">
+                                            <div className="flex flex-col">
+                                                <Card.CardSubTitle className="text-sm font-normal">
+                                                    {resource.code}
+                                                </Card.CardSubTitle>
+                                                <Card.CardTitle className="text-base font-medium">
+                                                    {resource.name}
+                                                </Card.CardTitle>
+                                            </div>
+                                        </Card.Card>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    ) : null}
 
-                    <div className="space-y-2">
-                        <Heading level={6}>
-                            Matière première, composants et petits équipements à
-                            acquérir par le CRTI
-                        </Heading>
+                    {data.resources_crti.length ? (
+                        <div className="space-y-2">
+                            <Heading level={6}>
+                                Matière première, composants et petits
+                                équipements à acquérir par le CRTI
+                            </Heading>
 
-                        <ResourceTable resources={data.resources_crti} />
-                    </div>
+                            <ResourceTable resources={data.resources_crti} />
+                        </div>
+                    ) : null}
 
-                    {data.is_partner && (
+                    {data.is_partner && data.resources_partner ? (
                         <div className="space-y-2">
                             <Heading level={6}>
                                 Matière première, composants et petits
@@ -281,7 +300,7 @@ const ConfirmationStep = ({ prev }: StepperContentProps) => {
 
                             <ResourceTable resources={data.resources_partner} />
                         </div>
-                    )}
+                    ) : null}
 
                     <Card.Card className="p-6 space-y-6">
                         <div className="space-y-2">
@@ -305,28 +324,27 @@ const ConfirmationStep = ({ prev }: StepperContentProps) => {
                         </div>
                     </Card.Card>
                 </Card.CardContent>
+                <Card.CardFooter className="sm:p-6 p-4 pt-0 sm:pt-0 flex gap-4 max-w-lg mx-auto">
+                    <Button
+                        type="button"
+                        variant="secondary"
+                        className="w-full"
+                        disabled={processing}
+                        onClick={prev}
+                    >
+                        Précendant
+                    </Button>
+                    <Button
+                        type="button"
+                        variant="primary"
+                        className="w-full"
+                        disabled={processing}
+                        onClick={submitHandler}
+                    >
+                        Confirmer
+                    </Button>
+                </Card.CardFooter>
             </Card.Card>
-
-            <div className="flex gap-4 max-w-lg mx-auto">
-                <Button
-                    type="button"
-                    variant="secondary"
-                    className="w-full"
-                    disabled={processing}
-                    onClick={prev}
-                >
-                    Précendant
-                </Button>
-                <Button
-                    type="button"
-                    variant="primary"
-                    className="w-full"
-                    disabled={processing}
-                    onClick={submitHandler}
-                >
-                    Confirmer
-                </Button>
-            </div>
         </>
     );
 };

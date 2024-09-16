@@ -33,7 +33,7 @@ const ConfirmNewProjectCreation: React.FC<{
         return (
             <Dialog.Dialog open={open} onOpenChange={setOpen} modal={true}>
                 <Dialog.DialogTrigger onClick={onTriggerPressed} asChild>
-                    <div className="select-none cursor-pointer duration-150 hover:border-primary-700 hover:border-solid hover:bg-white hover:text-primary-700 group w-full h-full flex flex-col items-center justify-center rounded-md border-2 border-dashed border-slate-300 text-sm leading-6 font-medium">
+                    <div className="select-none cursor-pointer duration-150 hover:border-primary-700 dark:hover:border-primary-600 hover:border-solid hover:text-primary-700 dark:hover:text-primary-600 group w-full h-full flex flex-col items-center justify-center rounded-md border-2 border-dashed border-gray-300 dark:border-gray-500 text-sm leading-6 font-medium">
                         <Plus className="h-10 w-10 group-hover:text-primary-700" />
                         Ajouter un nouveau projet
                     </div>
@@ -84,11 +84,9 @@ const ConfirmNewProjectCreation: React.FC<{
     return (
         <Drawer.Drawer open={open} onOpenChange={setOpen}>
             <Drawer.DrawerTrigger onClick={onTriggerPressed} asChild>
-                <div className="relative group select-none bg-white rounded shadow hover:bg-gray-50 border hover:border-gray-300 h-full flex flex-col items-center justify-center cursor-pointer">
-                    <Plus className="h-10 w-10 text-primary-700" />
-                    <span className="absolute bottom-2 text-primary-700 invisible group-hover:visible group-hover:animate-in group-hover:fade-in animate-out fade-out duration-200">
-                        Ajouter un nouveau projet
-                    </span>
+                <div className="select-none cursor-pointer duration-150 hover:border-primary-700 dark:hover:border-primary-600 hover:border-solid hover:text-primary-700 dark:hover:text-primary-600 group w-full h-full flex flex-col items-center justify-center rounded-md border-2 border-dashed border-gray-300 dark:border-gray-500 text-sm leading-6 font-medium">
+                    <Plus className="h-10 w-10 group-hover:text-primary-700" />
+                    Ajouter un nouveau projet
                 </div>
             </Drawer.DrawerTrigger>
             <Drawer.DrawerContent
@@ -181,7 +179,7 @@ const CreateNewProject: React.FC<CreateNewProjectProps> = ({
     if (isSuccess) {
         return (
             <>
-                <Text className="text-green-600">
+                <Text className="text-green-600 dark:text-green-600">
                     Projet créer avec succés.
                 </Text>
 

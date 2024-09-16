@@ -19,7 +19,6 @@ import { Progress } from "@/Components/ui/infinate-progress";
 import { Text } from "@/Components/ui/paragraph";
 import { InputError } from "@/Components/ui/input-error";
 import ReadMore from "@/Components/common/read-more";
-import { setDate } from "date-fns";
 import * as Tooltip from "@/Components/ui/tooltip";
 
 const ResourceForm = ({
@@ -33,26 +32,33 @@ const ResourceForm = ({
         React.useContext(CreateProjectContext);
 
     const goNext = () => {
-        const fields = `resources,${deepKeys(
-            data.resources,
-            "resources"
-        )}resources_partner,${deepKeys(
-            data.resources_partner,
-            "resources_partner"
-        )}resources_crti,${deepKeys(data.resources_crti, "resources_crti")}`;
-
-        validate(fields, {
-            onSuccess() {
-                fields.split(",").map((field) => clearErrors(field));
-                clearStepError();
-                markStepAsSuccess();
-                next();
-            },
-            onError(errors) {
-                markStepAsError();
-                setError(errors);
-            },
-        });
+        let fields = "";
+        fields +=
+            deepKeys(data.resources, "resources").join(",") + ",resources,";
+        fields +=
+            deepKeys(data.resources_crti, "resources_crti").join(",") +
+            ",resources_crti,";
+        fields +=
+            deepKeys(data.resources_partner, "resources_partner").join(",") +
+            ",resources_partner";
+        validate(
+            fields
+                .split(",")
+                .filter((f) => f.length)
+                .join(","),
+            {
+                onSuccess() {
+                    fields.split(",").map((field) => clearErrors(field));
+                    clearStepError();
+                    markStepAsSuccess();
+                    next();
+                },
+                onError(errors) {
+                    markStepAsError();
+                    setError(errors);
+                },
+            }
+        );
     };
 
     return (
@@ -183,14 +189,17 @@ const ResourceSelecter = ({ addResource, removeResource, resources }) => {
                                     </div>
 
                                     <div className="flex justify-between gap-4">
-                                        {resource.description && (
+                                        {
                                             <ReadMore
-                                                text={resource.description}
+                                                text={
+                                                    resource.description ??
+                                                    "Aucune description fournie"
+                                                }
                                                 charLimit={100}
                                                 readMoreText="...Lire plus"
                                                 readLessText="...Lire moins"
                                             />
-                                        )}
+                                        }
 
                                         <Tooltip.TooltipProvider>
                                             <Tooltip.Tooltip>
@@ -315,8 +324,14 @@ const ResourceCrti = () => {
                         <AccordionPrimitive.Header className="px-1 flex items-center justify-between gap-2">
                             <div className="w-full grid sm:grid-cols-3 sm:gap-4 gap-2">
                                 <div className="sm:col-span-2">
-                                    <Label required>Resource</Label>
+                                    <Label
+                                        htmlFor={`resources_crti.${idx}.name`}
+                                        required
+                                    >
+                                        Ressource
+                                    </Label>
                                     <Input
+                                        id={`resources_crti.${idx}.name`}
                                         value={resource.name}
                                         onChange={(e) => {
                                             clearErrors(
@@ -337,9 +352,15 @@ const ResourceCrti = () => {
                                     />
                                 </div>
                                 <div>
-                                    <Label required>Prix</Label>
+                                    <Label
+                                        htmlFor={`resources_crti.${idx}.price`}
+                                        required
+                                    >
+                                        Prix
+                                    </Label>
                                     <div className="relative">
                                         <Input
+                                            id={`resources_crti.${idx}.price`}
                                             value={resource.price}
                                             onChange={(e) => {
                                                 clearErrors(
@@ -354,7 +375,7 @@ const ResourceCrti = () => {
                                             }}
                                             className="pr-10"
                                         />
-                                        <div className="absolute right-1.5 top-1/2 -translate-y-1/2 select-none text-gray-600 font-medium sm:text-base text-sm">
+                                        <div className="absolute right-1.5 top-1/2 -translate-y-1/2 select-none text-gray-600 dark:text-gray-50 font-medium sm:text-base text-sm">
                                             DZD
                                         </div>
                                     </div>
@@ -376,8 +397,13 @@ const ResourceCrti = () => {
                         </AccordionPrimitive.Header>
                         <Accordion.AccordionContent className="px-1 flex sm:flex-row flex-col sm:items-end gap-4">
                             <div className="flex-1 space-y-1">
-                                <Label>Observation</Label>
+                                <Label
+                                    htmlFor={`resources_crti.${idx}.description`}
+                                >
+                                    Observation
+                                </Label>
                                 <Textarea
+                                    id={`resources_crti.${idx}.description`}
                                     value={resource.description}
                                     onChange={(e) =>
                                         setData((data) => {
@@ -489,8 +515,14 @@ const ResourcePartner = () => {
                         <AccordionPrimitive.Header className="px-1 flex items-center justify-between gap-2">
                             <div className="w-full grid sm:grid-cols-3 sm:gap-4 gap-2">
                                 <div className="sm:col-span-2">
-                                    <Label required>Resource</Label>
+                                    <Label
+                                        htmlFor={`resources_partner.${idx}.name`}
+                                        required
+                                    >
+                                        Ressource
+                                    </Label>
                                     <Input
+                                        id={`resources_partner.${idx}.name`}
                                         value={resource.name}
                                         onChange={(e) => {
                                             clearErrors(
@@ -514,9 +546,15 @@ const ResourcePartner = () => {
                                     />
                                 </div>
                                 <div>
-                                    <Label required>Prix</Label>
+                                    <Label
+                                        htmlFor={`resources_partner.${idx}.price`}
+                                        required
+                                    >
+                                        Prix
+                                    </Label>
                                     <div className="relative">
                                         <Input
+                                            id={`resources_partner.${idx}.price`}
                                             value={resource.price}
                                             onChange={(e) => {
                                                 clearErrors(
@@ -530,7 +568,7 @@ const ResourcePartner = () => {
                                                 });
                                             }}
                                         />
-                                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 font-medium text-base">
+                                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-50 font-medium text-base">
                                             DZD
                                         </span>
                                     </div>
@@ -551,8 +589,13 @@ const ResourcePartner = () => {
                         </AccordionPrimitive.Header>
                         <Accordion.AccordionContent className="px-1 flex sm:flex-row flex-col sm:items-end gap-4">
                             <div className="flex-1 space-y-1">
-                                <Label>Observation</Label>
+                                <Label
+                                    htmlFor={`resources_partner.${idx}.description`}
+                                >
+                                    Observation
+                                </Label>
                                 <Textarea
+                                    id={`resources_partner.${idx}.description`}
                                     value={resource.description}
                                     onChange={(e) =>
                                         setData((data) => {

@@ -337,7 +337,7 @@ const Identification = ({
                             }}
                             className="pr-10"
                         />
-                        <div className="absolute right-1.5 top-1/2 -translate-y-1/2 select-none text-gray-600 font-medium sm:text-base text-sm">
+                        <div className="absolute right-1.5 top-1/2 -translate-y-1/2 select-none text-gray-600 dark:text-gray-50 font-medium sm:text-base text-sm">
                             DZD
                         </div>
                     </div>

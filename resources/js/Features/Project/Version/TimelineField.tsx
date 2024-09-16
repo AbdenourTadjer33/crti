@@ -53,6 +53,7 @@ const TimelineField: React.FC<TimelineFieldProps> = ({
                     selected={value}
                     onSelect={setValue}
                     defaultMonth={value?.from}
+                    disabled={{ before: new Date() }}
                 />
             </Popover.PopoverContent>
         </Popover.Popover>

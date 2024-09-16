@@ -11,9 +11,9 @@ import { syncProjectVersion } from "@/Services/api/projects";
 import { useUser } from "@/Hooks/use-user";
 import { useDebounce } from "@/Hooks/use-debounce";
 import { useUpdateEffect } from "@/Hooks/use-update-effect";
-import IdentificationForm from "./IdentificationStep";
-import MemberForm from "./MemberStep";
-import ResourceForm from "./ResourceStep";
+import IdentificationStep from "./IdentificationStep";
+import MemberStep from "./MemberStep";
+import ResourceStep from "./ResourceStep";
 import TasksStep from "./TaskStep";
 import ConfirmationStep from "./ConfirmationStep";
 
@@ -38,7 +38,6 @@ const Form: React.FC<FormProps> = ({ versionId, version, params }) => {
         clearErrors,
         processing,
         setError,
-        isDirty,
     } = useForm<Data>(
         version ?? {
             name: "",
@@ -79,12 +78,12 @@ const Form: React.FC<FormProps> = ({ versionId, version, params }) => {
             {
                 title: "Identification de projet",
                 description: "Définir les détails du projet.",
-                content: (props) => <IdentificationForm {...props} />,
+                content: (props) => <IdentificationStep {...props} />,
             },
             {
                 title: "Membres de l'équipe",
                 description: "Ajouter les membres du projet.",
-                content: (props) => <MemberForm {...props} />,
+                content: (props) => <MemberStep {...props} />,
             },
             {
                 title: "Orgnisation des travaux",
@@ -94,7 +93,7 @@ const Form: React.FC<FormProps> = ({ versionId, version, params }) => {
             {
                 title: "Ressources nécessaires",
                 description: "Lister les ressources requises.",
-                content: (props) => <ResourceForm {...props} />,
+                content: (props) => <ResourceStep {...props} />,
             },
             {
                 title: "Confirmation",
