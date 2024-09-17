@@ -26,13 +26,18 @@ import { TableWrapper } from "@/Components/ui/table";
 import { columnDef } from "./columns";
 import { Search, SlidersHorizontal } from "lucide-react";
 
-const Table: React.FC<{ users: PaginationType<User> }> = ({ users }) => {
-    const finalData = React.useMemo(() => users.data, [users.data]);
-    const finalColumnDef = React.useMemo(() => columnDef, []);
+const Table: React.FC<{ users: PaginationType<User> }> = ({
+    users,
+    newUsers,
+}) => {
+    const data = React.useMemo(() => {
+        return [...newUsers, ...users.data];
+    }, [users.data]);
+    const columns = React.useMemo(() => columnDef, []);
 
     const table = useReactTable({
-        columns: finalColumnDef,
-        data: finalData ?? [],
+        columns,
+        data,
         getCoreRowModel: getCoreRowModel(),
         getRowId: (row) => row.uuid,
         getRowCanExpand: () => true,

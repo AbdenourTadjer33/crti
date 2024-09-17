@@ -26,14 +26,9 @@ class StoreRequest extends FormRequest
             'last_name' => ['required', 'string'],
             'first_name' => ['required', 'string'],
             'email' => ['required', 'string', 'email'],
-            'dob' => ['required', 'date'],
-            'sex' => ['required', Rule::in(['male', 'female'])],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'divisions' => ['nullable', 'array'],
-            'divisions.*.id' => ['required', 'exists:divisions,id'],
-            'divisions.*.grade' => ['nullable', 'string'],
-            'boards' => ['nullable', 'array'],
-            'boards.*' => ['exists:boards,id'],
+            'dob' => ['nullable', 'date'],
+            'sex' => ['nullable', Rule::in(['male', 'female'])],
+            'password' => ['required', 'string', 'min:8'],
             'unit_id' => ['nullable', Rule::exists('units', 'id')],
         ];
     }

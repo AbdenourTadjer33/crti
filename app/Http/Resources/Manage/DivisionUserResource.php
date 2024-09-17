@@ -16,9 +16,7 @@ class DivisionUserResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'uuid' => $this->uuid,
-            'name' => $this->first_name . ' ' . $this->last_name,
-            'email' => $this->email,
+            ...[(new UserBaseResource($this))->toArray($request)],
             'division' => $this->whenPivotLoaded('division_user', fn() => [
                 'grade' => $this->pivot->grade->name,
                 'addedAt' => $this->pivot->created_at,
