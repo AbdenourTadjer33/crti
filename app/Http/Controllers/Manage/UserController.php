@@ -12,6 +12,7 @@ use App\Http\Requests\Manage\User\StoreRequest;
 use App\Http\Resources\Manage\BoardResource;
 use App\Http\Resources\Manage\UserResource as ManageUserResource;
 use App\Models\Board;
+use App\Models\Division;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
@@ -19,26 +20,54 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $users = ManageUserResource::collection(
-            User::paginate()
-        );
+        $userDivisionsFn = function () use ($request) {
+            $user = User::query()->where('uuid', $request->input('uuid'))->first();
+
+            // $userDivisions = $user->divisions()->get(['id', 'name', 'abbr']);
+            $userDivisions = $user->divisions()->get(['id', 'name', 'abbr', 'division_grade_id']);
+
+
+            $userDivisions->map(fn ($division) => [
+                'id' => (string )$division->id,
+                'name' => $division->name,
+                'abbr' => $division->abbr,
+            ] );
+
+            return $userDivisions;
+
+
+
+            return [
+
+                'userDivisions' => $userDivisions,
+                // 'divisions' => $divisions,
+            ];
+        };
+
+        return $userDivisionsFn();
 
         return Inertia::render('Manage/User/Index', [
-            'users' => $users
+            'users' => fn () => ManageUserResource::collection(User::active()->latest('updated_at')->paginate() ),
+            'new_users' => fn () => ManageUserResource::collection(User::newUser()->get()),
+            'userDivisions' => Inertia::lazy($userDivisionsFn),
+            'divisions' => Inertia::lazy(fn() => Division::with('unit:id,name,abbr')->get()),
+
         ]);
+
+
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
         return Inertia::render('Manage/User/Create', [
-            'units' => Unit::with('divisions')->get(),
-            'boards' => BoardResource::collection(Board::all()),
+            'units' => Unit::get(),
         ]);
+
     }
 
     /**
@@ -47,42 +76,22 @@ class UserController extends Controller
     public function store(StoreRequest $request)
     {
         /** @var User */
-
         DB::transaction(function () use ($request) {
-            $user = User::create([
+            User::create([
                 'last_name' => $request->input('last_name'),
                 'first_name' => $request->input('first_name'),
                 'email' => $request->input('email'),
-                'status' => $request->input('status'),
                 'password' => $request->input('password'),
                 'dob' => $request->input('dob'),
                 'sex' => $request->input('sex'),
-                'password' => Hash::make($request->input('password')),
                 'status' => $request->input('status'),
                 'unit_id' => $request->input('unit_id')
             ]);
-
-            if (isset($validated['divisions'])) {
-                $divisions = collect($validated['divisions'])->mapWithKeys(function ($division) {
-                    return [$division['id'] => $division['grade'] ?? null];
-                });
-
-                $pivotData = $divisions->mapWithKeys(function ($grade, $divisionId) {
-                    return [$divisionId => ['grade' => $grade]];
-                });
-
-                $user->divisions()->attach($pivotData);
-            }
-
-            if ($request->has('boards')) {
-                $boards = $request->input('boards');
-                $user->boards()->attach($boards);
-            }
         });
 
         return redirect(route('manage.user.index'))->with('alert', [
             'status' => 'success',
-            'message' => 'Utilisateur avec succés'
+            'message' => 'Utilisateur créer avec succés'
         ]);
     }
 
@@ -134,6 +143,26 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        //
+        DB::transaction(function () use ($user) {
+            $user->delete();
+        });
+        return redirect()->route('manage.user.index')->with('alert', [
+            'status' => 'success',
+            'message' => 'Utilisateur supprimé avec succès.'
+        ]);
+    }
+
+    public function accept(User $user)
+    {
+        DB::transaction(function () use ($user) {
+            $user->update([
+                'status' => true,
+            ]);
+        });
+
+        return redirect()->route('manage.user.index')->with('alert', [
+            'status' => 'success',
+            'message' => 'Utilisateur approuvé avec succès'
+        ]);
     }
 }

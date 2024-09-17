@@ -8,6 +8,8 @@ import React from "react";
 import Table from "@/Features/Manage/User/Table";
 import { Text } from "@/Components/ui/paragraph";
 import { House, Plus } from "lucide-react";
+import TableStatusFalse from "@/Features/Manage/User/StatusFalse/TableStatusFalse";
+import { Card } from "@/Components/ui/card";
 
 const breadcrumbs = [
     { href: route("app"), label: <House className="w-6 h-6" /> },
@@ -15,7 +17,7 @@ const breadcrumbs = [
     { label: "Gestion d'utilisateurs" },
 ];
 
-const Index: React.FC<{ users: Pagination<User> }> = ({ users }) => {
+const Index: React.FC<{ users: Pagination<User> }> = ({ users, new_users }) => {
     return (
         <>
             <Head title="Gestion d'utilisateur" />
@@ -42,7 +44,15 @@ const Index: React.FC<{ users: Pagination<User> }> = ({ users }) => {
                     </Button>
                 </div>
 
-                <Table users={users} />
+                {/* <Card className="p-4">
+                    <div className="max-w-screen-md mx-auto">
+                        <TableStatusFalse users={new_users} />
+                    </div>
+                </Card> */}
+
+                <Table users={users} newUsers={new_users} />
+
+                <pre>{JSON.stringify(new_users, null, 2)}</pre>
             </div>
         </>
     );

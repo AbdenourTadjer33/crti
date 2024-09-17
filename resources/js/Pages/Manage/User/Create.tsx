@@ -22,7 +22,7 @@ const Create: React.FC<{
     units: [];
     divisions: [];
     boards: [];
-}> = ({ permissions, roles, universities, units, divisions, boards }) => {
+}> = ({units}) => {
     return (
         <div className="space-y-4">
             <Head title="Créer utilisateur" />
@@ -39,7 +39,7 @@ const Create: React.FC<{
                 </Text>
             </div>
 
-            <CreateForm units={units} boards={boards} />
+            <CreateForm units={units} />
         </div>
     );
 };
