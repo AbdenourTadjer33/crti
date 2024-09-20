@@ -24,7 +24,7 @@ class ProjectController extends Controller implements HasMiddleware
     public static function middleware(): array
     {
         return [
-            new Middleware('permission:projects|access.projects|access-related.projects|access-related.members.projects|access-related.divisions.projects|create.projects',  only: ['index', 'show']),
+            new Middleware('permission:projects.read|projects.create|projects.read-related|projects.read-related-divisions|projects.read-related-members',  only: ['index', 'show']),
         ];
     }
 
@@ -39,7 +39,7 @@ class ProjectController extends Controller implements HasMiddleware
     {
         $projectsFn = function () use ($request) {
 
-            if (!$this->user->canAny(['access.projects', 'access-related.projects', 'access-related.members.projects', 'access-related.divisions.projects'])) {
+            if (!$this->user->hasAnyPermission('projects.read', 'projects.read-related', 'projects.read-related-divisions', 'projects.read-related-members')) {
                 return [];
             }
 
@@ -52,7 +52,6 @@ class ProjectController extends Controller implements HasMiddleware
                 unset($filter);
             }
 
-
             if ($request->input('sort') && in_array($request->input('sort'), ["by_creation_date", "by_name"])) {
                 if ($request->input('sort') === "by_name") $baseQuery->orderBy('name');
                 if ($request->input('sort') === "by_creation_date") $baseQuery->orderBy('created_at');
@@ -60,26 +59,26 @@ class ProjectController extends Controller implements HasMiddleware
                 $baseQuery->latest('updated_at');
             }
 
-            if ($this->user->can('access.projects')) {
+            if ($this->user->hasPermissionTo('projects.read')) {
                 // Full access, so no need to filter further, directly return
                 return ProjectResource::collection($baseQuery->get());
             }
 
             $baseQuery->where(function ($query) {
                 // Check related projects the user owns
-                if ($this->user->can('access-related.projects')) {
+                if ($this->user->hasPermissionTo('projects.read-related')) {
                     $query->orWhere('user_id', $this->user->id);
                 }
 
                 // Check projects where the user is a member
-                if ($this->user->can('access-related.members.projects')) {
+                if ($this->user->hasPermissionTo('projects.read-related-members')) {
                     $query->orWhereHas('users', function ($userQuery) {
                         $userQuery->where('user_id', $this->user->id);
                     });
                 }
 
                 // Check projects in the user's divisions
-                if ($this->user->can('access-related.divisions.projects')) {
+                if ($this->user->hasPermissionTo('projects.access-related-divisions')) {
                     $query->orWhereIn('division_id', $this->user->divisions()->pluck('id'));
                 }
             });
@@ -105,7 +104,7 @@ class ProjectController extends Controller implements HasMiddleware
             'projects' => $projectsFn,
             'projectsInCreation' => $projectsInCreationFn,
             'userDivisions' => Inertia::lazy(fn() => $this->user->divisions()->get()),
-            'canCreateProjects' => fn() => $this->user->hasPermissionTo('create.projects'),
+            'canCreateProjects' => fn() => $this->user->hasPermissionTo('projects.create'),
         ]);
     }
 
