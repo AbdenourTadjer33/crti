@@ -11,12 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('professional_informations', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->string('university');
-            $table->string('diploma');
-            $table->timestamps();
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('title')->nullable()->after('sex');
         });
     }
 
@@ -25,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('professional_informations');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('title');
+        });
     }
 };

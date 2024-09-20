@@ -2,8 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-
 use Ramsey\Uuid\Uuid;
 use Laravel\Scout\Searchable;
 use App\Traits\HasPendingActions;
@@ -11,6 +9,7 @@ use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Builder;
 use Spatie\Permission\Traits\HasPermissions;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -18,7 +17,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     use Searchable, HasFactory, HasUuids, Notifiable,  HasPermissions, HasRoles, HasPendingActions;
 
@@ -34,6 +33,7 @@ class User extends Authenticatable
         'sex',
         'email',
         'password',
+        'title',
         'status',
     ];
 
@@ -136,6 +136,11 @@ class User extends Authenticatable
         $query->where('status', true);
     }
 
+    public function scopeNewUsers(Builder $query)
+    {
+        return $query->where('status', false);
+    }
+
     public function isActive()
     {
         return (bool) $this->status;
@@ -144,6 +149,11 @@ class User extends Authenticatable
     public function isTrashed()
     {
         return (bool) $this->deleted_at;
+    }
+
+    public function academicQualifications(): HasMany
+    {
+        return $this->hasMany(AcademicQualification::class, 'user_id', 'id');
     }
 
     /**

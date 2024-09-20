@@ -16,19 +16,6 @@ class InitAppSeeder extends Seeder
      */
     public function run(): void
     {
-        $permissions = [];
-        foreach (Storage::json('data/permissions.json') as $permission) {
-            $permissions[] = \Spatie\Permission\Models\Permission::create([
-                ...$permission,
-                'default' => true,
-            ]);
-        }
-
-        \Spatie\Permission\Models\Role::create([
-            'name' => 'admin',
-            'description' => "Le rôle d'Admin offre un contrôle total sur l'application, y compris la gestion des utilisateurs, des permissions et des paramètres globaux. Les administrateurs ont l'autorité de superviser et de maintenir le système."
-        ])->givePermissionTo(collect($permissions));
-
         DB::table('natures')->insert(Storage::json('data/project_natures.json'));
         DB::table('domains')->insert(Storage::json('data/project_domains.json'));
         DB::table('universities')->insert(Storage::json('data/universities.json'));
