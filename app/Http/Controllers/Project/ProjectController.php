@@ -196,7 +196,7 @@ class ProjectController extends Controller implements HasMiddleware
         };
 
         return Inertia::render('Project/Show', [
-            'canCreateNewVersion' => fn() => $project->canHaveNewVersions() && $this->user->hasAnyPermission('project.suggest', 'project.suggest-related', 'project.suggest-related-divisions', 'project.suggest-related-members'),
+            'canCreateNewVersion' => fn() => $project->canHaveNewVersions() && $this->user->hasAnyPermission('projects.suggest', 'projects.suggest-related', 'projects.suggest-related-divisions', 'projects.suggest-related-members'),
             'versions' => $versionsFn,
             'previousVersion' => Inertia::lazy($previousVersionFn),
         ]);
