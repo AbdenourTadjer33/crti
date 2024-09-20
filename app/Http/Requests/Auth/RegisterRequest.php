@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Rules\EmailSchema;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Foundation\Http\FormRequest;
@@ -26,9 +27,9 @@ class RegisterRequest extends FormRequest
         return [
             'firstName' => ['required', 'string'],
             'lastName' => ['required', 'string'],
-            'dob' => ['required', 'date'],
+            'dob' => ['required', 'date', 'before_or_equal:' . now()->subYears(config('app.params.minimum_age', 20))->format('Y-m-d')],
             'sex' => ['required', 'string'],
-            'email' => ['required', 'email', Rule::unique('users', 'email')],
+            'email' => ['required', 'email', new EmailSchema() ,Rule::unique('users', 'email')],
             'password' => ['required', Password::defaults()],
         ];
     }

@@ -1,11 +1,7 @@
 <?php
 
 return [
-
-    'param' => [
-        'email_schema' => env("AUTH_EMAIL_SCHEMA", "*"),
-    ],
-
+    
     /*
     |--------------------------------------------------------------------------
     | Authentication Defaults

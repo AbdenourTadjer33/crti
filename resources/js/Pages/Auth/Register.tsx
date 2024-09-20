@@ -44,7 +44,7 @@ export default function Register() {
                 onSubmit={registerHandler}
             >
                 <Heading level={3} className="font-medium">
-                    Créé un compte
+                    Créer un compte
                 </Heading>
 
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -126,10 +126,10 @@ export default function Register() {
                             <Select.SelectValue placeholder="sélectionner votre sexe" />
                         </Select.SelectTrigger>
                         <Select.SelectContent>
-                            <Select.SelectItem value="female">
+                            <Select.SelectItem value="male">
                                 Homme
                             </Select.SelectItem>
-                            <Select.SelectItem value="male">
+                            <Select.SelectItem value="female">
                                 Femme
                             </Select.SelectItem>
                         </Select.SelectContent>
@@ -138,7 +138,7 @@ export default function Register() {
                 </div>
 
                 <div className="space-y-1">
-                    <Label htmlFor="email">Adresse e-mail</Label>
+                    <Label htmlFor="email" required>Adresse e-mail</Label>
                     <Input
                         id="email"
                         placeholder="Entrer votre adresse e-mail professionnel"
@@ -150,7 +150,7 @@ export default function Register() {
                 </div>
 
                 <div className="space-y-1">
-                    <Label htmlFor="password">Mot de passe</Label>
+                    <Label htmlFor="password" required>Mot de passe</Label>
                     <Input
                         id="password"
                         type="password"

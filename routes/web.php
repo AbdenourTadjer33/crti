@@ -5,10 +5,7 @@ use Inertia\Inertia;
 use App\Models\Project;
 use Illuminate\Http\Request;
 use App\Models\ExistingResource;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
-use App\Events\Project\ProjectCreated;
-use Illuminate\Support\Facades\Storage;
 use App\Http\Resources\UserBaseResource;
 use Illuminate\Database\Eloquent\Builder;
 use App\Http\Controllers\ProfileController;
@@ -23,7 +20,6 @@ use App\Http\Controllers\Manage\ManageController;
 use App\Http\Controllers\Workspace\MainController;
 use App\Http\Controllers\Manage\ResourceController;
 use App\Http\Controllers\Project\ProjectController;
-use App\Services\Project\Project as ProjectService;
 use App\Http\Controllers\Workspace\KanbanController;
 use App\Http\Controllers\Manage\UnitDivisionController;
 use App\Http\Controllers\Workspace\WorkspaceController;
@@ -36,7 +32,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::prefix('/app')->middleware(['auth', 'permission:application.access'])->group(function () {
+Route::prefix('/app')->middleware(['auth', 'verified', 'user.active', 'permission:application.access'])->group(function () {
     Route::get('/', fn() => Inertia::render('Welcome'))->name('app');
 
     Route::singleton('profile', ProfileController::class)->except('edit')->names('profile');
@@ -159,32 +155,33 @@ Route::prefix('/app')->middleware(['auth', 'permission:application.access'])->gr
     });
 });
 
-Route::get('/test/project-insretion', function () {
-    $data = Storage::json('data/projects.json');
-    $projectService = new ProjectService();
-
-
-    $project = DB::transaction(function () use ($data, $projectService) {
-        $project = $projectService->init([
-            'user_id' => data_get($data, 'members.0.id'),
-            'division_id' => data_get($data, 'division'),
-        ]);
-
-        $project = $projectService->store($project, $data);
-
-        $version = $project->versions()->create([
-            'model_data' => serialize($project->toArray()),
-            'user_id' => $project->user->id,
-        ]);
-
-        $project->refVersionAsMain($version->id);
-
-        event(new ProjectCreated($project->id));
-
-        return $project;
-    });
-
-    return $project;
-});
 
 require __DIR__ . DIRECTORY_SEPARATOR . "auth.php";
+
+// Route::get('/test/project-insretion', function () {
+//     $data = Storage::json('data/projects.json');
+//     $projectService = new ProjectService();
+
+
+//     $project = DB::transaction(function () use ($data, $projectService) {
+//         $project = $projectService->init([
+//             'user_id' => data_get($data, 'members.0.id'),
+//             'division_id' => data_get($data, 'division'),
+//         ]);
+
+//         $project = $projectService->store($project, $data);
+
+//         $version = $project->versions()->create([
+//             'model_data' => serialize($project->toArray()),
+//             'user_id' => $project->user->id,
+//         ]);
+
+//         $project->refVersionAsMain($version->id);
+
+//         event(new ProjectCreated($project->id));
+
+//         return $project;
+//     });
+
+//     return $project;
+// });

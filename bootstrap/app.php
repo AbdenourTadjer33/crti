@@ -26,6 +26,8 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Routing\Middleware\ThrottleRequests::class,
             \Illuminate\Routing\Middleware\ThrottleRequestsWithRedis::class,
             \Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests::class,
+            Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+            \App\Http\Middleware\EnsureUserIsValid::class,
             \Spatie\Permission\Middleware\PermissionMiddleware::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \Illuminate\Auth\Middleware\Authorize::class,
@@ -51,6 +53,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+            'user.active' => \App\Http\Middleware\EnsureUserIsValid::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

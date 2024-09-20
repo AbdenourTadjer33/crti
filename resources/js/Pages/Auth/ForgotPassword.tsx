@@ -27,17 +27,9 @@ const ForgotPassword = ({}) => {
         >
             <Head title="Mot de passe oublié" />
 
-            <div className="space-y-2">
-                <Heading level={3} className="font-medium">
-                    Mot de passe oublié
-                </Heading>
-                <Text>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Hic
-                    facere eius fugiat rerum eos reprehenderit dicta sit tempore
-                    fuga, laboriosam aspernatur eaque deleniti et ex, eveniet
-                    laborum quis officiis voluptatum.
-                </Text>
-            </div>
+            <Heading level={3} className="font-medium">
+                Mot de passe oublié
+            </Heading>
 
             <div className="space-y-1">
                 <Label htmlFor="email" required>

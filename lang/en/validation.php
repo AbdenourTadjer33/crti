@@ -158,6 +158,7 @@ return [
     'url' => 'The :attribute field must be a valid URL.',
     'ulid' => 'The :attribute field must be a valid ULID.',
     'uuid' => 'The :attribute field must be a valid UUID.',
+    'email_schema' => 'The :attribute must be an email ending with one of the following domains: :schema.',
 
     /*
     |--------------------------------------------------------------------------

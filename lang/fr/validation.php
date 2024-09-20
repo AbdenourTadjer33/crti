@@ -158,6 +158,7 @@ return [
     'url' => 'Le champ :attribute doit être une URL valide.',
     'ulid' => 'Le champ :attribute doit être un ULID valide.',
     'uuid' => 'Le champ :attribute doit être un UUID valide.',
+    'email_schema' => 'Le champ :attribute doit être une adresse e-mail se terminant par l’un des domaines suivants: :schema.',
 
     /*
     |--------------------------------------------------------------------------

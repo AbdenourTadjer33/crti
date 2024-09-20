@@ -85,7 +85,8 @@ return [
     'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
 
     'available_locales' => [
-        'fr', 'en'
+        'fr',
+        'en'
     ],
 
     /*
@@ -126,5 +127,11 @@ return [
         'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
+
+    'params' => [
+        'email_schema' => env("APP_EMAIL_SCHEMA", "*"),
+        'minimum_age' => env("APP_MINIMUM_AGE", 20)
+    ],
+
 
 ];

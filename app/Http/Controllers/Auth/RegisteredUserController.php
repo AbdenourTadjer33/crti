@@ -4,12 +4,12 @@ namespace App\Http\Controllers\Auth;
 
 use App\Models\User;
 use Inertia\Inertia;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\Registered;
 use App\Http\Requests\Auth\RegisterRequest;
+use Illuminate\Support\Facades\Auth;
 
 class RegisteredUserController extends Controller
 {
@@ -33,11 +33,10 @@ class RegisteredUserController extends Controller
             ]);
         });
 
+        Auth::login($user);
+
         event(new Registered($user));
 
-        return redirect()->back()->with('alert', [
-            'status' => 'success',
-            'message' => ''
-        ]);
+        return redirect(route('verification.notice'));
     }
 }

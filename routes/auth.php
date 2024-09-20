@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\AccountValidationController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\CheckUserController;
@@ -21,10 +22,6 @@ Route::middleware('guest')->group(function () {
 
     Route::post('/register', [RegisteredUserController::class, 'store'])
         ->name('register.store');
-
-    // Route::get('/created', [RegisteredUserController::class, 'created'])
-    //     ->middleware('signed')
-    //     ->name('register.created');
 
     Route::get('/login', [AuthenticateSessionController::class, 'create'])
         ->name('login.create');
@@ -56,6 +53,10 @@ Route::middleware('auth')->group(function () {
     Route::post('email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
         ->middleware('throttle:6,1')
         ->name('verification.send');
+
+    Route::get('/pending-validation', AccountValidationController::class)
+        ->middleware('verified')
+        ->name('pending.validation');
 
     Route::get('confirm-password', [ConfirmablePasswordController::class, 'show'])
         ->name('password.confirm');

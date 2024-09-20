@@ -33,17 +33,9 @@ const ResetPassword: React.FC<{ token: string; email: string }> = ({
         >
             <Head title="Réinitialiser le mot de passe" />
 
-            <div className="space-y-2">
-                <Heading level={3} className="font-medium">
-                    Réinitialiser le mot de passe
-                </Heading>
-                <Text>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Adipisci enim a tempora, sit animi dolor possimus tenetur
-                    quae, qui quam odio voluptates reprehenderit ex nisi vitae
-                    iusto aliquam cum voluptate!
-                </Text>
-            </div>
+            <Heading level={3} className="font-medium">
+                Réinitialiser le mot de passe
+            </Heading>
 
             <div className="space-y-1">
                 <Label htmlFor="email" required>
