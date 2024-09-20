@@ -11,7 +11,7 @@ const LabelInfo: React.FC<LabelInfoProps> = ({ className, children }) => {
     return (
         <Tooltip.TooltipProvider>
             <Tooltip.Tooltip>
-                <Tooltip.TooltipTrigger>
+                <Tooltip.TooltipTrigger type="button">
                     <Info className="shrink-0 h-4 w-4 mr-1" />
                 </Tooltip.TooltipTrigger>
                 <Tooltip.TooltipContent className={className}>
