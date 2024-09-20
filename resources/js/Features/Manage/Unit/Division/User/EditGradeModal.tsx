@@ -1,15 +1,25 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Button } from "@/Components/ui/button";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/Components/ui/dialog";
-import { Input } from "@/Components/ui/input";
-import { InputError } from "@/Components/ui/input-error";
-import { useForm } from "@inertiajs/react";
-import { FormWrapper } from "@/Components/ui/form";
-import { Label } from "@/Components/ui/label";
-import { Textarea } from "@/Components/ui/textarea";
-import { isAnyKeyBeginWith } from "@/Libs/Validation/utils";
-import { X } from "lucide-react";
+import {
+    Dialog,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/Components/ui/dialog";
 import { User } from "@/types";
+import { DialogDescription } from "@radix-ui/react-dialog";
+import { Avatar, AvatarFallback } from "@/Components/ui/avatar";
+import { getInitials } from "@/Utils/helper";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+} from "@/Components/ui/select";
+import { useForm } from "@inertiajs/react";
+import { SelectValue } from "@radix-ui/react-select";
+import { InputError } from "@/Components/ui/input-error";
 
 export interface Member {
     id: number;
@@ -21,181 +31,107 @@ export interface Member {
     };
 }
 
-
 interface EditGradeModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    member: User;
-    onSave: (grade: string) => void;
+    open: boolean;
+    onOpenChange: React.Dispatch<React.SetStateAction<boolean>>;
+    user: User;
 }
 
 const EditGradeModal: React.FC<EditGradeModalProps> = ({
-    isOpen,
-    onClose,
-    member,
-    onSave,
+    open,
+    onOpenChange,
+    user,
+    grades,
 }) => {
-    const [grade, setGrade] = useState(member.division?.grade || '');
-    const [error, setError] = useState<string | null>(null);
+    const { data, setData, post, errors, setError } = useForm({
+        grade: String(user.grade?.id),
+    });
 
-    // const handleSave = async () => {
-    //     if (!grade.trim()) {
-    //       alert("Le grade ne peut pas être vide.");
-    //       return;
-    //     }
+    const submitHandler = (e: React.FormEvent) => {
+        e.preventDefault();
 
-    //     try {
-    //       await updateGrade(member.id, grade);
-    //       onSave(grade); // Optionnel : si vous voulez mettre à jour l'état parent
-    //       onClose(); // Ferme le modal après sauvegarde
-    //     } catch (error) {
-    //       alert("Une erreur est survenue lors de la mise à jour du grade.");
-    //     }
-    //   };
-
-    const [validationErrors, setValidationErrors] = useState<{ [key: string]: string[] }>({});
-    const handleSave = async () => {
-        if (!grade.trim()) {
-            alert("Le grade ne peut pas être vide.");
+        if (data.grade === user.grade?.id) {
+            setError("grade", "Vous avez rien modifier");
             return;
         }
 
-        const data = {
-            grade: grade,
-        };
+        const endpoint = route("manage.unit.division.edit.grade", {
+            unit: route().params.unit,
+            division: route().params.division,
+            user: user.uuid,
+        });
 
-        // try {
-        //     await updateGrade(member.id, grade);
-        //     onSave(grade);
-        //     onClose();
-        // } catch (error: any) {
-        //     if (error.response && error.response.status === 422) {
-        //         setValidationErrors(error.response.data.errors || {});
-        //     } else {
-        //         alert("Une erreur est survenue lors de la mise à jour du grade.");
-        //     }
-        // }
+        post(endpoint, {
+            preserveScroll: true,
+            preserveState: true,
+            onSuccess: () => onOpenChange(false)
+        });
     };
 
-
     return (
-        <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent>
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="space-y-4 max-w-screen-sm">
                 <DialogHeader>
-                    <DialogTitle>Modifier le grade</DialogTitle>
+                    <DialogTitle>
+                        Mettre à jour le grade du <strong>{user.name}</strong>
+                    </DialogTitle>
+                    <DialogDescription></DialogDescription>
                 </DialogHeader>
-                <DialogContent>
-                <EditGradeForm
-                    grade={grade}
-                    onGradeChange={setGrade}
-                    name={member.name}
-                    onClose={onClose}
-                    onSave={handleSave}
-                />
-                </DialogContent>
-                <DialogFooter>
+                <div className="flex gap-4 items-start p-2">
+                    <div className="flex items-center space-x-4">
+                        <Avatar>
+                            <AvatarFallback>
+                                {getInitials(user.name)}
+                            </AvatarFallback>
+                        </Avatar>
+                        <div>
+                            <p className="text-sm font-medium leading-none">
+                                {user.name}
+                            </p>
+                            <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                                {user.email}
+                            </p>
+                        </div>
+                    </div>
+                    <div className="ml-auto space-y-1">
+                        <Select
+                            value={data.grade}
+                            onValueChange={(value) => setData("grade", value)}
+                        >
+                            <SelectTrigger className="w-full max-w-xs min-w-[20rem]">
+                                <SelectValue placeholder="Sélectionner un grade" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {grades &&
+                                    grades?.map((grade, idx) => (
+                                        <SelectItem
+                                            key={idx}
+                                            value={String(grade.id)}
+                                        >
+                                            {grade?.name}
+                                        </SelectItem>
+                                    ))}
+                            </SelectContent>
+                        </Select>
 
-
-                </DialogFooter>
+                        <InputError message={errors.grade} />
+                    </div>
+                </div>
+                <form onSubmit={submitHandler}>
+                    <DialogFooter>
+                        <Button
+                            type="button"
+                            variant="destructive"
+                            onClick={() => onOpenChange(false)}
+                        >
+                            Annuler
+                        </Button>
+                        <Button variant="primary">Mettre à jour</Button>
+                    </DialogFooter>
+                </form>
             </DialogContent>
         </Dialog>
     );
 };
-
-interface EditGradeFormProps {
-    name: string;
-    grade: string;
-    onGradeChange: (grade: string) => void;
-    onClose: () => void;
-    onSave: () => void;
-}
-
-const EditGradeForm: React.FC<EditGradeFormProps> = ({
-    name,
-    grade,
-    onGradeChange,
-    onClose,
-    onSave
-}) => {
-    return (
-        <FormWrapper className="space-y-4 md:space-y-8">
-            <div className="grid grid-cols-1 gap-4">
-                <div className="flex items-center gap-4">
-                    <Button
-                        type="button"
-                        variant="outline"
-                        className="justify-start basis-2/5 sm:text-base text-xs"
-                    >
-                        {name}
-                    </Button>
-                    <Input
-                        placeholder="grade"
-                        value={grade}
-                        onChange={(e) => {
-                            onGradeChange(e.target.value)
-                        }}
-                    />
-                </div>
-                <Button variant="destructive" onClick={onClose}>
-                        Annuler
-                    </Button>
-                    <Button onClick={onSave}>Sauvegarder</Button>
-            </div>
-
-        </FormWrapper>
-    );
-};
-
-
-// const EditGradeForm: React.FC<EditGradeFormProps> = ({ grade, onGradeChange }) => {
-//     const { data, setData, errors, processing, put, clearErrors } = useForm({
-//         members: [member],
-//     });
-
-//     return (
-//         <FormWrapper
-//             className="space-y-4 md:space-y-8"
-//         >
-//             <div className="grid grid-cols-3 gap-4">
-
-//             {data.members.map((member: Member, idx: number) => (
-//                     <div key={member.uuid} className="flex items-center gap-4">
-                        // <Button
-                        //     type="button"
-                        //     variant="outline"
-                        //     className="justify-start basis-2/5 sm:text-base text-xs"
-                        // >
-                        //     {member.name}
-                        // </Button>
-
-//                         <Input
-//                             placeholder="grade"
-//                             value={member.grade}
-//                             onChange={(e) => {
-//                                 setData((data) => {
-//                                     data.members[idx].grade = e.target.value;
-//                                     return { ...data };
-//                                 });
-//                                 clearErrors(`members.${idx}.grade`);
-//                             }}
-//                         />
-//                     </div>
-//                 ))}
-//                     </div>
-
-//             {/* <div className="mx-auto max-w-lg flex flex-col-reverse sm:flex-row items-center sm:gap-4 gap-2">
-//                 <Button variant="destructive" className="w-full" asChild>
-//                     <Link href={route("manage.unit.show", unit.id)}>
-//                         Annuler
-//                     </Link>
-//                 </Button>
-//                 <Button disabled={processing} className="w-full">
-//                     Sauvegarder
-//                 </Button>
-//             </div> */}
-//         </FormWrapper>
-//     );
-// };
-
 
 export default EditGradeModal;

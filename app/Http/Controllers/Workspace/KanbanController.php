@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Workspace;
 
+use App\Enums\ProjectStatus;
 use Closure;
 use App\Models\Task;
 use App\Models\User;
@@ -24,6 +25,8 @@ class KanbanController extends Controller implements HasMiddleware
             new Middleware(function (Request $request, Closure $next) {
                 /** @var Project */
                 $project = $request->route('project');
+
+                if ($project->status !== ProjectStatus::pending->name) return abort(403);
 
                 /** @var Task */
                 $task = $request->route('task');
@@ -58,12 +61,14 @@ class KanbanController extends Controller implements HasMiddleware
     public function index(Project $project)
     {
         $project->load([
-            'tasks' => fn($query) => $query->latest('updated_at'),
+            'tasks',
+            // => fn($query) => $query->latest('updated_at'),
             'tasks.users:id,uuid,first_name,last_name,email',
         ]);
 
         return Inertia::render('Workspace/kanban', [
-            'tasks' => ProjectTaskResource::collection($project->tasks)
+            'tasks' => ProjectTaskResource::collection($project->tasks),
+            'can_use_kanban' => $project->status === ProjectStatus::pending->name,
         ]);
     }
 
@@ -133,7 +138,7 @@ class KanbanController extends Controller implements HasMiddleware
 
             $task->update([
                 'status' => TaskStatus::canceled->name,
-                'cancled_at' => now()->toDateString(),
+                'canceled_at' => now()->toDateString(),
                 'cancellation_reason' => $request->input('reason'),
                 'suspended_at' => null,
                 'suspension_reason' => null,

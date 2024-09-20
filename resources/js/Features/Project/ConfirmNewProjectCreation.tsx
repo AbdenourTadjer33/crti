@@ -165,7 +165,7 @@ const CreateNewProject: React.FC<CreateNewProjectProps> = ({
     if (isError && error?.response.status !== 422) {
         return (
             <>
-                <Text className="text-red-500">
+                <Text className="text-red-500 dark:text-red-500">
                     Une erreur est sourvenu lors de création de projet.
                 </Text>
 

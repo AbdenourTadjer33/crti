@@ -14,14 +14,16 @@ import ProgressCard from "@/Features/Workspace/kanban/progress-card";
 import DoneCard from "@/Features/Workspace/kanban/done-card";
 import SuspendedCard from "@/Features/Workspace/kanban/suspended-card";
 import CanceledCard from "@/Features/Workspace/kanban/canceled-card";
+import { cn } from "@/Utils/utils";
 
 interface KanbanProps {
     tasks: Task[];
+    can_use_kanban: boolean;
 }
 
 type TaskByStatus = Record<Task["_status"], Task[]>;
 
-const Kanban: React.FC<KanbanProps> = ({ tasks }) => {
+const Kanban: React.FC<KanbanProps> = ({ tasks, can_use_kanban }) => {
     const { todo, progress, done, suspended, canceled } =
         React.useMemo<TaskByStatus>(() => {
             const statusGroups: TaskByStatus = {
@@ -42,6 +44,9 @@ const Kanban: React.FC<KanbanProps> = ({ tasks }) => {
                 statusGroups[task._status]?.push(task);
             });
 
+            console.table(tasks);
+            console.table(statusGroups);
+
             statusGroups.progress.sort(
                 (a, b) =>
                     (a.timeline.to as Date).getTime() -
@@ -52,7 +57,12 @@ const Kanban: React.FC<KanbanProps> = ({ tasks }) => {
         }, [tasks]);
 
     return (
-        <KanbanLayout className="px-0">
+        <KanbanLayout
+            className={cn(
+                "px-0",
+                can_use_kanban ? "" : "opacity-50 pointer-events-none select-none"
+            )}
+        >
             <Head title="Tableau kanban" />
 
             <KanbanColumn className="space-y-4">

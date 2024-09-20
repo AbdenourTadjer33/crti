@@ -38,7 +38,7 @@ class UnitController extends Controller
      */
     public function store(StoreRequest $request)
     {
-        DB::transaction(function () use ($request) {
+        $unit = DB::transaction(function () use ($request) {
             return Unit::create([
                 'name' => $request->input('name'),
                 'abbr' => $request->input('abbr'),
@@ -48,7 +48,7 @@ class UnitController extends Controller
             ]);
         });
 
-        return redirect(route('manage.unit.index'))->with('alert', [
+        return redirect(route('manage.unit.show', ['unit' => $unit->id]))->with('alert', [
             'status' => 'success',
             'message' => 'Unité créer avec succés',
         ]);
@@ -79,7 +79,7 @@ class UnitController extends Controller
      */
     public function update(UpdateRequest $request, Unit $unit)
     {
-        DB::transaction(function () use ($request, $unit) {
+        $unit = DB::transaction(function () use ($request, $unit) {
             return $unit->update([
                 'name' => $request->input('name'),
                 'abbr' => $request->input('abbr'),
@@ -89,7 +89,7 @@ class UnitController extends Controller
             ]);
         });
 
-        return redirect(route('manage.unit.index'))->with('alert', [
+        return redirect(route('manage.unit.show', ['unit' => $unit->id]))->with('alert', [
             'status' => 'success',
             'message' => 'Unité modifier avec succés'
         ]);

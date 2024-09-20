@@ -16,6 +16,7 @@ import {
     DropdownMenuSubContent,
     DropdownMenuSubTrigger,
     DropdownMenuTrigger,
+    DropdownMenuItem,
 } from "@/Components/ui/dropdown-menu";
 import {
     Tooltip,
@@ -26,10 +27,9 @@ import {
 import { Button, buttonVariants } from "@/Components/ui/button";
 import { Division } from "@/types/division";
 import { Link, router } from "@inertiajs/react";
-import { ArrowRightCircle, Delete, Edit, Ellipsis, Info, MoreHorizontal, Plus, Search, SlidersHorizontal, SquareArrowOutUpRight } from "lucide-react";
+import { ArrowRightCircle, Ellipsis, Info, MoreHorizontal, Pencil, Plus, Search, SlidersHorizontal, SquareArrowOutUpRight, Trash } from "lucide-react";
 import { cn } from "@/Utils/utils";
 import { useLocalStorage } from "@/Hooks/use-local-storage";
-import { DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
 import { format, formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/Components/ui/dialog";
@@ -159,7 +159,7 @@ export const columnDef = [
                                         division: row.id,
                                     })}
                                 >
-                                    <Edit className="w-4 h-4 mr-2" />
+                                    <Pencil className="w-4 h-4 mr-2" />
                                     modifier
                                 </Link>
                             </DropdownMenuItem>
@@ -167,7 +167,7 @@ export const columnDef = [
                             <DropdownMenuItem
                                 onClick={() => setBeforeDeleteModal(true)}
                             >
-                                <Delete className="w-4 h-4 mr-2 text-red-500 dark:text-red-600" />
+                                <Trash className="w-4 h-4 mr-2 text-red-500 dark:text-red-600" />
                                 Supprimer
                             </DropdownMenuItem>
                         </DropdownMenuContent>

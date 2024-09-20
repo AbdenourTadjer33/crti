@@ -307,7 +307,7 @@ export const SearchUsers: React.FC<any> = ({ addMember }) => {
                 <SearchInput
                     inputRef={searchInputRef}
                     value={search}
-                    onValueChange={(value) => setSearch(value)}
+                    onValueChange={setSearch}
                 />
             </Card.CardHeader>
             <Card.CardContent className="space-y-2 md:max-h-[30rem] max-h-[20rem] overflow-y-auto snap-mandatory snap-y scrollbar-thumb-gray-400 scrollbar-track-gray-200 scrollbar-thin">

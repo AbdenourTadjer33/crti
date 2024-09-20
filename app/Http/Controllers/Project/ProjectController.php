@@ -12,7 +12,7 @@ use App\Http\Controllers\Controller;
 use App\Events\Project\ProjectInitialized;
 use App\Http\Requests\Project\StoreRequest;
 use Illuminate\Routing\Controllers\Middleware;
-use App\Http\Resources\Project\ProjectRessource;
+use App\Http\Resources\Project\ProjectResource;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use App\Services\Project\Project as ProjectService;
 use App\Http\Resources\Project\ProjectMemberResource;
@@ -62,7 +62,7 @@ class ProjectController extends Controller implements HasMiddleware
 
             if ($this->user->can('access.projects')) {
                 // Full access, so no need to filter further, directly return
-                return ProjectRessource::collection($baseQuery->get());
+                return ProjectResource::collection($baseQuery->get());
             }
 
             $baseQuery->where(function ($query) {
@@ -84,7 +84,7 @@ class ProjectController extends Controller implements HasMiddleware
                 }
             });
 
-            return ProjectRessource::collection($baseQuery->get());
+            return ProjectResource::collection($baseQuery->get());
         };
 
         $projectsInCreationFn = function () {

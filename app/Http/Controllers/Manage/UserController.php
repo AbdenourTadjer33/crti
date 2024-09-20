@@ -5,15 +5,21 @@ namespace App\Http\Controllers\Manage;
 use App\Models\Unit;
 use App\Models\User;
 use Inertia\Inertia;
+use App\Events\GreetingMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Manage\User\StoreRequest;
-use App\Http\Resources\Manage\BoardResource;
-use App\Http\Resources\Manage\UserResource as ManageUserResource;
-use App\Models\Board;
-use App\Models\Division;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Cache;
+use Spatie\Permission\Models\Permission;
+use App\Http\Resources\UserDivisionsResource;
+use App\Http\Requests\Manage\User\StoreRequest;
+use App\Http\Requests\Manage\User\SyncAccessRequest;
+use App\Http\Requests\Manage\User\SyncDivisionsRequest;
+use App\Http\Resources\Manage\Permission\DefaultRoleResource;
+use App\Http\Resources\Manage\UserResource as ManageUserResource;
+use App\Http\Resources\Manage\Permission\DefaultPermissionResource;
 
 class UserController extends Controller
 {
@@ -22,52 +28,61 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $userDivisionsFn = function () use ($request) {
-            $user = User::query()->where('uuid', $request->input('uuid'))->first();
+        $usersFn = function () use ($request) {
+            if ($request->input('query')) {
 
-            // $userDivisions = $user->divisions()->get(['id', 'name', 'abbr']);
+                $users = User::search($request->input('query'))->paginate(15, 'search-page');
+            } else {
+                $users = User::active()->latest('updated_at')->paginate();
+            }
+
+            return ManageUserResource::collection($users);
+        };
+
+        // return $usersFn();
+
+        $userDivisionsFn = function () use ($request) {
+            $user = User::query()->where('uuid', $request->input('uuid', ''))->first();
+
+            if (!$user) return;
+
             $userDivisions = $user->divisions()->get(['id', 'name', 'abbr', 'division_grade_id']);
 
+            return UserDivisionsResource::collection($userDivisions);
+        };
 
-            $userDivisions->map(fn ($division) => [
-                'id' => (string )$division->id,
-                'name' => $division->name,
-                'abbr' => $division->abbr,
-            ] );
+        $userAccessFn = function () use ($request) {
+            $user = User::query()->where('uuid', $request->input('uuid', ''))->first();
 
-            return $userDivisions;
-
-
+            if (!$user) return;
 
             return [
-
-                'userDivisions' => $userDivisions,
-                // 'divisions' => $divisions,
+                'permissions' => $user->permissions,
+                'roles' => $user->roles,
             ];
         };
 
-        return $userDivisionsFn();
-
         return Inertia::render('Manage/User/Index', [
-            'users' => fn () => ManageUserResource::collection(User::active()->latest('updated_at')->paginate() ),
-            'new_users' => fn () => ManageUserResource::collection(User::newUser()->get()),
+            'users' => $usersFn,
+            'newUsers' => fn() => ManageUserResource::collection(User::newUsers()->get()),
             'userDivisions' => Inertia::lazy($userDivisionsFn),
-            'divisions' => Inertia::lazy(fn() => Division::with('unit:id,name,abbr')->get()),
-
+            'unitsDivision' => Inertia::lazy(fn() => Unit::with('divisions:id,unit_id,name,abbr')->get()),
+            'grades' => Inertia::lazy(fn() => Cache::remember('division_grades', now()->addHour(), fn() => DB::table('division_grades')->get(['id', 'name']))),
+            'userAccess' => Inertia::lazy($userAccessFn),
+            'permissions' => Inertia::lazy(fn() => DefaultPermissionResource::collection(Permission::getPermissions())),
+            'roles' =>  Inertia::lazy(fn() => DefaultRoleResource::collection(Role::get(['id', 'name']))),
         ]);
-
-
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create(Request $request)
+    public function create()
     {
         return Inertia::render('Manage/User/Create', [
-            'units' => Unit::get(),
+            'diplomas' => fn() => Cache::remember('diplomas', now()->addDay(), fn() => DB::table('diplomas')->get(['id', 'name'])->map(fn($d) => ['id' => (string) $d->id, 'name' => $d->name])),
+            'universities' => fn() => Cache::remember('universities', now()->addDay(), fn() => DB::table('universities')->get(['id', 'name'])->map(fn($u) => ['id' => (string) $u->id, 'name' => $u->name])),
         ]);
-
     }
 
     /**
@@ -75,18 +90,42 @@ class UserController extends Controller
      */
     public function store(StoreRequest $request)
     {
-        /** @var User */
         DB::transaction(function () use ($request) {
-            User::create([
-                'last_name' => $request->input('last_name'),
-                'first_name' => $request->input('first_name'),
+            $user = User::query()->create([
+                'status' => true,
+                'first_name' => $request->input('firstName'),
+                'last_name' => $request->input('lastName'),
                 'email' => $request->input('email'),
-                'password' => $request->input('password'),
+                'password' => Hash::make($request->input('password')),
                 'dob' => $request->input('dob'),
                 'sex' => $request->input('sex'),
-                'status' => $request->input('status'),
-                'unit_id' => $request->input('unit_id')
+                'title' => $request->input('title'),
             ]);
+
+            $user->markEmailAsVerified();
+
+            if ($request->input('academicQualification', [])) {
+
+                $academicInformations = [];
+
+                for ($i = 0; $i < count($request->input('academicQualification')); $i++) {
+                    $academicInformations[] = [
+                        'university' => $request->input("academicQualification.{$i}.university"),
+                        'diploma' => $request->input("academicQualification.{$i}.diploma"),
+                        'graduation_date' => $request->input("academicQualification.{$i}.graduationDate")
+                    ];
+                }
+
+                $user->academicQualifications()->createMany($academicInformations);
+            }
+
+            if ($request->input('accessPermission')) {
+                $user->givePermissionTo('application.access');
+            }
+
+            if ($request->input('greetingEmail') && $request->input('accessPermission')) {
+                event(new GreetingMail($user->id, $request->input('password')));
+            }
         });
 
         return redirect(route('manage.user.index'))->with('alert', [
@@ -96,38 +135,15 @@ class UserController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     */
-    public function show(User $user)
-    {
-        $user->load('divisions');
-        return Inertia::render('Manage/User/Show',[
-            'user' => new ManageUserResource($user),
-        ]);
-    }
-
-    /**
-     * Search for users by query
-     */
-    public function search(Request $request)
-    {
-        if (app()->isProduction() && !$request->isXmlHttpRequest()) {
-            abort(401);
-        }
-
-        if (!$request->input('query')) {
-            return abort(404);
-        }
-
-        return User::search($request->input('query'))->simplePaginateRaw()->items();
-    }
-
-    /**
      * Show the form for editing the specified resource.
      */
     public function edit(User $user)
     {
-        //
+        return Inertia::render('Manage/User/Edit', [
+            'user' => fn() => $user->load('academicQualifications'),
+            'diplomas' => fn() => Cache::remember('diplomas', now()->addDay(), fn() => DB::table('diplomas')->get(['id', 'name'])->map(fn($d) => ['id' => (string) $d->id, 'name' => $d->name])),
+            'universities' => fn() => Cache::remember('universities', now()->addDay(), fn() => DB::table('universities')->get(['id', 'name'])->map(fn($u) => ['id' => (string) $u->id, 'name' => $u->name])),
+        ]);
     }
 
     /**
@@ -135,7 +151,22 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        //
+        DB::transaction(function () use ($request, $user) {
+            $user->update([
+                'first_name' => $request->input('firstName'),
+                'last_name' => $request->input('lastName'),
+                'email' => $request->input('email'),
+                'password' => Hash::make($request->input('password')),
+                'dob' => $request->input('dob'),
+                'sex' => $request->input('sex'),
+                'title' => $request->input('title'),
+            ]);
+
+            return redirect(route('manage.user.index'))->with('alert', [
+                'status' => 'success',
+                'message' => 'Utilisateur modifier avec succés'
+            ]);
+        });
     }
 
     /**
@@ -163,6 +194,36 @@ class UserController extends Controller
         return redirect()->route('manage.user.index')->with('alert', [
             'status' => 'success',
             'message' => 'Utilisateur approuvé avec succès'
+        ]);
+    }
+
+    public function syncAccess(SyncAccessRequest $request, User $user)
+    {
+        DB::transaction(function () use ($request, $user) {
+            $user->roles()->sync($request->input('permissions'));
+            $user->permissions()->sync($request->input('roles'));
+        });
+
+        return back()->with('alert', [
+            'status' => 'success',
+            'message' => 'Roles et permissions mis à jour avec succés',
+        ]);
+    }
+
+    public function syncDivisions(SyncDivisionsRequest $request, User $user)
+    {
+        DB::transaction(function () use ($request, $user) {
+            $pivot = [];
+
+            for ($i = 0; $i < count($request->input('divisions', [])); $i++) {
+                $pivot[$request->input("divisions.{$i}.division")] = ["division_grade_id" => $request->input("divisions.{$i}.grade")];
+            }
+            $user->divisions()->sync($pivot);
+        });
+
+        return back()->with('alert', [
+            'status' => 'success',
+            'message' => 'Divisions associées mis à jour avec succés',
         ]);
     }
 }

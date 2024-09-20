@@ -3,11 +3,13 @@
 namespace App\Jobs\Project;
 
 use App\Models\Project;
+use App\Notifications\Project\ProjectStatusUpdated;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Support\Facades\Notification;
 
 class UpdateProjectStatusJob implements ShouldQueue
 {
@@ -30,6 +32,10 @@ class UpdateProjectStatusJob implements ShouldQueue
      */
     public function handle(): void
     {
-        Project::query()->where('id', $this->projectId)->update(['status' => $this->status]);
+        $project = Project::with('user:id,uuid,first_name,last_name,email,last_activity')->where('id', $this->projectId)->first();
+        $project->update(['status' => $this->status]);
+
+        Notification::send($project->user, new ProjectStatusUpdated($project));
+
     }
 }

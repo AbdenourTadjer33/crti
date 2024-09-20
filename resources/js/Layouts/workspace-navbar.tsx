@@ -5,10 +5,11 @@ import { buttonVariants } from "@/Components/ui/button";
 interface NavbarProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 const WorkspaceNavbar: React.FC<NavbarProps> = ({ className }) => {
-    const { suggested_versions_count } = usePage<{
-        suggested_versions_count?: number;
-        can_access_kanban?: boolean;
-    }>().props;
+    const { suggested_versions_count, can_access_suggested_versions } =
+        usePage<{
+            suggested_versions_count?: number;
+            can_access_suggested_versions: boolean;
+        }>().props;
 
     return (
         <nav
@@ -49,7 +50,7 @@ const WorkspaceNavbar: React.FC<NavbarProps> = ({ className }) => {
                 Kanban
             </Link>
 
-            {suggested_versions_count !== undefined && (
+            {can_access_suggested_versions && (
                 <Link
                     href={route(
                         "workspace.suggested.version.index",

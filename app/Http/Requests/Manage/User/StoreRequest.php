@@ -4,6 +4,7 @@ namespace App\Http\Requests\Manage\User;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 
 class StoreRequest extends FormRequest
 {
@@ -23,13 +24,32 @@ class StoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'last_name' => ['required', 'string'],
-            'first_name' => ['required', 'string'],
+            'lastName' => ['required', 'string', 'min:2'],
+            'firstName' => ['required', 'string', 'min:2'],
+            'sex' => ['required', Rule::in(['male', 'female'])],
+            'dob' => ['required', 'date'],
             'email' => ['required', 'string', 'email'],
-            'dob' => ['nullable', 'date'],
-            'sex' => ['nullable', Rule::in(['male', 'female'])],
-            'password' => ['required', 'string', 'min:8'],
-            'unit_id' => ['nullable', Rule::exists('units', 'id')],
+            'password' => ['required', Password::defaults()],
+
+            'title' => ['nullable', 'string', 'min:2'],
+
+            'academicQualification' => ['nullable', 'array'],
+            'academicQualification.*' => ['required', 'array'],
+            'academicQualification.*.diploma' => ['required', 'string'],
+            'academicQualification.*.university' => ['required', 'string'],
+            'academicQualification.*.graduationDate' => ['required', 'date'],
+
+            'greetingEmail' => ['required', 'boolean'],
+            'accessPermission' => ['required', 'boolean'],
+        ];
+    }
+
+    public function attributes()
+    {
+        return [
+            'academicQualification.*.diploma' => 'diplôme',
+            'academicQualification.*.university' => 'université',
+            'academicQualification.*.graduationDate' => 'date d\'obtension',
         ];
     }
 }

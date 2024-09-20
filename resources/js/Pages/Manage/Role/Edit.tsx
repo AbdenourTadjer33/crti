@@ -38,11 +38,11 @@ const Edit = ({
                 </Text>
             </div>
 
-            <FormWrapper>
+            {/* <FormWrapper>
                 <PermissionContext.Provider value={{ permissions }}>
                     <EditForm role={role} />
                 </PermissionContext.Provider>
-            </FormWrapper>
+            </FormWrapper> */}
         </div>
     );
 };

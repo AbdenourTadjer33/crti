@@ -53,14 +53,13 @@ const ConfirmNewVersionCreation: React.FC<Props> = ({ open, setOpen }) => {
                     </div>
                     <Dialog.DialogHeader className="space-y-4">
                         <Dialog.DialogTitle className="text-xl font-medium">
-                            Are you sure that you want edit this project
+                            Suggérer une nouvelle version
                         </Dialog.DialogTitle>
                         <Dialog.DialogDescription>
-                            Please confirm your action to edit this project by
-                            providing a reason for the changes. This information
-                            will help us understand the context of the
-                            modifications. Once confirmed, you will be
-                            redirected to the project edit form.
+                            Veuillez fournir une brève raison pour laquelle vous
+                            suggérez une nouvelle version de ce projet. Votre
+                            explication aidera les membres du projet à
+                            comprendre le but de la mise à jour proposée.
                         </Dialog.DialogDescription>
                     </Dialog.DialogHeader>
                     <div className="space-y-4">
@@ -103,14 +102,13 @@ const ConfirmNewVersionCreation: React.FC<Props> = ({ open, setOpen }) => {
                 </div>
                 <Drawer.DrawerHeader className="text-left">
                     <Drawer.DrawerTitle>
-                        Are you sure that you want edit this project
+                        Suggérer une nouvelle version
                     </Drawer.DrawerTitle>
                     <Drawer.DrawerDescription>
-                        Please confirm your action to edit this project by
-                        providing a reason for the changes. This information
-                        will help us understand the context of the
-                        modifications. Once confirmed, you will be redirected to
-                        the project edit form.
+                        Veuillez fournir une brève raison pour laquelle vous
+                        suggérez une nouvelle version de ce projet. Votre
+                        explication aidera les membres du projet à comprendre le
+                        but de la mise à jour proposée.
                     </Drawer.DrawerDescription>
                 </Drawer.DrawerHeader>
                 <div className="px-4 mb-4 space-y-4">
@@ -191,12 +189,16 @@ const CreateNewVersion: React.FC<CreateNewVersionProps> = ({
     if (isError && error?.response.status !== 422)
         return (
             <>
-                <Text className="text-red-500">
+                <Text className="text-red-500 dark:text-red-500">
                     Une erreur s'est produite lors de le creation de la nouvelle
                     version
                 </Text>
 
-                <Button variant="outline" className="w-full" onClick={closeAndResetFn}>
+                <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={closeAndResetFn}
+                >
                     réessayez plus tard
                 </Button>
             </>
@@ -205,7 +207,7 @@ const CreateNewVersion: React.FC<CreateNewVersionProps> = ({
     if (isSuccess)
         return (
             <>
-                <Text className="text-green-600">
+                <Text className="text-green-600 dark:text-green-600">
                     Version créer avec succés
                 </Text>
 

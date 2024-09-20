@@ -1,7 +1,7 @@
-import { Head, Link, useForm } from "@inertiajs/react";
+import React from "react";
 import AuthLayout from "@/Layouts/AuthLayout";
 import Breadcrumb from "@/Components/common/breadcrumb";
-import { Permission } from "@/types";
+import { Head, Link, useForm } from "@inertiajs/react";
 import { Heading } from "@/Components/ui/heading";
 import { Text } from "@/Components/ui/paragraph";
 import { FormWrapper } from "@/Components/ui/form";
@@ -10,11 +10,13 @@ import { Label } from "@/Components/ui/label";
 import { Input } from "@/Components/ui/input";
 import { InputError } from "@/Components/ui/input-error";
 import { Textarea } from "@/Components/ui/textarea";
-import { Button, buttonVariants } from "@/Components/ui/button";
 import { cn } from "@/Utils/utils";
-import React from "react";
+import { capitalize } from "@/Utils/helper";
+import * as Card from "@/Components/ui/card";
 import { Checkbox } from "@/Components/ui/checkbox";
-import { ToggleGroup, ToggleGroupItem } from "@radix-ui/react-toggle-group";
+import { Button, buttonVariants } from "@/Components/ui/button";
+import { LabelInfo } from "@/Components/ui/label-info";
+import { CheckedState } from "@radix-ui/react-checkbox";
 
 const breadcrumbs = [
     { href: route("app"), label: <House className="w-5 h-5" /> },
@@ -23,24 +25,75 @@ const breadcrumbs = [
     { label: "Créer role" },
 ];
 
-const Create = ({ permissions }: { permissions: Permission[] }) => {
+interface DefaultParams {
+    params: Record<string, string[]>;
+    trans: Record<
+        string,
+        {
+            name: string;
+            actions: Record<
+                string,
+                {
+                    name: string;
+                    description: string;
+                }
+            >;
+        }
+    >;
+}
+
+const Create = ({ defaultParams }: { defaultParams: DefaultParams }) => {
+    const { params, trans } = React.useMemo(() => defaultParams, []);
+
     const { data, setData, errors, clearErrors, post, reset, processing } =
         useForm<{
             name: string;
             description: string;
-            permissions: string[];
+            default: Record<string, string[]>;
         }>({
             name: "",
             description: "",
-            permissions: [],
+            default: {},
         });
+
+    // Handle checkbox toggle
+    const handleCheckboxChange = (feature: string, action: string) => {
+        const state = { ...data.default };
+
+        if (!state[feature]) {
+            state[feature] = [];
+        }
+
+        if (state[feature].includes(action)) {
+            state[feature] = state[feature].filter((a) => a !== action);
+        } else {
+            state[feature].push(action);
+        }
+
+        setData("default", state);
+    };
+
+    const handleFeatureCheckbox = (checked: CheckedState, feature: string) => {
+        if (checked === "indeterminate" || checked) {
+            setData((data) => {
+                data.default[feature] = params[feature];
+                return { ...data };
+            });
+
+            return;
+        }
+
+        setData((data) => {
+            data.default[feature] = [];
+            return { ...data };
+        });
+    };
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
 
         post(route("manage.role.store"), {
-            only: ["errors", "flash"],
-            preserveScroll: true,
+            preserveScroll: (page) => !Object.keys(page.props.errors).length,
             preserveState: true,
             onSuccess: () => reset(),
         });
@@ -57,7 +110,12 @@ const Create = ({ permissions }: { permissions: Permission[] }) => {
                 </Heading>
 
                 <Text>
-                    Votre modèle de tableau de bord de gestion d'accées.
+                    Utilisez cette page pour créer de nouveaux rôles au sein du
+                    système. Les rôles aident à définir les responsabilités des
+                    utilisateurs en regroupant des autorisations spécifiques.
+                    Personnalisez les rôles pour garantir que les utilisateurs
+                    disposent du niveau d'accès correct en fonction de leur
+                    poste ou de leurs tâches.{" "}
                 </Text>
             </div>
 
@@ -93,28 +151,89 @@ const Create = ({ permissions }: { permissions: Permission[] }) => {
                     <InputError message={errors.description} />
                 </div>
 
-                <div className="space-y-1">
-                    <ToggleGroup
-                        type="multiple"
-                        className="space-y-2.5"
-                        value={data.permissions}
-                        onValueChange={(values) =>
-                            setData("permissions", values)
-                        }
-                    >
-                        {permissions.map((permission, idx) => (
-                            <ToggleGroupItem
-                                key={idx}
-                                value={permission.name}
-                                className="p-4 w-full text-sm text-start rounded-md ring-offset-white transition-colors hover:bg-gray-100 hover:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=on]:bg-gray-100 data-[state=on]:text-gray-900 dark:ring-offset-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-400 dark:focus-visible:ring-gray-300 dark:data-[state=on]:bg-gray-800 dark:data-[state=on]:text-gray-50"
-                            >
-                                <p className="text-lg font-medium">
-                                    {permission.label}
-                                </p>
-                                <p>{permission.description}</p>
-                            </ToggleGroupItem>
-                        ))}
-                    </ToggleGroup>
+                <div className="space-y-4">
+                    {Object.keys(params).map((feature, idx) => {
+                        const actions = params[feature];
+                        return (
+                            <React.Fragment key={idx}>
+                                <Card.Card className="p-4 flex flex-col gap-4">
+                                    <div>
+                                        <label className="sm:text-2xl text-xl font-semibold leading-none tracking-tight flex items-center space-x-2 select-none">
+                                            <Checkbox
+                                                value={feature}
+                                                onCheckedChange={(checked) =>
+                                                    handleFeatureCheckbox(
+                                                        checked,
+                                                        feature
+                                                    )
+                                                }
+                                                checked={
+                                                    data.default?.[feature]
+                                                        ?.length ===
+                                                    params[feature].length
+                                                        ? true
+                                                        : data.default?.[
+                                                              feature
+                                                          ]?.length > 0
+                                                        ? "indeterminate"
+                                                        : false
+                                                }
+                                            />
+                                            <span>
+                                                {capitalize(
+                                                    trans?.[feature]?.name ??
+                                                        feature
+                                                )}
+                                            </span>
+                                        </label>
+                                    </div>
+                                    <div className="lg:ml-80 grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-4">
+                                        {actions.map((action, aIdx) => (
+                                            <div
+                                                className="flex items-center"
+                                                key={aIdx}
+                                            >
+                                                <LabelInfo>
+                                                    {trans[feature].actions[
+                                                        action
+                                                    ]?.description ||
+                                                        "Aucune description fournie"}
+                                                </LabelInfo>
+                                                <label
+                                                    key={aIdx}
+                                                    className="inline-flex items-center space-x-2 select-none"
+                                                >
+                                                    <Checkbox
+                                                        value={action}
+                                                        checked={
+                                                            data.default[
+                                                                feature
+                                                            ]?.includes(
+                                                                action
+                                                            ) || false
+                                                        }
+                                                        onCheckedChange={() =>
+                                                            handleCheckboxChange(
+                                                                feature,
+                                                                action
+                                                            )
+                                                        }
+                                                    />
+                                                    <span className="text-sm md:text-base">
+                                                        {capitalize(
+                                                            trans[feature]
+                                                                .actions[action]
+                                                                .name
+                                                        )}
+                                                    </span>
+                                                </label>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </Card.Card>
+                            </React.Fragment>
+                        );
+                    })}
                 </div>
 
                 <div className="max-w-lg mx-auto flex justify-center gap-2">
@@ -139,8 +258,6 @@ const Create = ({ permissions }: { permissions: Permission[] }) => {
                     </Button>
                 </div>
             </FormWrapper>
-
-            <pre>{JSON.stringify({ permissions }, null, 2)}</pre>
         </div>
     );
 };

@@ -1,5 +1,17 @@
-import UserAvatar from "@/Components/common/user-hover-avatar";
+import React from "react";
 import { Button } from "@/Components/ui/button";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/Components/ui/dialog";
+import { User } from "@/types";
+import { useDebounce } from "@/Hooks/use-debounce";
+import { skipToken, useQuery } from "@tanstack/react-query";
+import { searchUsers } from "@/Services/api/users";
 import {
     Command,
     CommandEmpty,
@@ -8,32 +20,25 @@ import {
     CommandInput,
     CommandItem,
     CommandList,
-    CommandShortcut,
 } from "@/Components/ui/command";
+import { cn } from "@/Utils/utils";
+import { useForm } from "@inertiajs/react";
+import { Avatar, AvatarFallback } from "@/Components/ui/avatar";
+import { getInitials } from "@/Utils/helper";
+import { Dot, X } from "lucide-react";
 import {
-    Dialog,
-    DialogClose,
-    DialogContent,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from "@/Components/ui/dialog";
-import { Kbd } from "@/Components/ui/kbd";
-import { Skeleton } from "@/Components/ui/skeleton";
-import { useDebounce } from "@/Hooks/use-debounce";
-import { useEventListener } from "@/Hooks/use-event-listener";
-import { searchUsers } from "@/Services/api/users";
-import { User } from "@/types";
-import { skipToken, useQuery } from "@tanstack/react-query";
-import { LoaderCircle, Plus, X } from "lucide-react";
-import React from "react";
+    Select,
+    SelectItem,
+    SelectTrigger,
+    SelectContent,
+    SelectValue,
+} from "@/Components/ui/select";
+import { InputError } from "@/Components/ui/input-error";
+import { toast } from "sonner";
 
 interface AddMemberModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    members: User[];
-    addMember: (user: User) => void;
-    removeMember: (uuid: string) => void;
+    open: boolean;
+    onOpenChange: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 interface SearchMemberProps {
@@ -43,59 +48,185 @@ interface SearchMemberProps {
 }
 
 const AddMemberModal: React.FC<AddMemberModalProps> = ({
-    isOpen,
-    onClose,
-    members,
-    addMember,
-    removeMember,
+    open,
+    onOpenChange,
+    grades,
+    users,
 }) => {
+    const { data, setData, post, processing, errors, setError, reset } =
+        useForm({
+            users: [],
+        });
+
+    const submit = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        const endpoint = route("manage.unit.division.attach.users", {
+            unit: route().params.unit,
+            division: route().params.division,
+        });
+
+        if (!data.users.length) {
+            setError(
+                "users",
+                "Vous devez ajouter des utilisateurs avant de soumettre le formulaire "
+            );
+            return;
+        }
+
+        post(endpoint, {
+            preserveState: true,
+            onSuccess: () => {
+                onOpenChange(false);
+                setData("users", []);
+            },
+        });
+    };
+
     return (
-        <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent>
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent
+                onFocusOutside={(e) => e.preventDefault()}
+                onEscapeKeyDown={(e) => e.preventDefault()}
+                onPointerDownOutside={(e) => e.preventDefault()}
+                className="space-y-4 max-w-screen-md h-full min-h-[30rem] max-h-[80vh]"
+            >
                 <DialogHeader>
-                    <DialogTitle>Ajouter un membre</DialogTitle>
-                    <DialogClose asChild>
-                        <button
-                            className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-                            aria-label="Close"
-                            onClick={onClose}
-                        >
-                            <X className="h-4 w-4" />
-                        </button>
-                    </DialogClose>
+                    <DialogTitle>Ajouter des members</DialogTitle>
+                    <DialogDescription>
+                        Rechercher et ajouter les membres à la division. Vous
+                        pouvez rechercher les membres par leur nom ou leur
+                        adresse e-mail.
+                    </DialogDescription>
                 </DialogHeader>
-                <SearchMembers
-                    members={members}
-                    addMember={addMember}
-                    removeMember={removeMember}
-                />
-                <DialogFooter>
-                    <Button type="button" onClick={onClose}>
-                        Fermer
-                    </Button>
-                </DialogFooter>
+                <div>
+                    <SearchUsers
+                        addUser={(user) => {
+                            if (data.users.find((u) => u.uuid === user.uuid)) {
+                                toast.error(
+                                    "Vous avez déja sélectionner cet utilisateur!"
+                                );
+                                return;
+                            }
+
+                            if (users.find((u) => u.uuid === user.uuid)) {
+                                toast.error(
+                                    "Cet utilisateur est déja dans cette division"
+                                );
+                                return;
+                            }
+
+                            setData((data) => {
+                                data.users.push({ ...user, grade: "" });
+
+                                return { ...data };
+                            });
+                        }}
+                    />
+                </div>
+                <div className="max-h-80 min-h-60 overflow-auto p-1 divide-y">
+                    {data.users.map((user, idx) => (
+                        <div key={idx} className="p-2 flex gap-4">
+                            <div className="flex items-center space-x-4">
+                                <Avatar>
+                                    <AvatarFallback>
+                                        {getInitials(user.name)}
+                                    </AvatarFallback>
+                                </Avatar>
+                                <div>
+                                    <p className="text-sm font-medium leading-none">
+                                        {user.name}
+                                    </p>
+                                    <p className="text-sm text-gray-600">
+                                        {user.email}
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="ml-auto flex items-center gap-2">
+                                <div>
+                                    <Select
+                                        value={user.grade}
+                                        onValueChange={(value) =>
+                                            setData((data) => {
+                                                data.users[idx].grade = value;
+                                                return { ...data };
+                                            })
+                                        }
+                                    >
+                                        <SelectTrigger className="w-full max-w-xs min-w-[20rem]">
+                                            <SelectValue placeholder="Sélectionner un grade" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {grades &&
+                                                grades?.map((grade, idx) => (
+                                                    <SelectItem
+                                                        key={idx}
+                                                        value={String(
+                                                            grade?.id
+                                                        )}
+                                                    >
+                                                        {grade?.name}
+                                                    </SelectItem>
+                                                ))}
+                                        </SelectContent>
+                                    </Select>
+
+                                    <InputError
+                                        message={errors[`users.${idx}.grade`]}
+                                    />
+                                </div>
+
+                                <Button
+                                    variant="destructive"
+                                    size="sm"
+                                    onClick={() => {
+                                        setData((data) => {
+                                            data.users.splice(idx, 1);
+                                            return { ...data };
+                                        });
+                                    }}
+                                >
+                                    <X className="h-4 w-4 shrink-0" />
+                                </Button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+                <form onSubmit={submit}>
+                    {errors.users && (
+                        <InputError message={errors.users} className="mb-2" />
+                    )}
+
+                    <DialogFooter className="sm:gap-0 gap-2">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => onOpenChange(false)}
+                            disabled={processing}
+                        >
+                            Fermer
+                        </Button>
+                        <Button variant="primary" disabled={processing}>
+                            Sauvgarder
+                        </Button>
+                    </DialogFooter>
+                </form>
             </DialogContent>
         </Dialog>
     );
 };
 
-const SearchMembers = ({
-    addMember,
-    members,
-    removeMember,
-}: SearchMemberProps) => {
+const SearchUsers: React.FC<any> = ({ addUser }) => {
     const [search, setSearch] = React.useState("");
     const debouncedValue = useDebounce(search, 300);
-    const commandInputRef = React.useRef<HTMLInputElement>(null);
 
-    useEventListener("keydown", (e) => {
-        if (e.code === "KeyK" && e.ctrlKey) {
-            e.preventDefault();
-            commandInputRef.current && commandInputRef.current.focus();
-        }
-    });
-
-    const { data, isFetching, isLoading, isError, isSuccess } = useQuery({
+    const {
+        data: users,
+        isFetching,
+        isLoading,
+        isError,
+        isSuccess,
+    } = useQuery({
         queryKey: ["search-users", debouncedValue],
         queryFn: debouncedValue
             ? async ({ signal }) => searchUsers(debouncedValue, { signal })
@@ -103,82 +234,48 @@ const SearchMembers = ({
     });
 
     return (
-        <div className="rounded-lg border dark:border-gray-500">
-            <Command loop shouldFilter={false} className="outline-none">
-                <CommandHeader>
+        <div className="space-y-2 relative">
+            <Command loop shouldFilter={false}>
+                <CommandHeader className="border rounded-md">
                     <CommandInput
-                        ref={commandInputRef}
                         value={search}
                         onValueChange={setSearch}
                         placeholder="Rechercher..."
                     />
-                    {isFetching && (
-                        <LoaderCircle className="animate-spin mr-2" />
-                    )}
-                    <CommandShortcut>
-                        <Kbd>ctrl+K</Kbd>
-                    </CommandShortcut>
                 </CommandHeader>
-                <CommandList>
-                    <CommandEmpty className="py-4">
-                        {!search ? (
-                            <div className="text-gray-800 font-medium text-lg">
-                                Commencez à taper pour rechercher des membres de
-                                l'équipe...
-                            </div>
-                        ) : isLoading ? (
-                            <div className="px-2.5 space-y-4">
-                                {Array.from({ length: 3 }, (_, idx) => idx).map(
-                                    (_, idx) => (
-                                        <div
-                                            key={idx}
-                                            className="flex items-center gap-4"
-                                        >
-                                            <Skeleton className="h-12 w-12 rounded-full" />
-                                            <Skeleton className="h-12 w-full rounded" />
-                                        </div>
-                                    )
-                                )}
-                            </div>
-                        ) : isError ? (
-                            <>erreur</>
-                        ) : (
-                            <>Aucun resultat trouvé.</>
-                        )}
-                    </CommandEmpty>
-                    {isSuccess && (
-                        <CommandGroup className="p-0">
-                            {data.map((user) =>
-                                members.some(
-                                    (member) => member.uuid == user.uuid
-                                ) ? null : (
-                                    <CommandItem
-                                        key={user.uuid}
-                                        value={user.uuid}
-                                        className="py-2.5 grid sm:grid-cols-3 grid-cols-2 gap-4"
-                                    >
-                                        <div className="inline-flex items-center space-x-2">
-                                            <UserAvatar user={user} />
-                                            <div>{user.name}</div>
-                                        </div>
-                                        <div className="hidden sm:block">
-                                            {user.email}
-                                        </div>
-                                        <div className="flex justify-end">
-                                            <Button
-                                                type="button"
-                                                className="justify-between items-center"
-                                                onClick={() => addMember(user)}
-                                            >
-                                                Ajouter
-                                                <Plus className="h-4 w-4 ml-2" />
-                                            </Button>
-                                        </div>
-                                    </CommandItem>
-                                )
-                            )}
-                        </CommandGroup>
+
+                <CommandList
+                    className={cn(
+                        !search.length ? "hidden" : "",
+                        "bg-white shadow-lg absolute top-full left-0 right-0 z-10"
                     )}
+                >
+                    {users?.length && (
+                        <CommandEmpty>No results found.</CommandEmpty>
+                    )}
+                    <CommandGroup className="z-50 max-h-40 overflow-auto">
+                        {users?.map((user, idx) => (
+                            <CommandItem
+                                key={idx}
+                                onSelect={() => {
+                                    addUser(user);
+                                    setSearch("");
+                                }}
+                                className="space-x-2"
+                            >
+                                <Avatar className="h-8 w-8 text-xs">
+                                    <AvatarFallback>
+                                        {getInitials(user.name)}
+                                    </AvatarFallback>
+                                </Avatar>
+                                <span className="font-medium">{user.name}</span>
+                                <Dot className="h-4 w-4" />
+                                <span className="font-medium">
+                                    {user.email}
+                                </span>
+                            </CommandItem>
+                        ))}
+                    </CommandGroup>
                 </CommandList>
             </Command>
         </div>

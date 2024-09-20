@@ -16,10 +16,11 @@ class DivisionUserResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            ...[(new UserBaseResource($this))->toArray($request)],
-            'division' => $this->whenPivotLoaded('division_user', fn() => [
-                'grade' => $this->pivot->grade->name,
-                'addedAt' => $this->pivot->created_at,
+            ...(new UserBaseResource($this))->toArray($request),
+            'grade' => $this->whenPivotLoaded('division_user', fn() => [
+                'id' => (string) $this->pivot->grade->id,
+                'name' => $this->pivot->grade->name,
+                'addedAt' => $this->pivot->grade->created_at,
             ]),
         ];
     }

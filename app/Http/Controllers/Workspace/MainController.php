@@ -7,7 +7,7 @@ use Inertia\Inertia;
 use App\Models\Project;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Project\ProjectRessource;
+use App\Http\Resources\Project\ProjectResource;
 
 class MainController extends Controller
 {
@@ -40,7 +40,7 @@ class MainController extends Controller
 
             $baseQuery->where(function ($query) {
                 $query->orWhere('user_id', $this->user->id);
-                
+
                 $query->orWhereHas('users', function ($userQuery) {
                     $userQuery->where('user_id', $this->user->id);
                 });
@@ -48,7 +48,7 @@ class MainController extends Controller
                 $query->orwhereIn('division_id', $this->user->divisions()->pluck('id'));
             });
 
-            return ProjectRessource::collection($baseQuery->get());
+            return ProjectResource::collection($baseQuery->get());
         };
 
         return Inertia::render('Workspace/page', [

@@ -2,6 +2,12 @@
 declare module 'ziggy-js' {
   interface RouteList {
     "sanctum.csrf-cookie": [],
+    "telescope": [
+        {
+            "name": "view",
+            "required": false
+        }
+    ],
     "app": [],
     "profile.show": [],
     "profile.update": [],
@@ -95,6 +101,42 @@ declare module 'ziggy-js' {
             "name": "unit",
             "required": true,
             "binding": "id"
+        }
+    ],
+    "manage.unit.division.attach.users": [
+        {
+            "name": "unit",
+            "required": true
+        },
+        {
+            "name": "division",
+            "required": true,
+            "binding": "id"
+        }
+    ],
+    "manage.unit.division.detach.users": [
+        {
+            "name": "unit",
+            "required": true
+        },
+        {
+            "name": "division",
+            "required": true,
+            "binding": "id"
+        }
+    ],
+    "manage.unit.division.edit.grade": [
+        {
+            "name": "unit",
+            "required": true
+        },
+        {
+            "name": "division",
+            "required": true
+        },
+        {
+            "name": "user",
+            "required": true
         }
     ],
     "manage.unit.division.create": [
@@ -375,19 +417,22 @@ declare module 'ziggy-js' {
     "workspace.kanban": [
         {
             "name": "project",
-            "required": true
+            "required": true,
+            "binding": "code"
         }
     ],
     "workspace.suggested.version.index": [
         {
             "name": "project",
-            "required": true
+            "required": true,
+            "binding": "code"
         }
     ],
     "workspace.suggested.version.show": [
         {
             "name": "project",
-            "required": true
+            "required": true,
+            "binding": "code"
         },
         {
             "name": "version",

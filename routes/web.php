@@ -18,7 +18,7 @@ use App\Http\Controllers\Manage\UnitController;
 use App\Http\Controllers\Manage\UserController;
 use App\Http\Middleware\ShareDataWithWorkspace;
 use App\Http\Controllers\Board\BoardPostComment;
-use App\Http\Resources\Project\ProjectRessource;
+use App\Http\Resources\Project\ProjectResource;
 use App\Http\Controllers\Manage\ManageController;
 use App\Http\Controllers\Workspace\MainController;
 use App\Http\Controllers\Manage\ResourceController;
@@ -30,7 +30,6 @@ use App\Http\Controllers\Manage\UnitDivisionController;
 use App\Http\Controllers\Workspace\WorkspaceController;
 use App\Http\Controllers\Project\ProjectVersionController;
 use App\Http\Controllers\Workspace\SuggestedVersionController;
-
 use App\Http\Controllers\Manage\BoardController as ManageBoardController;
 use App\Http\Controllers\Manage\ProjectController as ManageProjectController;
 
@@ -68,7 +67,7 @@ Route::prefix('/app')->middleware(['auth', 'permission:access.application'])->gr
                 }
             });
 
-        return ProjectRessource::collection($baseQuery->get());
+        return ProjectResource::collection($baseQuery->get());
     })->name('search.project');
 
 
@@ -90,6 +89,11 @@ Route::prefix('/app')->middleware(['auth', 'permission:access.application'])->gr
         Route::middleware('permission:manage|manage.permissions&roles')->resource('roles', RoleController::class)->names('role');
 
         Route::middleware('permission:manage|manage.units&divisions')->resource('units', UnitController::class)->names('unit');
+
+        Route::post('/units/{unit}/divisions/{division}/attach/users', [UnitDivisionController::class, 'attachUsers'])->name('unit.division.attach.users');
+        Route::post('/units/{unit}/divisions/{division}/detach/users', [UnitDivisionController::class, 'detachUsers'])->name('unit.division.detach.users');
+        Route::post('/units/{unit}/divisions/{division}/users/{user}/edit', [UnitDivisionController::class, 'editGrade'])->name('unit.division.edit.grade');
+
         Route::middleware('permission:manage|manage.units&divisions')->resource('units.divisions', UnitDivisionController::class)->except('index')->names('unit.division');
 
         Route::middleware('permission:manage|manage.users')->resource('users', UserController::class)->names('user');

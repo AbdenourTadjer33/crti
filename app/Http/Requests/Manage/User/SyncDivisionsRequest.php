@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Manage\Role;
+namespace App\Http\Requests\Manage\User;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreRequest extends FormRequest
+class SyncDivisionsRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,8 +22,10 @@ class StoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:50', 'unique:roles,name'],
-            'description' => ['nullable', 'string', 'max:150'],
+            'divisions' => ['nullable', 'array'],
+            'divisions.*' => ['required', 'array'],
+            'divisions.*.division' => ['required'],
+            'divisions.*.grade' => ['required'],
         ];
     }
 }

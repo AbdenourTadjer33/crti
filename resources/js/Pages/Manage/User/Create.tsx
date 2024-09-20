@@ -1,5 +1,4 @@
 import React from "react";
-import { Permission, Role } from "@/types";
 import AuthLayout from "@/Layouts/AuthLayout";
 import Breadcrumb from "@/Components/common/breadcrumb";
 import CreateForm from "@/Features/Manage/User/CreateForm";
@@ -16,13 +15,9 @@ const breadcrumbs = [
 ];
 
 const Create: React.FC<{
-    permissions: Permission[];
-    roles: Role[];
     universities: { id: number; name: string }[];
-    units: [];
-    divisions: [];
-    boards: [];
-}> = ({units}) => {
+    diplomas: { id: number; name: string }[];
+}> = ({ universities, diplomas }) => {
     return (
         <div className="space-y-4">
             <Head title="Créer utilisateur" />
@@ -34,12 +29,9 @@ const Create: React.FC<{
                     Créer utilisateur
                 </Heading>
 
-                <Text>
-                    Votre modèle de tableau de bord de gestion d'accées.
-                </Text>
             </div>
 
-            <CreateForm units={units} />
+            <CreateForm universities={universities} diplomas={diplomas} />
         </div>
     );
 };

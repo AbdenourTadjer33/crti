@@ -3,7 +3,7 @@ import { Head, Link } from "@inertiajs/react";
 import AuthLayout from "@/Layouts/AuthLayout";
 import Breadcrumb from "@/Components/common/breadcrumb";
 import Table from "@/Features/Manage/Role/Table";
-import { Role } from "@/types";
+import { Pagination, Role } from "@/types";
 import { Heading } from "@/Components/ui/heading";
 import { Text } from "@/Components/ui/paragraph";
 import { Button } from "@/Components/ui/button";
@@ -15,7 +15,7 @@ const breadcrumbs = [
     { label: "Roles & permissions" },
 ];
 
-const Index: React.FC<{ roles: Role[] }> = ({ roles }) => {
+const Index: React.FC<{ roles: Pagination<Role> }> = ({ roles }) => {
     return (
         <div className="space-y-4">
             <Head title="Gestion de role et permission" />

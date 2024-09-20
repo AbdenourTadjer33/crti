@@ -10,7 +10,7 @@ use App\Models\Project;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Version\VersionResource;
-use App\Http\Resources\Project\ProjectRessource;
+use App\Http\Resources\Project\ProjectResource;
 use App\Http\Resources\Project\ProjectMemberResource;
 
 class SuggestedVersionController extends Controller
@@ -28,7 +28,7 @@ class SuggestedVersionController extends Controller
         if ($project->user_id !== $this->user->id || !$project->canHaveNewVersions()) abort(403);
 
         return Inertia::render('Workspace/version/page', [
-            'project' => fn() => new ProjectRessource($project),
+            'project' => fn() => new ProjectResource($project),
             'versions' => function () use ($project) {
                 $versionsIds = $project->getVersionMarkedAs('review');
 
@@ -44,7 +44,6 @@ class SuggestedVersionController extends Controller
 
                 return VersionResource::collection($versions);
             },
-            'suggested_versions_count' => count($project->getVersionMarkedAs('review')),
         ]);
     }
 
@@ -70,7 +69,6 @@ class SuggestedVersionController extends Controller
 
         return Inertia::render('Workspace/version/show', [
             'version' => $versionFn,
-            'suggested_versions_count' => count($project->getVersionMarkedAs('review')),
         ]);
     }
 }

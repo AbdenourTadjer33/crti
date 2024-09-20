@@ -60,9 +60,10 @@ export type User = {
     deletedAt?: string;
     permissions?: Permission[];
     roles?: Role[];
-    division?:
+    grade?:
     {
-        grade: string;
+        id: string;
+        name: string;
         addedAt: string;
     };
     board?:

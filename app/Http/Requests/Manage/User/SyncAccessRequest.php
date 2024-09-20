@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Manage\Role;
+namespace App\Http\Requests\Manage\User;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreRequest extends FormRequest
+class SyncAccessRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -14,6 +14,14 @@ class StoreRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'roles' => array_map(fn($p) => $p['id'], $this->input('permissions')),
+            'permissions' => array_map(fn($r) => $r['id'], $this->input('roles')),
+        ]);
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -21,9 +29,6 @@ class StoreRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'name' => ['required', 'string', 'max:50', 'unique:roles,name'],
-            'description' => ['nullable', 'string', 'max:150'],
-        ];
+        return [];
     }
 }

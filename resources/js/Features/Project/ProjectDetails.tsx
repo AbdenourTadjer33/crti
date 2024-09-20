@@ -108,10 +108,10 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({
                     <Card.Card className="flex-1 md:max-w-md w-full">
                         <Card.CardHeader>
                             <Card.CardTitle className="sm:text-2xl text-xl">
-                                Membres de l'équipe de projet
+                                Membres du l'équipe de projet
                             </Card.CardTitle>
                             <Card.CardDescription>
-                                Les membres de projet.
+                                Les membres du projet.
                             </Card.CardDescription>
                         </Card.CardHeader>
                         <Card.CardContent className="grid gap-6">

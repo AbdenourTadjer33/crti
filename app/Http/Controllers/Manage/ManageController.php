@@ -13,17 +13,15 @@ class ManageController extends Controller implements HasMiddleware
     public static function middleware(): array
     {
         return [
-            'permission:manage.users|manage.permissions&roles|manage.units&divisions|manage.boards|manage.projects|manage.resources'
+            'permission:users.manage|permissions&roles.manage|units&divisions.manage|boards.manage|projects.manage|resources.manage'
         ];
     }
 
     /**
      * Handle the incoming request.
      */
-    public function __invoke(Request $request)
+    public function __invoke()
     {
-        return Inertia::render('Manage/Index', [
-            'can' => [],
-        ]);
+        return Inertia::render('Manage/Index');
     }
 }

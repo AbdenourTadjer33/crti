@@ -102,8 +102,8 @@ class ProjectVersionController extends Controller implements HasMiddleware
 
         return redirect(route('project.show', ['project' => $project->code]))->with('info', [
             'status' => 'success',
-            'title' => "Félicitation! vous venez de terminer la création de votre projet avec succés",
-            'message' => "Votre projet est désormis xxx. Vous serez informé une fois que votre project passe au phase d'examen."
+            'title' => __('feedback.project.store.title'),
+            'message' => __('feedback.project.store'),
         ]);
     }
 
@@ -192,7 +192,7 @@ class ProjectVersionController extends Controller implements HasMiddleware
         $message = [
             'status' => 'success',
             'title' => 'Version suggérée acceptée',
-            'message' => "La version suggérée a été acceptée avec succès et est maintenant la version active du projet.",
+            'message' => "La version suggérée à été accepté commme version majeure de projet.",
         ];
 
         return redirect(route('workspace.suggested.version.index', ['project' => $project->code]))->with('info', $message);
@@ -211,12 +211,11 @@ class ProjectVersionController extends Controller implements HasMiddleware
         });
 
         $message = [
-            'status' => 'succes',
-            'title' => 'Version suggéréé rejete',
-            'message' => "La version n'est pas accepté",
+            'status' => 'success',
+            'message' => "La version suggérée à été rejté avec succés",
         ];
 
-        return redirect(route('workspace.suggested.version.index', ['project', $project->code]))->with('info', $message);
+        return redirect(route('workspace.suggested.version.index', ['project' => $project->code]))->with('info', $message);
     }
 
     public function duplicate(DuplicateRequest $request, Project $project)
