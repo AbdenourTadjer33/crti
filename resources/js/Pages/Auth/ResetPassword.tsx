@@ -6,6 +6,8 @@ import { Label } from "@/Components/ui/label";
 import { Input } from "@/Components/ui/input";
 import { InputError } from "@/Components/ui/input-error";
 import { Button } from "@/Components/ui/button";
+import { Heading } from "@/Components/ui/heading";
+import { Text } from "@/Components/ui/paragraph";
 
 const ResetPassword: React.FC<{ token: string; email: string }> = ({
     token,
@@ -30,6 +32,18 @@ const ResetPassword: React.FC<{ token: string; email: string }> = ({
             onSubmit={submit}
         >
             <Head title="Réinitialiser le mot de passe" />
+
+            <div className="space-y-2">
+                <Heading level={3} className="font-medium">
+                    Réinitialiser le mot de passe
+                </Heading>
+                <Text>
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                    Adipisci enim a tempora, sit animi dolor possimus tenetur
+                    quae, qui quam odio voluptates reprehenderit ex nisi vitae
+                    iusto aliquam cum voluptate!
+                </Text>
+            </div>
 
             <div className="space-y-1">
                 <Label htmlFor="email" required>

@@ -38,9 +38,11 @@ const Login = () => {
                 </Label>
                 <Input
                     id="email"
+                    type="email"
                     placeholder="Entrer votre adresse e-mail professionnel"
                     value={data.email}
                     onChange={(e) => setData("email", e.target.value)}
+                    autoComplete="username"
                     autoFocus
                 />
                 <InputError message={errors.email} />

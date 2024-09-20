@@ -23,7 +23,7 @@ class UserResource extends JsonResource
                 'dob' => $this->dob,
                 'sex' => $this->sex,
             ]),
-            'isEmailVerified' => (bool) $this->email_verified_at,
+            // 'isEmailVerified' => (bool) $this->email_verified_at,
         ];
     }
 }

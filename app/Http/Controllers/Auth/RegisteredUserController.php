@@ -6,7 +6,6 @@ use App\Models\User;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\URL;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\Registered;
@@ -24,6 +23,7 @@ class RegisteredUserController extends Controller
         /** @var User */
         $user = DB::transaction(function () use ($request) {
             return User::create([
+                'status' => false,
                 'first_name' => $request->input('firstName'),
                 'last_name' => $request->input('lastName'),
                 'sex' => $request->input('sex', true),
@@ -39,10 +39,5 @@ class RegisteredUserController extends Controller
             'status' => 'success',
             'message' => ''
         ]);
-    }
-
-    public function created()
-    {
-        return Inertia::render('Auth/Created');
     }
 }

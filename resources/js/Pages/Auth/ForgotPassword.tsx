@@ -7,6 +7,8 @@ import { Label } from "@/Components/ui/label";
 import GuestLayout from "@/Layouts/GuestLayout";
 import { Head, useForm, usePage } from "@inertiajs/react";
 import { PageProps } from "@/types";
+import { Heading } from "@/Components/ui/heading";
+import { Text } from "@/Components/ui/paragraph";
 
 const ForgotPassword = ({}) => {
     const { alert } = usePage<PageProps>().props;
@@ -24,17 +26,31 @@ const ForgotPassword = ({}) => {
             className="w-full sm:max-w-xl md:p-6 p-4 py-6 space-y-4"
         >
             <Head title="Mot de passe oublié" />
+
+            <div className="space-y-2">
+                <Heading level={3} className="font-medium">
+                    Mot de passe oublié
+                </Heading>
+                <Text>
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Hic
+                    facere eius fugiat rerum eos reprehenderit dicta sit tempore
+                    fuga, laboriosam aspernatur eaque deleniti et ex, eveniet
+                    laborum quis officiis voluptatum.
+                </Text>
+            </div>
+
             <div className="space-y-1">
                 <Label htmlFor="email" required>
                     Adresse e-mail
                 </Label>
                 <Input
                     id="email"
+                    type="email"
                     value={data.email}
                     onChange={(e) => setData("email", e.target.value)}
                     placeholder="Entrer votre adresse e-mail"
                     autoFocus
-                    autoComplete="email"
+                    autoComplete="username"
                 />
                 <InputError message={errors.email} />
             </div>
