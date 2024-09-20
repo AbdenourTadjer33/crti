@@ -51,10 +51,11 @@ export type User = {
     uuid: UUID;
     name: string;
     email: string;
+    title: string;
     isEmailVerified: boolean;
     status: boolean;
-    dob?: number;
-    sex?: number;
+    dob?: string;
+    sex?: "male" | "female";
     createdAt?: string;
     updatedAt?: string;
     deletedAt?: string;
@@ -85,6 +86,7 @@ export type Role = {
     createdAt: string;
     updatedAt: string;
     permissions: Permission[];
+    usersCount?: number;
 };
 
 export type Board = {

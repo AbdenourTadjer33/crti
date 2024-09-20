@@ -11,37 +11,7 @@ declare module 'ziggy-js' {
     "app": [],
     "profile.show": [],
     "profile.update": [],
-    "search.user": [],
-    "search.project": [],
-    "search.resource": [],
     "manage.index": [],
-    "manage.permission.index": [],
-    "manage.permission.create": [],
-    "manage.permission.store": [],
-    "manage.permission.show": [
-        {
-            "name": "permission",
-            "required": true
-        }
-    ],
-    "manage.permission.edit": [
-        {
-            "name": "permission",
-            "required": true
-        }
-    ],
-    "manage.permission.update": [
-        {
-            "name": "permission",
-            "required": true
-        }
-    ],
-    "manage.permission.destroy": [
-        {
-            "name": "permission",
-            "required": true
-        }
-    ],
     "manage.role.index": [],
     "manage.role.create": [],
     "manage.role.store": [],
@@ -132,11 +102,13 @@ declare module 'ziggy-js' {
         },
         {
             "name": "division",
-            "required": true
+            "required": true,
+            "binding": "id"
         },
         {
             "name": "user",
-            "required": true
+            "required": true,
+            "binding": "uuid"
         }
     ],
     "manage.unit.division.create": [
@@ -200,14 +172,40 @@ declare module 'ziggy-js' {
             "binding": "id"
         }
     ],
+    "manage.user.sync.access": [
+        {
+            "name": "user",
+            "required": true,
+            "binding": "uuid"
+        }
+    ],
+    "manage.user.sync.divisions": [
+        {
+            "name": "user",
+            "required": true,
+            "binding": "uuid"
+        }
+    ],
+    "manage.user.accept": [
+        {
+            "name": "user",
+            "required": true,
+            "binding": "uuid"
+        }
+    ],
+    "manage.": [
+        {
+            "name": "user",
+            "required": true
+        }
+    ],
     "manage.user.index": [],
     "manage.user.create": [],
     "manage.user.store": [],
     "manage.user.show": [
         {
             "name": "user",
-            "required": true,
-            "binding": "uuid"
+            "required": true
         }
     ],
     "manage.user.edit": [
@@ -296,6 +294,9 @@ declare module 'ziggy-js' {
             "required": true
         }
     ],
+    "search.user": [],
+    "search.project": [],
+    "search.resource": [],
     "project.suggest.nature": [],
     "project.suggest.domain": [],
     "project.index": [],
