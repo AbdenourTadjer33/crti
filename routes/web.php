@@ -17,15 +17,14 @@ use App\Http\Controllers\Manage\RoleController;
 use App\Http\Controllers\Manage\UnitController;
 use App\Http\Controllers\Manage\UserController;
 use App\Http\Middleware\ShareDataWithWorkspace;
-use App\Http\Controllers\Board\BoardPostComment;
 use App\Http\Resources\Project\ProjectResource;
+use App\Http\Controllers\Board\BoardPostComment;
 use App\Http\Controllers\Manage\ManageController;
 use App\Http\Controllers\Workspace\MainController;
 use App\Http\Controllers\Manage\ResourceController;
 use App\Http\Controllers\Project\ProjectController;
 use App\Services\Project\Project as ProjectService;
 use App\Http\Controllers\Workspace\KanbanController;
-use App\Http\Controllers\Manage\PermissionController;
 use App\Http\Controllers\Manage\UnitDivisionController;
 use App\Http\Controllers\Workspace\WorkspaceController;
 use App\Http\Controllers\Project\ProjectVersionController;
@@ -37,106 +36,112 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::prefix('/app')->middleware(['auth', 'permission:access.application'])->group(function () {
+Route::prefix('/app')->middleware(['auth', 'permission:application.access'])->group(function () {
     Route::get('/', fn() => Inertia::render('Welcome'))->name('app');
 
     Route::singleton('profile', ProfileController::class)->except('edit')->names('profile');
 
-    Route::get('search/users', function (Request $request) {
-        if (app()->isProduction() && !$request->isXmlHttpRequest()) return abort(401);
-
-        if (!$request->input('query')) return abort(404);
-
-        $users = User::search($request->input('query'))->get();
-
-        return UserBaseResource::collection($users);
-    })->name('search.user');
-
-    Route::get('search/projects', function (Request $request) {
-        if (app()->isProduction() && !$request->isXmlHttpRequest()) return abort(401);
-
-        if (!$request->input('query')) return abort(404);
-
-        $baseQuery = Project::search($request->input('query'))
-            ->query(function (Builder $query) use ($request) {
-                $query->with(['division:id,unit_id,abbr,name', 'division.unit:id,abbr,name', 'user:id,uuid,first_name,last_name', 'nature:id,name']);
-
-                if ($request->input('status', []) && $filter = array_intersect($request->input('status', []), ["new", "review", "pending", "suspended", "rejected", "completed"])) {
-                    $query->whereIn('status', $filter);
-                    unset($filter);
-                }
-            });
-
-        return ProjectResource::collection($baseQuery->get());
-    })->name('search.project');
-
-
-    Route::get('search/resources', function (Request $request) {
-        if (app()->isProduction() && !$request->isXmlHttpRequest()) return abort(401);
-
-        if (!$request->input('query')) return abort(404);
-
-        $resources = ExistingResource::search($request->input('query'))->get();
-
-        return $resources->map(fn($resource) => $resource->only(['code', 'name', 'description']));
-    })->name("search.resource");
-
-
     Route::prefix('/manage')->as('manage.')->group(function () {
         Route::get('/', ManageController::class)->name('index');
 
-        Route::middleware('permission:manage|manage.permissions&roles')->resource('permissions', PermissionController::class)->names('permission');
-        Route::middleware('permission:manage|manage.permissions&roles')->resource('roles', RoleController::class)->names('role');
+        Route::middleware('permission:roles&permissions.manage')->resource('roles', RoleController::class)->names('role');
 
-        Route::middleware('permission:manage|manage.units&divisions')->resource('units', UnitController::class)->names('unit');
+        Route::middleware('permission:units&divisions.manage')->group(function () {
+            Route::resource('units', UnitController::class)->names('unit');
+            Route::post('/units/{unit}/divisions/{division}/attach/users', [UnitDivisionController::class, 'attachUsers'])->name('unit.division.attach.users');
+            Route::post('/units/{unit}/divisions/{division}/detach/users', [UnitDivisionController::class, 'detachUsers'])->name('unit.division.detach.users');
+            Route::post('/units/{unit}/divisions/{division}/users/{user}/edit', [UnitDivisionController::class, 'editGrade'])->name('unit.division.edit.grade');
+            Route::resource('units.divisions', UnitDivisionController::class)->except('index')->names('unit.division');
+        });
 
-        Route::post('/units/{unit}/divisions/{division}/attach/users', [UnitDivisionController::class, 'attachUsers'])->name('unit.division.attach.users');
-        Route::post('/units/{unit}/divisions/{division}/detach/users', [UnitDivisionController::class, 'detachUsers'])->name('unit.division.detach.users');
-        Route::post('/units/{unit}/divisions/{division}/users/{user}/edit', [UnitDivisionController::class, 'editGrade'])->name('unit.division.edit.grade');
+        Route::middleware('permission:users.manage')->group(function () {
+            Route::post('/users/{user}/sync/access', [UserController::class, 'syncAccess'])->name('user.sync.access');
+            Route::post('/users/{user}/sync/divisions', [UserController::class, 'syncDivisions'])->name('user.sync.divisions');
+            Route::post('/users/{user}/accept', [UserController::class, 'accept'])->name('user.accept');
+            Route::post('/users/{user}/reject', [UserController::class, 'reject']);
+            Route::resource('users', UserController::class)->names('user');
+        });
 
-        Route::middleware('permission:manage|manage.units&divisions')->resource('units.divisions', UnitDivisionController::class)->except('index')->names('unit.division');
+        Route::middleware('permission:boards.manage')->resource('boards', ManageBoardController::class)->names('board');
 
-        Route::middleware('permission:manage|manage.users')->resource('users', UserController::class)->names('user');
+        Route::middleware('permission:resources.manage')->resource('resources', ResourceController::class)->names('resource');
 
-        Route::middleware('permission:manage|manage.boards')->resource('boards', ManageBoardController::class)->names('board');
-
-        Route::middleware('permission:manage|manage.resources')->resource('resources', ResourceController::class)->names('resource');
-
-        Route::middleware('permission:manage|manage.projects')->resource('projects', ManageProjectController::class)->only(['index', 'show'])->names('project');
+        Route::middleware('permission:projects.manage')->resource('projects', ManageProjectController::class)->only(['index', 'show'])->names('project');
     });
 
-    Route::post('/projects/suggest/nature', function (Request $request) {
-        $request->validate([
-            'value' => ['required', 'string', 'min:3', 'max:50'],
-        ]);
+    Route::prefix('search')->as('search.')->group(function () {
+        Route::get('users', function (Request $request) {
+            if (app()->isProduction() && !$request->isXmlHttpRequest()) return abort(401);
 
-        return \App\Models\Nature::suggest($request->input('value'));
-    })->name('project.suggest.nature');
+            if (!$request->input('query')) return abort(404);
 
-    Route::post('/projects/suggest/domain', function (Request $request) {
-        $request->validate([
-            'value' => ['required', 'string', 'min:3', 'max:50'],
-        ]);
+            $users = User::search($request->input('query'))->get();
 
-        return \App\Models\Domain::suggest($request->input('value'));
-    })->name('project.suggest.domain');
+            return UserBaseResource::collection($users);
+        })->name('user');
+
+        Route::get('projects', function (Request $request) {
+            if (app()->isProduction() && !$request->isXmlHttpRequest()) return abort(401);
+
+            if (!$request->input('query')) return abort(404);
+
+            $baseQuery = Project::search($request->input('query'))
+                ->query(function (Builder $query) use ($request) {
+                    $query->with(['division:id,unit_id,abbr,name', 'division.unit:id,abbr,name', 'user:id,uuid,first_name,last_name', 'nature:id,name']);
+
+                    if ($request->input('status', []) && $filter = array_intersect($request->input('status', []), ["new", "review", "pending", "suspended", "rejected", "completed"])) {
+                        $query->whereIn('status', $filter);
+                        unset($filter);
+                    }
+                });
+
+            return ProjectResource::collection($baseQuery->get());
+        })->name('project');
+
+        Route::get('resources', function (Request $request) {
+            if (app()->isProduction() && !$request->isXmlHttpRequest()) return abort(401);
+
+            if (!$request->input('query')) return abort(404);
+
+            $resources = ExistingResource::search($request->input('query'))->get();
+
+            return $resources->map(fn($resource) => $resource->only(['code', 'name', 'description']));
+        })->name('resource');
+    });
+
+    Route::prefix('projects/suggest')->as('project.suggest.')->group(function () {
+        Route::post('nature', function (Request $request) {
+            $request->validate([
+                'value' => ['required', 'string', 'min:3', 'max:50'],
+            ]);
+
+            return \App\Models\Nature::suggest($request->input('value'));
+        })->name('nature');
+
+        Route::post('domain', function (Request $request) {
+            $request->validate([
+                'value' => ['required', 'string', 'min:3', 'max:50'],
+            ]);
+
+            return \App\Models\Domain::suggest($request->input('value'));
+        })->name('domain');
+    });
 
     Route::resource('projects', ProjectController::class)->only(["index", "store", "show"])->names('project');
-
     Route::post('projects/{project}/versions/duplicate/main/version', [ProjectVersionController::class, 'duplicate'])->name('project.version.duplicate');
     Route::post('projects/{project}/versions/{version}/sync', [ProjectVersionController::class, 'sync'])->name('project.version.sync');
     Route::post('projects/{project}/versions/{version}/accept', [ProjectVersionController::class, 'accept'])->name('project.version.accept');
     Route::post('projects/{project}/versions/{version}/reject', [ProjectVersionController::class, 'reject'])->name('project.version.reject');
     Route::resource('projects.versions', ProjectVersionController::class)->only(['create', 'store', 'edit', 'update'])->names('project.version');
 
-    Route::middleware('permission:access.boards')->group(function () {
+    Route::middleware('permission:boards.access')->group(function () {
         Route::post('/boards/{board}/comments', BoardPostComment::class)->name('board.comment.store');
         Route::post('/boards/{board}/accept', [BoardController::class, 'accept'])->name('board.accept');
         Route::post('/boards/{board}/reject', [BoardController::class, 'reject'])->name('board.reject');
         Route::resource('boards', BoardController::class)->only('index', 'show')->names('board');
     });
 
-    Route::prefix('/workspace')->as('workspace.')->middleware(['auth', 'permission:access.workspace', ShareDataWithWorkspace::class])->group(function () {
+    Route::prefix('/workspace')->as('workspace.')->middleware(['permission:workspace.access', ShareDataWithWorkspace::class])->group(function () {
         Route::get('/', MainController::class)->name('index');
         Route::get('/{project}', [WorkspaceController::class, 'project'])->name('project');
         Route::get('/{project}/kanban', [KanbanController::class, 'index'])->name('kanban');
@@ -159,7 +164,7 @@ Route::get('/test/project-insretion', function () {
     $projectService = new ProjectService();
 
 
-    $project = DB::transaction(function ( ) use ($data, $projectService) {
+    $project = DB::transaction(function () use ($data, $projectService) {
         $project = $projectService->init([
             'user_id' => data_get($data, 'members.0.id'),
             'division_id' => data_get($data, 'division'),
@@ -180,7 +185,6 @@ Route::get('/test/project-insretion', function () {
     });
 
     return $project;
-
 });
 
 require __DIR__ . DIRECTORY_SEPARATOR . "auth.php";
