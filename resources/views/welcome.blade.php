@@ -19,8 +19,11 @@
     <div class="sm:sticky top-0 w-full bg-white shadow dark:bg-gray-800 z-50">
         <x-header />
     </div>
+
     <x-hero />
+
     <x-contact />
+    
     <x-footer />
 </body>
 

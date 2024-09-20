@@ -1,4 +1,4 @@
-<section class=" dark:bg-gray-900">
+<section class="bg-white dark:bg-gray-900">
     <div class="container px-6 py-12 mx-auto">
         <div class="text-center ">
             <h1 class="mt-2 text-2xl font-semibold text-gray-800 md:text-3xl dark:text-white">Contactez nous</h1>
@@ -7,8 +7,8 @@
         <img class="object-contain w-full h-auto mt-10 rounded-lg" src="assets/img-3.jpg" />
 
         <div class="grid grid-cols-1 gap-12 mt-10 lg:grid-cols-3 sm:grid-cols-2 ">
-            <div class="p-4 rounded-lg bg-blue-50 md:p-6 dark:bg-gray-800">
-                <span class="inline-block p-3 text-blue-500 rounded-lg bg-blue-100/80 dark:bg-gray-700">
+            <div class="p-4 rounded-lg bg-primary-50 md:p-6 dark:bg-gray-800">
+                <span class="inline-block p-3 text-primary-500 font-medium rounded-lg bg-primary-100 dark:bg-gray-700">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                         stroke="currentColor" class="w-5 h-5">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -18,11 +18,11 @@
 
                 <h2 class="mt-4 text-base font-medium text-gray-800 dark:text-white">Email</h2>
                 <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Direction</p>
-                <p class="mt-2 text-sm text-blue-500 dark:text-blue-400">direction@crti.dz</p>
+                <p class="mt-2 text-sm text-primary-500 font-medium dark:text-blue-400">direction@crti.dz</p>
             </div>
 
-            <div class="p-4 rounded-lg bg-blue-50 md:p-6 dark:bg-gray-800">
-                <span class="inline-block p-3 text-blue-500 rounded-lg bg-blue-100/80 dark:bg-gray-700">
+            <div class="p-4 rounded-lg bg-primary-50 md:p-6 dark:bg-gray-800">
+                <span class="inline-block p-3 text-primary-500 font-medium rounded-lg bg-primary-100 dark:bg-gray-700">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                         stroke="currentColor" class="w-5 h-5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -33,12 +33,12 @@
 
                 <h2 class="mt-4 text-base font-medium text-gray-800 dark:text-white">Adresse</h2>
                 <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Unité de recherche cheraga</p>
-                <p class="mt-2 text-sm text-blue-500 dark:text-blue-400">BP 64, Route de Dely Brahim, Chéraga, Alger
+                <p class="mt-2 text-sm text-primary-500 font-medium dark:text-blue-400">BP 64, Route de Dely Brahim, Chéraga, Alger
                     16014</p>
             </div>
 
-            <div class="p-4 rounded-lg bg-blue-50 md:p-6 dark:bg-gray-800">
-                <span class="inline-block p-3 text-blue-500 rounded-lg bg-blue-100/80 dark:bg-gray-700">
+            <div class="p-4 rounded-lg bg-primary-50 md:p-6 dark:bg-gray-800">
+                <span class="inline-block p-3 text-primary-500 font-medium rounded-lg bg-primary-100 dark:bg-gray-700">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                         stroke="currentColor" class="w-5 h-5">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -48,7 +48,7 @@
 
                 <h2 class="mt-4 text-base font-medium text-gray-800 dark:text-white">Appelez nous</h2>
                 <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Tel/Fax</p>
-                <a href="tel:+213 23 14 14 47" class="mt-2 text-sm text-blue-500 dark:text-blue-400">+213 23 14 14
+                <a href="tel:+213 23 14 14 47" class="mt-2 text-sm text-primary-500 font-medium dark:text-blue-400">+213 23 14 14
                     47</a>
             </div>
         </div>

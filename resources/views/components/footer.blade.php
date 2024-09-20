@@ -1,39 +1,16 @@
-<footer class="bg-white dark:bg-gray-900">
+<footer class="bg-white dark:bg-gray-900 border-t">
     <div class="container px-6 py-12 mx-auto">
         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-y-10 lg:grid-cols-4">
             <div class="sm:col-span-2">
-                <h1 class="max-w-lg text-xl font-semibold tracking-tight text-gray-800 xl:text-2xl dark:text-white">
-                    Connectez-vous à votre compte</h1>
+                <iframe class="w-full"
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3196.520843805747!2d2.9605249770888706!3d36.75807077225917!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x128fb03b7a933895%3A0xf7092bf615e6e87a!2sResearch%20Center%20in%20Industrial%20Technologies%20CRTIDZ!5e0!3m2!1sen!2sdz!4v1726840558251!5m2!1sen!2sdz"
+                    style="border:0;" allowfullscreen="" loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade"></iframe>
 
-                <form id="auth-form"
-                    class="flex flex-col mx-auto mt-6 space-y-3 md:space-y-0 md:flex-row border border-l-4 border-l-primary-600 rounded-md shadow p-4 py-8">
-
-                    <label class="relative flex min-w-[240px] flex-1 items-center bg-white">
-                        <span class="sr-only">Email</span>
-                        <svg xmlns="http://www.w3.org/2000/svg"
-                            class="pointer-events-none absolute left-3 top-3 text-gray-950" width="24"
-                            height="24" viewBox="0 0 24 24" fill="none" foxified="">
-                            <path
-                                d="M8.828 14.722a.24.24 0 0 0 .144.048h6.066a.26.26 0 0 0 .144-.048l7.36-5.52a.25.25 0 0 0 .096-.192.22.22 0 0 0-.105-.192L12.825 2.11a1.438 1.438 0 0 0-1.648 0L1.458 8.809a.25.25 0 0 0-.096.192.21.21 0 0 0 .096.201l7.37 5.52Z"
-                                fill="currentColor" />
-                            <path
-                                d="M16.868 15.249a.268.268 0 0 0-.096.201.279.279 0 0 0 .105.192l3.191 2.108a.719.719 0 1 1-.795 1.188L15.2 16.226a.24.24 0 0 0-.134 0H8.933a.24.24 0 0 0-.134 0l-4.063 2.731a.723.723 0 0 1-.796-1.207l3.182-2.108a.23.23 0 0 0 .086-.192.24.24 0 0 0-.096-.201L.883 10.563a.22.22 0 0 0-.249 0 .23.23 0 0 0-.134.192v9.526a1.917 1.917 0 0 0 1.917 1.917h19.167a1.918 1.918 0 0 0 1.917-1.917v-9.516a.23.23 0 0 0-.134-.22.24.24 0 0 0-.249 0l-6.25 4.704Z"
-                                fill="currentColor" />
-                        </svg>
-
-                        <input type="text" name="username"
-                            class="w-full rounded-lg border-gray-100 bg-transparent px-12 py-3 text-gray-900 placeholder-gray-600 transition focus:border-gray-100 focus:bg-gray-100/50 focus:outline-none focus:ring-2 focus:ring-primary-600/80 focus:ring-offset-2"
-                            placeholder="Entrer votre email professionnel">
-                    </label>
-
-                    <x-primary-button type="submit" class="md:w-auto md:ml-4 focus:outline-none">
-                        Connexion
-                    </x-primary-button>
-                </form>
             </div>
 
-            <div>
-                <p class="font-semibold text-gray-800 dark:text-white">Structures de recherche</p>
+            <div class="sm:ml-10">
+                <p class="font-semibold text-gray-800 dark:text-white">Unités de recherche</p>
 
                 <div class="flex flex-col items-start mt-5 space-y-2">
                     <a href="https://crti.dz/" target="_blank"
@@ -55,9 +32,9 @@
                 <p class="font-semibold text-gray-800 dark:text-white">Réseaux sociaux</p>
 
                 <div class="flex flex-col items-start mt-5 space-y-2">
-                    <a href="#"
+                    <a href="https://facebook.com/CENTRECRTI"
                         class="flex gap-2 text-gray-600 transition-colors duration-300 dark:text-gray-300 dark:hover:text-blue-400 hover:underline hover:text-blue-500">
-                        <svg class="w-5 h-5 text-gray-800 dark:text-white" aria-hidden="true"
+                        <svg class="w-5 h-5 text-blue-600 dark:text-white" aria-hidden="true"
                             xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
                             viewBox="0 0 24 24">
                             <path fill-rule="evenodd"
@@ -66,9 +43,9 @@
                         </svg>
                         <span>Facebook</span>
                     </a>
-                    <a href="#" target="_blank"
+                    <a href="https://youtube.com/@CENTRECRTI" target="_blank"
                         class="flex gap-2 text-gray-600 transition-colors duration-300 dark:text-gray-300 dark:hover:text-blue-400 hover:underline hover:text-blue-500">
-                        <svg class="w-5 h-5 text-gray-800 dark:text-white" aria-hidden="true"
+                        <svg class="w-5 h-5 text-red-600 dark:text-white" aria-hidden="true"
                             xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
                             viewBox="0 0 24 24">
                             <path fill-rule="evenodd"
@@ -77,7 +54,7 @@
                         </svg>
                         <span>Youtube</span>
                     </a>
-                    <a href="#"
+                    <a href="https://x.com/CENTRECRTI"
                         class="flex gap-2 text-gray-600 transition-colors duration-300 dark:text-gray-300 dark:hover:text-blue-400 hover:underline hover:text-blue-500">
                         <svg class="w-5 h-5 text-gray-800 dark:text-white" aria-hidden="true"
                             xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
@@ -96,9 +73,11 @@
         <div class="flex flex-col items-center justify-between gap-2">
             <img class=" w-20" src="/assets/logo.png" alt="logo" />
             <p class="mt-4 text-sm text-gray-500 sm:mt-0 dark:text-gray-300 text-center">
-                Copyright 2024 © CRTI All Rights Reserved Research Center in Industrial Technologies - CRTI P.O.Box 64,
+                Copyright {{ now()->year === 2024 ? now()->year : '2024 - ' . now()->year }} © CRTI All Rights
+                Reserved Research Center in Industrial Technologies - CRTI P.O.Box 64,
                 Cheraga 16014 Algiers,
-                Algeria www.crti.dz
+                Algeria <br />
+                <a href="https://crti.dz" class="hover:text-blue-500 hover:underline">www.crti.dz</a>
             </p>
         </div>
     </div>
