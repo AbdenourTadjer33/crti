@@ -4,7 +4,6 @@ import Breadcrumb from "@/Components/common/breadcrumb";
 import CreateForm from "@/Features/Manage/User/CreateForm";
 import { Head } from "@inertiajs/react";
 import { Heading } from "@/Components/ui/heading";
-import { Text } from "@/Components/ui/paragraph";
 import { House } from "lucide-react";
 
 const breadcrumbs = [

@@ -21,6 +21,7 @@ class UserResource extends JsonResource
             'dob' => $this->dob,
             'sex' => $this->sex === "male" ? "Homme" : "Femme",
             'email' => $this->email,
+            'emailVerified' => $this->hasVerifiedEmail(),
             // 'canAccessApplication' => $this->hasPermissionTo('application.access'),
             // 'canAccessApplication' => $this->when(!is_null($this->canAccessApplication), fn () => (bool) $this->canAccessApplication),
             'createdAt' => $this->created_at,

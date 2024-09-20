@@ -5,6 +5,7 @@ import {
     Ban,
     ChevronDown,
     ClipboardCopy,
+    GitMerge,
     Key,
     LoaderCircle,
     MoreHorizontal,
@@ -33,6 +34,7 @@ import * as DropdownMenu from "@/Components/ui/dropdown-menu";
 import * as Tooltip from "@/Components/ui/tooltip";
 import * as Popover from "@/Components/ui/popover";
 import { Indicator } from "@/Components/ui/indicator";
+import { InputError } from "@/Components/ui/input-error";
 
 const columnHelper = createColumnHelper<User>();
 
@@ -62,10 +64,29 @@ export const columnDef = [
 
     columnHelper.accessor("email", {
         header: "Adresse e-mail",
+        cell: ({ getValue, row }) => (
+            <span className="flex items-center gap-2">
+                {getValue()}
+                <Tooltip.TooltipProvider>
+                    <Tooltip.Tooltip>
+                        <Tooltip.TooltipTrigger>
+                            <Indicator color={row.original.emailVerified} />
+                        </Tooltip.TooltipTrigger>
+                        <Tooltip.TooltipContent>
+                            {row.original.emailVerified
+                                ? "Adresse e-mail verifé"
+                                : "Adresse e-mail non verifé"}
+                        </Tooltip.TooltipContent>
+                    </Tooltip.Tooltip>
+                </Tooltip.TooltipProvider>
+            </span>
+        ),
     }),
 
     columnHelper.accessor("title", {
-        header: "titre",
+        header: "Titre professionnel",
+        cell: ({ getValue }) =>
+            getValue() || <span className="font-medium">Non definie</span>,
     }),
 
     columnHelper.accessor("sex", {
@@ -227,6 +248,7 @@ const Actions: React.FC<{ row: Row<User> }> = ({ row }) => {
                     </DropdownMenu.DropdownMenuItem>
                     <DropdownMenu.DropdownMenuSeparator />
                     <DropdownMenu.DropdownMenuItem onClick={openAffectation}>
+                        <GitMerge className="h-4 w-4 shrink-0 mr-2" />
                         Gérer les affectation
                     </DropdownMenu.DropdownMenuItem>
                     <DropdownMenu.DropdownMenuItem onClick={openAccess}>
@@ -339,7 +361,7 @@ const ManageAffectation: React.FC<DialogProps> = ({
         unitsDivision?: any[];
     }>().props;
 
-    const { data, setData, post, recentlySuccessful } = useForm({
+    const { data, setData, post, errors, recentlySuccessful } = useForm({
         divisions: [],
     });
 
@@ -399,7 +421,7 @@ const ManageAffectation: React.FC<DialogProps> = ({
                     <Command.CommandList
                         className={cn(
                             !search.length ? "hidden" : "",
-                            "bg-white shadow-lg absolute top-full left-20 right-20 z-10 max-h-40"
+                            "bg-white dark:bg-gray-600 shadow-lg absolute top-full left-20 right-20 z-10 max-h-40"
                         )}
                         autoFocus={false}
                     >
@@ -456,54 +478,59 @@ const ManageAffectation: React.FC<DialogProps> = ({
             <div className="max-h-80 min-h-60 overflow-auto divide-y-2">
                 {data.divisions.length
                     ? data.divisions.map((division, idx) => (
-                          <div
-                              key={idx}
-                              className="p-2 flex items-center justify-between"
-                          >
-                              <div>
-                                  <span>{division?.name}</span>{" "}
-                                  <span>-{division?.abbr}-</span>
-                              </div>
+                          <div key={idx} className="p-2">
+                              <div className=" flex items-center justify-between">
+                                  <div>
+                                      <span>{division?.name}</span>{" "}
+                                      <span>-{division?.abbr}-</span>
+                                  </div>
 
-                              <div className="flex items-center gap-2">
-                                  <Select.Select
-                                      value={division.grade}
-                                      onValueChange={(value) => {
-                                          setData((data) => {
-                                              data.divisions[idx].grade = value;
-                                              return { ...data };
-                                          });
-                                      }}
-                                  >
-                                      <Select.SelectTrigger className="w-full max-w-xs min-w-[20rem]">
-                                          <Select.SelectValue placeholder="Sélectionner un grade" />
-                                      </Select.SelectTrigger>
-                                      <Select.SelectContent>
-                                          {grades &&
-                                              grades.map((grade, idx) => (
-                                                  <Select.SelectItem
-                                                      key={idx}
-                                                      value={String(grade.id)}
-                                                  >
-                                                      {grade.name}
-                                                  </Select.SelectItem>
-                                              ))}
-                                      </Select.SelectContent>
-                                  </Select.Select>
-                                  <Button
-                                      type="button"
-                                      variant="destructive"
-                                      size="sm"
-                                      onClick={() => {
-                                          setData((data) => {
-                                              data.divisions.splice(idx, 1);
-                                              return { ...data };
-                                          });
-                                      }}
-                                  >
-                                      <X className="h-4 w-4 shrink-0" />
-                                  </Button>
+                                  <div className="flex items-center gap-2">
+                                      <Select.Select
+                                          value={division.grade}
+                                          onValueChange={(value) => {
+                                              setData((data) => {
+                                                  data.divisions[idx].grade =
+                                                      value;
+                                                  return { ...data };
+                                              });
+                                          }}
+                                      >
+                                          <Select.SelectTrigger className="w-full max-w-xs min-w-[20rem]">
+                                              <Select.SelectValue placeholder="Sélectionner un grade" />
+                                          </Select.SelectTrigger>
+                                          <Select.SelectContent>
+                                              {grades &&
+                                                  grades.map((grade, idx) => (
+                                                      <Select.SelectItem
+                                                          key={idx}
+                                                          value={String(
+                                                              grade.id
+                                                          )}
+                                                      >
+                                                          {grade.name}
+                                                      </Select.SelectItem>
+                                                  ))}
+                                          </Select.SelectContent>
+                                      </Select.Select>
+                                      <Button
+                                          type="button"
+                                          variant="destructive"
+                                          size="sm"
+                                          onClick={() => {
+                                              setData((data) => {
+                                                  data.divisions.splice(idx, 1);
+                                                  return { ...data };
+                                              });
+                                          }}
+                                      >
+                                          <X className="h-4 w-4 shrink-0" />
+                                      </Button>
+                                  </div>
                               </div>
+                              <InputError
+                                  message={errors[`divisions.${idx}.grade`]}
+                              />
                           </div>
                       ))
                     : userDivisions?.length == 0 && (

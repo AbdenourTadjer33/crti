@@ -39,8 +39,6 @@ class UserController extends Controller
             return ManageUserResource::collection($users);
         };
 
-        // return $usersFn();
-
         $userDivisionsFn = function () use ($request) {
             $user = User::query()->where('uuid', $request->input('uuid', ''))->first();
 
@@ -221,9 +219,6 @@ class UserController extends Controller
             $user->divisions()->sync($pivot);
         });
 
-        return back()->with('alert', [
-            'status' => 'success',
-            'message' => 'Divisions associées mis à jour avec succés',
-        ]);
+        return back();
     }
 }

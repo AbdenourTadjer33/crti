@@ -22,7 +22,7 @@ import { Button } from "@/Components/ui/button";
 import DataTable from "@/Components/common/data-table";
 import { TableWrapper } from "@/Components/ui/table";
 import { columnDef } from "./columns";
-import { SlidersHorizontal } from "lucide-react";
+import { SlidersHorizontal, X } from "lucide-react";
 import { useLocalStorage } from "@/Hooks/use-local-storage";
 import { router } from "@inertiajs/react";
 import { format } from "date-fns";
@@ -30,6 +30,7 @@ import { Heading } from "@/Components/ui/heading";
 import { useDebounce } from "@/Hooks/use-debounce";
 import { useUpdateEffect } from "@/Hooks/use-update-effect";
 import SearchInput from "@/Components/common/search-input";
+import { Indicator } from "@/Components/ui/indicator";
 
 const Table: React.FC<{ users: PaginationType<User>; newUsers: User[] }> = ({
     users,
@@ -38,7 +39,9 @@ const Table: React.FC<{ users: PaginationType<User>; newUsers: User[] }> = ({
     const data = React.useMemo(() => {
         return [...users.data];
     }, [users.data]);
-    const [search, setSearch] = React.useState("");
+    const [search, setSearch] = React.useState(() => {
+        return new URLSearchParams(location.search).get("query") || "";
+    });
     const columns = React.useMemo(() => columnDef, []);
     const [columnVisibility, setColumnVisibility] = useLocalStorage(
         "manage-user-table-column-visibility",
@@ -97,24 +100,40 @@ const Table: React.FC<{ users: PaginationType<User>; newUsers: User[] }> = ({
         <TableWrapper>
             {!!newUsers.length && (
                 <div className="p-4 space-y-4">
-                    <Heading>Nouveaux utilisateurs</Heading>
+                    <Heading level={4}>Nouveaux utilisateurs</Heading>
 
                     {newUsers.map((user, idx) => (
                         <div
                             key={idx}
-                            className="p-4 bg-gray-100 border rounded-md shadow"
+                            className="p-4 bg-gray-100 dark:bg-gray-700 border rounded-md shadow"
                         >
                             <div className="space-y-1.5">
                                 <p>
                                     Nom prénom: <strong>{user.name}</strong>
                                 </p>
-                                <p>
+                                <p className="inline-flex items-center gap-1">
                                     Adresse e-mail:{" "}
                                     <strong>{user.email}</strong>
+                                    <TooltipProvider>
+                                        <Tooltip>
+                                            <TooltipTrigger>
+                                                <Indicator
+                                                    color={user.emailVerified}
+                                                />
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                {user.emailVerified
+                                                    ? "Adresse e-mail verifé"
+                                                    : "Adresse e-mail non verifé"}
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </TooltipProvider>
                                 </p>
                                 <p>
                                     Date de naissance:{" "}
-                                    <strong>{user.dob}</strong>
+                                    <strong>
+                                        {format(user.dob!, "dd-MM-yyy")}
+                                    </strong>
                                 </p>
                                 <p>
                                     Sexe: <strong>{user.sex}</strong>
@@ -153,11 +172,26 @@ const Table: React.FC<{ users: PaginationType<User>; newUsers: User[] }> = ({
             )}
 
             <div className="p-4 flex justify-between gap-2">
-                <SearchInput
-                    inputRef={searchRef}
-                    value={search}
-                    onValueChange={setSearch}
-                />
+                <div className="flex items-center gap-2">
+                    <SearchInput
+                        inputRef={searchRef}
+                        value={search}
+                        onValueChange={setSearch}
+                    />
+
+                    {search && (
+                        <Button
+                            variant="ghost"
+                            onClick={() => setSearch("")}
+                            className="justify-center gap-0"
+                        >
+                            <X className="h-4 w-4 md:mr-2 shrink-0" />
+                            <span className="hidden md:block">
+                                Réinitialiser
+                            </span>
+                        </Button>
+                    )}
+                </div>
 
                 <DropdownMenu>
                     <TooltipProvider>

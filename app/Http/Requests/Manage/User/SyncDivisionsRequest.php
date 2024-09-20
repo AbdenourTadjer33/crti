@@ -28,4 +28,11 @@ class SyncDivisionsRequest extends FormRequest
             'divisions.*.grade' => ['required'],
         ];
     }
+
+    public function attributes()
+    {
+        return [
+            'divisions.*.grade' => 'grade',
+        ];
+    }
 }

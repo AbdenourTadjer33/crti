@@ -30,7 +30,9 @@ const Index: React.FC<{ users: Pagination<User>, newUsers:any }> = ({ users, new
                         </Heading>
 
                         <Text>
-                            Votre modèle de tableau de bord de gestion d'accées.
+                            Voici la liste des utilisateurs. Vous pouvez
+                            ajouter, modifier ou supprimer un utilisateur, gérer
+                            ses permissions d'accès ainsi que leur affectation.{" "}
                         </Text>
                     </div>
 

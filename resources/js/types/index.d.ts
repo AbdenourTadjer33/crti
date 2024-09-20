@@ -52,7 +52,7 @@ export type User = {
     name: string;
     email: string;
     title: string;
-    isEmailVerified: boolean;
+    emailVerified: boolean;
     status: boolean;
     dob?: string;
     sex?: "male" | "female";

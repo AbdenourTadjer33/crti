@@ -154,7 +154,6 @@ const CreateForm: React.FC<{
                 <div className="space-y-1 sm:col-span-2 col-span-3">
                     <Label required>Adresse e-mail</Label>
                     <Input
-                        placeholder="@crti.dz"
                         value={data.email}
                         onChange={(e) => {
                             setData("email", e.target.value);
