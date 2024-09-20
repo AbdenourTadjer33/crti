@@ -19,7 +19,7 @@ class AuthenticateSessionController extends Controller
     {
         $request->authenticate();
         $request->session()->regenerate();
-        return redirect()->intended(route('app'));
+        return response('', 409)->header('X-Inertia-Location', route('app'));
     }
 
     public function destroy(Request $request)
@@ -27,6 +27,6 @@ class AuthenticateSessionController extends Controller
         Auth::guard('web')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect(route('login.create'));
+        return response('', 409)->header('X-Inertia-Location', route('login.create'));
     }
 }
