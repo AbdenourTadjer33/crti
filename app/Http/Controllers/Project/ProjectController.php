@@ -78,7 +78,7 @@ class ProjectController extends Controller implements HasMiddleware
                 }
 
                 // Check projects in the user's divisions
-                if ($this->user->hasPermissionTo('projects.access-related-divisions')) {
+                if ($this->user->hasPermissionTo('projects.read-related-divisions')) {
                     $query->orWhereIn('division_id', $this->user->divisions()->pluck('id'));
                 }
             });
@@ -196,7 +196,7 @@ class ProjectController extends Controller implements HasMiddleware
         };
 
         return Inertia::render('Project/Show', [
-            'canCreateNewVersion' => fn() => $project->canHaveNewVersions() && $this->user->can('suggest.versions'),
+            'canCreateNewVersion' => fn() => $project->canHaveNewVersions() && $this->user->hasAnyPermission('project.suggest', 'project.suggest-related', 'project.suggest-related-divisions', 'project.suggest-related-members'),
             'versions' => $versionsFn,
             'previousVersion' => Inertia::lazy($previousVersionFn),
         ]);
