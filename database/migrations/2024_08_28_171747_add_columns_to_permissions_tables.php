@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('permissions', function (Blueprint $table) {
-            $table->boolean("default")->after('description')->default(false);
+            $table->boolean("default")->after('name')->default(false);
         });
 
         Schema::table('roles', function (Blueprint $table) {
