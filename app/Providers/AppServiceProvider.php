@@ -21,6 +21,10 @@ class AppServiceProvider extends ServiceProvider
             return new \App\Services\Project\Project;
         });
 
+        $this->app->singleton(\App\Services\Permission\PermissionService::class, function () {
+            return new \App\Services\Permission\PermissionService(\Illuminate\Support\Facades\Storage::json('data/permission/params.json'));
+        });
+
         if ($this->app->environment('local')) {
             $this->app->register(\Laravel\Telescope\TelescopeServiceProvider::class);
             $this->app->register(TelescopeServiceProvider::class);

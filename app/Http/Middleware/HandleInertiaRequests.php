@@ -98,7 +98,6 @@ class HandleInertiaRequests extends Middleware
             'alert' => fn() => $request->session()->get('alert'),
             'info' => fn() => $request->session()->get('info'),
             'pendingActions' => Inertia::lazy($pendingActionsFn),
-            'permissions' => $request->user() ? $permissionsFn : null,
         ];
     }
 }
