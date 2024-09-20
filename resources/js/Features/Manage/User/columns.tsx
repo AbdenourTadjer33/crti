@@ -66,7 +66,6 @@ export const columnDef = [
         header: "Adresse e-mail",
         cell: ({ getValue, row }) => (
             <span className="flex items-center gap-2">
-                {getValue()}
                 <Tooltip.TooltipProvider>
                     <Tooltip.Tooltip>
                         <Tooltip.TooltipTrigger>
@@ -79,6 +78,7 @@ export const columnDef = [
                         </Tooltip.TooltipContent>
                     </Tooltip.Tooltip>
                 </Tooltip.TooltipProvider>
+                {getValue()}
             </span>
         ),
     }),
@@ -152,7 +152,7 @@ export const columnDef = [
         header: "Dernière activité",
         cell: ({ getValue }) => {
             return (
-                getValue() && (
+                getValue() ? (
                     <Tooltip.TooltipProvider>
                         <Tooltip.Tooltip>
                             <Tooltip.TooltipTrigger>
@@ -170,7 +170,7 @@ export const columnDef = [
                             </Tooltip.TooltipContent>
                         </Tooltip.Tooltip>
                     </Tooltip.TooltipProvider>
-                )
+                ) : <span className="font-medium">Aucune activité</span>
             );
         },
     }),
