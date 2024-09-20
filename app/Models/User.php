@@ -138,7 +138,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function scopeNewUsers(Builder $query)
     {
-        return $query->where('status', false);
+        $query->where('status', false);
     }
 
     public function isActive()
