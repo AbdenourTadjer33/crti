@@ -23,14 +23,13 @@ const Page: React.FC<any> = ({ projects }) => (
             </Heading>
 
             <Text className="text-sm sm:text-base">
-                The Workspace is a dedicated area for project leaders and
-                members to collaborate on active projects. Here, users can
-                seamlessly manage and track their projects by selecting from a
-                list of projects they are involved in. Whether you're overseeing
-                the progress as a project leader or contributing as a team
-                member, the Workspace provides you with the tools and
-                information you need to stay updated and engaged with your
-                projects.
+            L'espace de travail est dédié aux chefs de projet et aux membres
+            d'équipe pour collaborer sur des projets en cours. Ici, les utilisateurs
+            peuvent gérer et suivre facilement leurs projets en sélectionnant parmi une
+            liste de projets auxquels ils participent. Que vous supervisiez l'avancement
+            en tant que chef de projet ou que vous contribuez en tant que membre de l'équipe,
+            l'espace de travail vous offre les outils et les informations nécessaires pour rester
+            à jour et engagé dans vos projets.
             </Text>
         </div>
 

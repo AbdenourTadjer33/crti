@@ -12,7 +12,7 @@ class DuplicateRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return Gate::check('suggest.versions');   
+        return true;
     }
 
     /**
