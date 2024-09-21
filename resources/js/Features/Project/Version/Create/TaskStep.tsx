@@ -55,7 +55,7 @@ const TaskStep = ({
 
     const addNewTask = () => {
         if (!task.trim().length) {
-            alert("add task name");
+            alert("Ajoutez un nom à la tache");
             return;
         }
 

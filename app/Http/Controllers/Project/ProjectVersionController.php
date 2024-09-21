@@ -220,7 +220,7 @@ class ProjectVersionController extends Controller implements HasMiddleware
 
     public function duplicate(DuplicateRequest $request, Project $project)
     {
-        if (!$project->canHaveNewVersions() && !$this->user->can('suggest.versions')) {
+        if (!$project->canHaveNewVersions() && !$this->user->hasAnyPermission('projects.suggest', 'projects.suggest-related', 'projects.suggest-related-divisions', 'projects.suggest-related-members')) {
             return abort(403);
         }
 

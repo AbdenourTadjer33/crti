@@ -49,7 +49,7 @@ class SuggestedVersionController extends Controller
 
     public function show(Request $request, Project $project)
     {
-        if ($project->id !== $this->user->id || !$project->canHaveNewVersions() || !in_array($request->route('version'), $project->getVersionMarkedAs('review'))) return abort(403);
+        if ($project->user_id !== $this->user->id || !$project->canHaveNewVersions() || !in_array($request->route('version'), $project->getVersionMarkedAs('review'))) return abort(403);
 
         $versionFn = function () use ($request, $project) {
             $version = $project->versions()->where('id', $request->route('version'))->with('user:id,uuid,first_name,last_name,email')->first();

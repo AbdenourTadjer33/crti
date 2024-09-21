@@ -286,7 +286,7 @@ const ResourceCrti = () => {
 
     const addNewResource = () => {
         if (!nature.trim().length) {
-            alert("you must add the resource name!");
+            alert("Vous devez ajouter le nom de la ressource!");
             return;
         }
         const pattern = /^([a-zA-Z0-9-# ]+)\s*\.\s*([0-9]+(?:\.[0-9]+)?)$/;
@@ -477,7 +477,7 @@ const ResourcePartner = () => {
 
     const addNewResource = () => {
         if (!nature.trim().length) {
-            alert("you must add the resource name!");
+            alert("Vous devez ajouter le nom de la ressource!");
             return;
         }
         const pattern = /^([a-zA-Z0-9-# ]+)\s*\.\s*([0-9]+(?:\.[0-9]+)?)$/;
