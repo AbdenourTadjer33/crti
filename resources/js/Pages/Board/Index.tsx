@@ -1,3 +1,4 @@
+import React from "react";
 import AuthLayout from "@/Layouts/AuthLayout";
 import { Head } from "@inertiajs/react";
 import { Heading } from "@/Components/ui/heading";
@@ -6,7 +7,6 @@ import { Board, Pagination } from "@/types";
 import Table from "@/Features/Board/Table";
 import { House, Info } from "lucide-react";
 import Breadcrumb from "@/Components/common/breadcrumb";
-import React from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/Components/ui/alert";
 
 interface BoardsProps {

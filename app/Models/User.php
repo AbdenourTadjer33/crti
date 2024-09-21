@@ -131,6 +131,13 @@ class User extends Authenticatable implements MustVerifyEmail
         return "uuid";
     }
 
+    public function notifyVia(): array
+    {
+        return $this->last_activity && $this->last_activity->diffInHours(now()) < 48
+            ? ['database', 'mail']
+            : ['mail', 'database'];
+    }
+
     public function scopeActive(Builder $query)
     {
         $query->where('status', true);

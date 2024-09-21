@@ -23,7 +23,6 @@ import * as Select from "@/Components/ui/select";
 import { Calendar } from "@/Components/ui/calendar";
 import { format, formatDistanceToNow, isBefore, startOfToday } from "date-fns";
 import { searchProjects } from "@/Services/api/projects";
-import { Badge } from "@/Components/ui/badge";
 import * as Tooltip from "@/Components/ui/tooltip";
 import { fr } from "date-fns/locale";
 import { Project } from "@/types/project";
@@ -157,7 +156,7 @@ const CreateForm: React.FC = () => {
                         onSelect={handleDateRangeChange}
                         className="flex p-0"
                         classNames={{
-                            months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0 border rounded-md shadow p-4",
+                            months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0 border dark:border-gray-600 rounded-md shadow p-4",
                         }}
                         disabled={{ before: new Date() }}
                     />
@@ -410,7 +409,7 @@ export const SearchProjects: React.FC<any> = ({ selectProject }) => {
                 <Card.CardContent className="space-y-2 h-full md:max-h-[30rem] max-h-[20rem] overflow-y-auto snap-mandatory snap-y scrollbar-thumb-gray-400 scrollbar-track-gray-200 scrollbar-thin">
                     {isSuccess ? (
                         projects.length ? (
-                            <div className="divide-y">
+                            <div className="divide-y *:bg-gray-50 *:dark:bg-gray-700 *:p-4 *:rounded">
                                 {projects?.map((project, idx) => (
                                     <ProjectCard
                                         key={idx}
@@ -451,9 +450,9 @@ export const ProjectCard = ({
             <div className="flex items-center justify-between gap-4">
                 <Text className="sm:text-sm text-xs inline-flex items-center">
                     <span className="font-medium">{project.unit.abbr}</span>
-                    <GitMerge className="h-4 w-4 mx-1.5 text-gray-800" />
+                    <GitMerge className="h-4 w-4 mx-1.5 text-gray-800 dark:text-gray-100" />
                     <span className="font-medium">{project.division.abbr}</span>
-                    <Dot className="h-6 w-6 text-gray-800" />
+                    <Dot className="h-6 w-6 text-gray-800 dark:text-gray-100" />
                     <span className="font-medium">{project.code}</span>
                 </Text>
 

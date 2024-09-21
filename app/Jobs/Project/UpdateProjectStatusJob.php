@@ -34,8 +34,5 @@ class UpdateProjectStatusJob implements ShouldQueue
     {
         $project = Project::with('user:id,uuid,first_name,last_name,email,last_activity')->where('id', $this->projectId)->first();
         $project->update(['status' => $this->status]);
-
-        Notification::send($project->user, new ProjectStatusUpdated($project));
-
     }
 }

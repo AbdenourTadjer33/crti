@@ -28,6 +28,8 @@ const AddCommentForm: React.FC<AddCommentProps> = ({ board }) => {
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
+        if (!confirm("Veuillez confirmez votre action!")) return;
+
         post(route("board.comment.store", { board: board.code }), {
             onSuccess: () => {
                 setData("comment", "");
@@ -64,11 +66,15 @@ const AddCommentForm: React.FC<AddCommentProps> = ({ board }) => {
                     type="single"
                     value={data.isFavorable}
                     onValueChange={(value) => setData("isFavorable", value)}
-                    className="text-gray-600 hover:text-gray-800"
+                    className=""
                 >
                     <TooltipProvider>
                         <Tooltip>
-                            <ToggleGroupItem value="1" asChild>
+                            <ToggleGroupItem
+                                value="1"
+                                asChild
+                                className="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700 dark:data-[state=on]:bg-gray-700"
+                            >
                                 <TooltipTrigger>
                                     <ThumbsUp className="h-6 w-6" />
                                 </TooltipTrigger>
@@ -78,7 +84,11 @@ const AddCommentForm: React.FC<AddCommentProps> = ({ board }) => {
                     </TooltipProvider>
                     <TooltipProvider>
                         <Tooltip>
-                            <ToggleGroupItem value="0" asChild>
+                            <ToggleGroupItem
+                                value="0"
+                                asChild
+                                className="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700 dark:data-[state=on]:bg-gray-700"
+                            >
                                 <TooltipTrigger>
                                     <ThumbsDown className="h-6 w-6" />
                                 </TooltipTrigger>

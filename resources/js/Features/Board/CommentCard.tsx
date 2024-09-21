@@ -22,7 +22,7 @@ const CommentCard: React.FC<CommentCardProps> = ({ user, isPresident }) => {
                         </p>
                         {isPresident && <strong>(Président)</strong>}
                     </div>
-                    <p className="text-sm text-gray-600">{user.email}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-200">{user.email}</p>
                 </div>
                 <div className="space-y-1">
                     <Text className="flex items-center gap-2 text-gray-800 font-medium">

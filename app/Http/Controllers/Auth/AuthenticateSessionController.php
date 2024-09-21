@@ -27,6 +27,11 @@ class AuthenticateSessionController extends Controller
         Auth::guard('web')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return response('', 409)->header('X-Inertia-Location', route('login.create'));
+
+        if ($request->inertia()) {
+            return redirect(route('login.create'));
+        }
+        return redirect('/');
+        // return response('', 409)->header('X-Inertia-Location', route('login.create'));
     }
 }

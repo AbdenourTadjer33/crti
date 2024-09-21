@@ -33,8 +33,8 @@ class StoreRequest extends FormRequest
 
             'president' => ['required', Rule::exists('users', 'uuid')],
 
-            'members' => ['nullable', 'array'],
-            'members.*' => ['nullable', 'array'],
+            'members' => ['required', 'array'],
+            'members.*' => ['required', 'array'],
             'members.*.uuid' => ['required', 'string', Rule::exists('users', 'uuid')],
         ];
     }

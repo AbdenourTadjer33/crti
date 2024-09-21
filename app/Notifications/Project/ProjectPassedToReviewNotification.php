@@ -2,13 +2,13 @@
 
 namespace App\Notifications\Project;
 
-use App\Models\Project;
 use App\Models\User;
+use App\Models\Project;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\MailMessage;
 
-class ProjectAcceptedNotification extends Notification
+class ProjectPassedToReviewNotification extends Notification
 {
     use Queueable;
 
@@ -16,7 +16,7 @@ class ProjectAcceptedNotification extends Notification
      * Create a new notification instance.
      */
     public function __construct(
-        protected Project $project
+        public Project $project
     ) {}
 
     /**
@@ -34,9 +34,9 @@ class ProjectAcceptedNotification extends Notification
      */
     public function toMail(User $notifiable): MailMessage
     {
-        return (new MailMessage)->markdown('mail/project-accepted', [
-            'project' => $this->project,
+        return (new MailMessage)->markdown('mail.project-passed-to-review', [
             'user' => $notifiable,
+            'project' => $this->project,
         ]);
     }
 
@@ -45,15 +45,15 @@ class ProjectAcceptedNotification extends Notification
      *
      * @return array<string, mixed>
      */
-    public function toArray(object $notifiable): array
+    public function toArray(User $notifiable): array
     {
         return [
-            'title' => __("Projet accepté"),
-            'description' => $notifiable->id === $this->project->user_id ? __("Votre projet {$this->project->name} est accepté.")  : __("Le projet {$this->project->name} est accepté "),
+            'title' => 'Projet passé a l\'examen',
+            'message' => 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Veritatis officiis, ducimus impedit eligendi minus, veniam architecto fugiat nulla molestiae quasi et, maiores ipsa dolores accusamus! Consequuntur, laboriosam ipsam. Porro, hic!',
             'project' => [
                 'code' => $this->project->code,
                 'name' => $this->project->name,
-            ]
+            ],
         ];
     }
 

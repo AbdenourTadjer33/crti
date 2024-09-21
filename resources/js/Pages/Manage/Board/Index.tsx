@@ -14,7 +14,7 @@ const breadcrumbs = [
     { href: route("manage.index"), label: "Centres d'administration" },
     { label: "Gestion des conseils scientifique" },
 ];
-
+    
 const Index: React.FC<{ boards: Pagination<Board> }> = ({ boards }) => {
     return (
         <div className="space-y-4">

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Manage;
 
 use App\Enums\ProjectStatus;
+use App\Events\BoardComming;
+use App\Events\ProjectPassToReview;
 use App\Models\User;
 use Inertia\Inertia;
 use App\Models\Board;
@@ -15,7 +17,6 @@ use App\Http\Requests\Manage\Board\UpdateRequest;
 use App\Http\Resources\Manage\Board\BoardOnEditResource;
 use App\Jobs\Project\UpdateProjectStatusJob;
 
-// need permission
 class BoardController extends Controller
 {
     /**
@@ -67,6 +68,9 @@ class BoardController extends Controller
             UpdateProjectStatusJob::dispatch($board->project_id, ProjectStatus::review->name)
                 ->delay(now()->diffInSeconds($board->judgment_start_date))
                 ->afterCommit();
+
+            ProjectPassToReview::dispatch($board->project_id, now()->diffInSeconds($board->judgment_start_date));
+            BoardComming::dispatch($board->id, now()->diffInSeconds($board->judgment_start_date->subDay()));
 
             return $board;
         });

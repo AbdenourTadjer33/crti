@@ -28,7 +28,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({
             <Card.CardHeader className="sm:p-6 p-4">
                 <Text className="text-sm inline-flex items-center">
                     <span className="font-medium">{project.unit.abbr}</span>
-                    <GitMerge className="h-4 w-4 mx-1.5 text-gray-800" />
+                    <GitMerge className="h-4 w-4 mx-1.5 text-gray-800 dark:text-gray-100" />
                     <span className="font-medium">
                         <span className="font-medium">
                             <span className="block sm:hidden">
@@ -39,7 +39,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({
                             </span>
                         </span>
                     </span>
-                    <Dot className="h-6 w-6 text-gray-800" />
+                    <Dot className="h-6 w-6 text-gray-800 dark:text-gray-100" />
                     <span className="font-medium">{project.code}</span>
                 </Text>
                 <div className="flex md:flex-row flex-col md:items-center md:justify-between md:gap-4 gap-2">
@@ -96,7 +96,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({
                 <div className="space-y-2">
                     <Heading level={6}>Chronologie</Heading>
 
-                    <div className="text-gray-600">
+                    <div className="text-gray-600 dark:text-gray-50">
                         {`Du ${format(
                             project.timeline.from,
                             "dd MMMM yyy"
@@ -132,7 +132,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({
                                                     </span>
                                                 )}
                                             </p>
-                                            <p className="text-sm text-gray-600">
+                                            <p className="text-sm text-gray-600 dark:text-gray-300">
                                                 {member.email}
                                             </p>
                                         </div>

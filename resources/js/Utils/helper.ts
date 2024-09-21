@@ -4,7 +4,7 @@ function capitalize(word: string) {
 }
 
 function getInitials(name: string) {
-    return name.split(' ').map(word => word[0]).join('').toUpperCase();
+    return name.split(' ').map(word => word[0]).slice(0, 3).join('').toUpperCase();
 }
 
 function currencyFormat(number: any) {

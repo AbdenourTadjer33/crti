@@ -94,7 +94,7 @@ const Show: React.FC<ProjectShowProps> = ({ board, project }) => {
                 </div>
             </div>
 
-            <Card.Card className="bg-white p-4">
+            <Card.Card className="p-4">
                 <Card.CardTitle className="text-xl">
                     Informations sur le conseil
                 </Card.CardTitle>
@@ -212,7 +212,7 @@ const Show: React.FC<ProjectShowProps> = ({ board, project }) => {
                                 <div className="flex items-center gap-4 min-w-[30rem] max-w-lg mx-auto mt-auto">
                                     <Button
                                         variant="secondary"
-                                        className="w-full"
+                                        className="w-full dark:bg-gray-700/75 hover:dark:bg-gray-700"
                                         onClick={() => {
                                             if (
                                                 !confirm(
@@ -275,7 +275,7 @@ const Show: React.FC<ProjectShowProps> = ({ board, project }) => {
                 <ResizablePanel className="lg:max-w-lg max-w-md">
                     <Card.Card className="bg-white h-[55rem] w-full flex flex-col items-stretch gap-2">
                         {!!usersWithComments.length ? (
-                            <div className="overflow-y-auto divide-y">
+                            <div className="overflow-y-auto divide-y dark:divide-gray-600">
                                 {board.decision !== undefined && (
                                     <div className="p-4">
                                         <div
@@ -336,7 +336,7 @@ const Show: React.FC<ProjectShowProps> = ({ board, project }) => {
                         )}
 
                         {canComment && (
-                            <div className="mt-auto border-t">
+                            <div className="mt-auto border-t dark:border-gray-600">
                                 <AddCommentForm board={board} />
                             </div>
                         )}

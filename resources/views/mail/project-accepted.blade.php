@@ -1,10 +1,11 @@
 <x-mail::message>
-# Introduction
+# Le projet {{ $project->name }} est accepté !
 
-The body of your message.
+{{ $user->id === $project->user_id ? __("Votre projet {$this->project->name} est accepté.")  : __("Le projet {$this->project->name} est accepté ") }}
+
 
 <x-mail::button :url="''">
-Button Text
+Voir
 </x-mail::button>
 
 Thanks,<br>

@@ -1,14 +1,16 @@
 <?php
 
-namespace App\Notifications\Project;
+namespace App\Notifications;
 
-use App\Models\Project;
 use App\Models\User;
+use App\Models\Board;
+use App\Models\Project;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 
-class ProjectAcceptedNotification extends Notification
+class BoardCommingNotification extends Notification
 {
     use Queueable;
 
@@ -16,7 +18,8 @@ class ProjectAcceptedNotification extends Notification
      * Create a new notification instance.
      */
     public function __construct(
-        protected Project $project
+        public Board $board,
+        public Project $project
     ) {}
 
     /**
@@ -34,10 +37,7 @@ class ProjectAcceptedNotification extends Notification
      */
     public function toMail(User $notifiable): MailMessage
     {
-        return (new MailMessage)->markdown('mail/project-accepted', [
-            'project' => $this->project,
-            'user' => $notifiable,
-        ]);
+        return (new MailMessage)->markdown('mail.board-comming');
     }
 
     /**
@@ -45,15 +45,15 @@ class ProjectAcceptedNotification extends Notification
      *
      * @return array<string, mixed>
      */
-    public function toArray(object $notifiable): array
+    public function toArray(User $notifiable): array
     {
         return [
-            'title' => __("Projet accepté"),
-            'description' => $notifiable->id === $this->project->user_id ? __("Votre projet {$this->project->name} est accepté.")  : __("Le projet {$this->project->name} est accepté "),
+            'title' => "Vous avez 1 consiels à venir",
+            'description' => fake()->text(),
             'project' => [
                 'code' => $this->project->code,
-                'name' => $this->project->name,
-            ]
+                'name' => $this->project->name
+            ],
         ];
     }
 
@@ -62,6 +62,6 @@ class ProjectAcceptedNotification extends Notification
      */
     public function shouldSend(User $notifiable): bool
     {
-        return $notifiable->hasPermissionTo('application.access');
+        return $notifiable->hasAllPermissions('application.access', 'boards.access');
     }
 }
